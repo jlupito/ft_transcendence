@@ -1,0 +1,16 @@
+Architecture du projet en Docker :
+
+Transcendence/
+├── Makefile
+└── srcs/
+    ├── docker-compose.yml
+    ├── backend/
+    │   ├── Dockerfile
+    │   └── ...
+    ├── frontend/
+    │   ├── Dockerfile
+    │   └── ...
+    └── database/
+        ├── Dockerfile
+        ├── init.sql
+        └── ...
