@@ -1,23 +1,15 @@
-all: build up
+FILE=./docker-compose.yml
 
-build:
-	docker-compose -f ./srcs/docker-compose.yml build
+all : build
 
-up:
-	docker-compose -f ./srcs/docker-compose.yml up -d
+build :
+	docker-compose -f $(FILE) build
+	docker-compose -f $(FILE) up -d
 
-logs:
-	docker-compose -f ./srcs/docker-compose.yml logs
+clean :
+	docker-compose -f $(FILE) down
 
-down:
-	docker-compose -f ./srcs/docker-compose.yml down
+fclean : clean
+	docker system prune -af
 
-clean:
-	docker-compose -f ./srcs/docker-compose.yml down -v
-
-fclean: clean
-	@docker system prune -af
-
-re: fclean all
-
-.PHONY: all build up logs down clean re
+re : fclean build
