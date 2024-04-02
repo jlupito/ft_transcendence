@@ -55,7 +55,7 @@
 				<div class="modal-body">
 					<ul>
 						{% for friend in friends %}
-							<li>{{ friend }}</li>
+								<li>{{ friend }}</li>
 						{% endfor %}
 					</ul>
 				</div>
@@ -126,8 +126,13 @@
 				</div>
 				<div class="modal-body">
 					<ul>
-						{% for invite in pending_invites %}
+						{% for invite in invites %}
 							<li>{{ invite }}</li>
+							<form action="#" method="POST">
+								{% csrf_token %}
+								<input type="hidden" name="invite" value="{{ invite }}">
+								<button type="submit" class="btn btn-primary">Accept</button>
+							</form>
 						{% endfor %}
 					</ul>
 				</div>
