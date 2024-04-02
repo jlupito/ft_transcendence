@@ -63,6 +63,7 @@
 					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
 				</div>
 			</div>
+
 		</div>
 	</div>
 
@@ -76,8 +77,8 @@
 				<div class="modal-body">
 					<h3>Match History</h3>
 					<ul>
-						{% for match in match_history %}
-							<li>{{ match }}</li>
+						{% for match in matches %}
+							<li> {{ match }} </li>
 						{% endfor %}
 					</ul>
 				</div>
