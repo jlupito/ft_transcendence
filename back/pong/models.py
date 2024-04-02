@@ -6,7 +6,7 @@ class UserProfile(models.Model):
     elo = models.IntegerField(default=1000)
     avatar = models.ImageField(upload_to='avatars/', default='avatars/default.png')
     def __str__(self):
-        return self.user.username
+        return self.user.first_name
 
 class Match(models.Model):
     player1 = models.ForeignKey(User, on_delete=models.CASCADE, related_name='player1')

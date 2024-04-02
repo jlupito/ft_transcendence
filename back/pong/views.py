@@ -5,16 +5,22 @@ from django.contrib.auth import login, logout
 from .models import UserProfile, Match, Friend, User
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.cache import never_cache
+from django.core.validators import FileExtensionValidator
+from django.contrib import messages
+from django.core.exceptions import ValidationError
 import requests
 import os
 
 def home(request):
 	context = {}
 	if (request.user.is_authenticated):
+		avatar_url = UserProfile.objects.get(user=request.user).avatar.url
+		print (avatar_url)
 		matches = match_history(request.user)
 		friends = friends_list(request.user)
 		invites = invites_list(request.user)
 		context = {
+			'avatar_url': avatar_url,
 			'invites': invites,
 			'friends': friends,
 			'matches': matches,
@@ -63,6 +69,51 @@ def invites_list(user):
 	for invite in invites:
 		l.append(invite.sender)
 	return l
+
+def update_profile(request):
+	if request.method == 'GET':
+		return redirect('home')
+	username = request.POST.get('username')
+	profile_picture = request.FILES.get('profile_picture')
+	if (profile_picture is not None):
+		validate = FileExtensionValidator(allowed_extensions=['jpg', 'jpeg', 'png'])
+		try:
+			validate(profile_picture)
+		except ValidationError as e:
+			messages.error(request, 'Invalid file type')
+			return redirect('home')
+	if (User.objects.filter(first_name=username).exists() and username != request.user.first_name):
+		messages.error(request, 'Username already taken')
+		return redirect('home')
+	user = request.user
+	user.first_name = username
+	if (profile_picture is not None):
+		user_profile = UserProfile.objects.get(user=user)
+		if user_profile.avatar.url != "/media/avatars/default.png":
+			user_profile.avatar.delete()
+		profile_picture.name = user.username
+		user_profile.avatar = profile_picture
+		user_profile.save()
+	user.save()
+	return redirect('home')
+
+def accept_invite(request):
+	if request.method == 'GET':
+		return redirect('home')
+	#Do something with the request.POST
+	return redirect('home')
+
+def decline_invite(request):
+	if request.method == 'GET':
+		return redirect('home')
+	#Do something with the request.POST
+	return redirect('home')
+
+def send_invite(request):
+	if request.method == 'GET':
+		return redirect('home')
+	#Do something with the request.POST
+	return redirect('home')
 
 @never_cache
 def auth(request):
