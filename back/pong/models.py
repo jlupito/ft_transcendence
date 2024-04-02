@@ -15,7 +15,7 @@ class Match(models.Model):
     player2_score = models.IntegerField()
     timestamp = models.DateTimeField(auto_now_add=True)
     def __str__(self):
-        return self.player1.username + ' vs ' + self.player2.username + self.timestamp
+        return self.player1.username + ' vs ' + self.player2.username
 
 class Friend(models.Model):
     STATUS_CHOICES = (
