@@ -15,11 +15,12 @@ def home(request):
 	context = {}
 	if (request.user.is_authenticated):
 		avatar_url = UserProfile.objects.get(user=request.user).avatar.url
-		print (avatar_url)
+		users = UserProfile.objects.exclude(user=request.user)
 		matches = match_history(request.user)
 		friends = friends_list(request.user)
 		invites = invites_list(request.user)
 		context = {
+			'users': users,
 			'avatar_url': avatar_url,
 			'invites': invites,
 			'friends': friends,
@@ -55,19 +56,23 @@ def match_history(user):
 
 def friends_list(user):
 	friends = Friend.objects.filter(sender=user, status='accepted') | Friend.objects.filter(receiver=user, status='accepted')
-	l = []
+	profiles = []
 	for friend in friends:
 		if friend.sender == user:
-			l.append(friend.receiver)
+			profiles.append(UserProfile.objects.get(user=friend.receiver))
 		else:
-			l.append(friend.sender)
+			profiles.append(UserProfile.objects.get(user=friend.sender))
+	l = []
+	for profile in profiles:
+
+		l.append(profile)
 	return l
 
 def invites_list(user):
 	invites = Friend.objects.filter(receiver=user, status='pending')
 	l = []
 	for invite in invites:
-		l.append(invite.sender)
+		l.append(invite.sender.username)
 	return l
 
 def update_profile(request):
@@ -97,22 +102,37 @@ def update_profile(request):
 	user.save()
 	return redirect('home')
 
-def accept_invite(request):
+def handle_invite(request):
 	if request.method == 'GET':
 		return redirect('home')
-	#Do something with the request.POST
-	return redirect('home')
-
-def decline_invite(request):
-	if request.method == 'GET':
-		return redirect('home')
-	#Do something with the request.POST
+	sender = request.POST.get('invite')
+	receiver = request.user
+	status = request.POST.get('status')
+	inv = Friend.objects.filter(sender=User.objects.get(username=sender), receiver=receiver).first()
+	inv.status = status
+	inv.save()
 	return redirect('home')
 
 def send_invite(request):
 	if request.method == 'GET':
 		return redirect('home')
-	#Do something with the request.POST
+	receiver = request.POST.get('receiver')
+	sender = request.user
+	friends_l = friends_list(sender)
+	for friend in friends_l:
+		if friend.user.username == receiver:
+			messages.error(request, 'User is already your friend')
+			return redirect('home')
+	invite = Friend.objects.filter(sender=sender, receiver=User.objects.get(username=receiver), status='pending')
+	if invite.exists():
+		messages.error(request, 'Invite already sent')
+		return redirect('home')
+	invite = Friend.objects.filter(sender=User.objects.get(username=receiver), receiver=sender, status='pending')
+	if invite.exists():
+		messages.error(request, 'You already have an invite from this user')
+		return redirect('home')
+
+	Friend.objects.create(sender=sender, receiver=User.objects.get(username=receiver), status='pending')
 	return redirect('home')
 
 @never_cache

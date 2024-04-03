@@ -8,4 +8,6 @@ urlpatterns = [
 	path('update_profile', views.update_profile, name='test'),
 	path('oauth/', views.auth, name='auth'),
 	path('logout/', views.logout_view, name='logout'),
+	path('handle_invite', views.handle_invite, name='handle_invite'),
+	path('send_invite', views.send_invite, name='send_invite'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
