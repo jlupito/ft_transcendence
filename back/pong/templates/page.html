@@ -98,58 +98,57 @@
 		</div>
 	</nav>
 	<div class="py-2">
+		{% if messages %}
+			{% for message in messages %}
+				<div class="alert alert-danger" role="alert"> {{ message }} </div>
+			{% endfor %}
+		{% endif %}
 		<div class="container d-flex align-items-center justify-content-center vh-100">
-			<div class="d-flex align-items-center justify-content-center">
-				<div class="text-center col-8 bg-light border border-light bg-opacity-25 p-4 rounded shadow">
-					<li class="nav-item">
-						<a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#friendsModal">Friends</a>
-					</li>
-					<li class="nav-item">
-						<a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#invitesModal">Invites</a>
-					</li>
-					<li class="nav-item">
-						<a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#settingsModal">Settings</a>
-					</li>
-					<li class="nav-item">
-						<a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#gameModal">Game</a>
-					</li>
-					<li class="nav-item">
-						<a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#profileModal"><span><img src="{{ avatar_url }}" alt="Profile Picture" style="width: 40px; height: 40px; border-radius: 50%;"></span> {{ request.user.first_name }} </a>
-					</li>
-				</div>
-			</div>
-		</div>
-	</div>
-	{% endif %}
-	{% if messages %}
-		{% for message in messages %}
-			<div class="alert alert-danger" role="alert"> {{ message }} </div>
-		{% endfor %}
-	{% endif %}
-
-	<div class="container">
-		<div class="row">
-			<div class="col">
-				<div class="">
-					<ul class="list-unstyled">
-						{% for user in users %}
-						<li class="media">
-							<div class="d-flex align-items-center">
-								<img class="rounded-circle" src="{{ user.avatar.url }}" alt="" style="width: 60px; height: 60px; margin-right: 10px;">
-								<h5 style="margin-right: 10px;">{{ user.user.first_name }}</h5>
-								<form action="send_invite" method="POST">
-									{% csrf_token %}
-									<input type="hidden" name="receiver" value="{{ user.user.username }}">
-									<button class="btn btn-primary" type="submit">Send Friend Request</button>
-								</form>
-							</div>
+			<div class="row">
+				<div class="d-flex align-items-center justify-content-center">
+					<div class="text-center col-8 bg-light border border-light bg-opacity-25 p-4 rounded shadow">
+						<li class="nav-item">
+							<a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#friendsModal">Friends</a>
 						</li>
-						{% endfor %}
-					</ul>
+						<li class="nav-item">
+							<a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#invitesModal">Invites</a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#settingsModal">Settings</a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#gameModal">Game</a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#profileModal"><span><img src="{{ avatar_url }}" alt="Profile Picture" style="width: 40px; height: 40px; border-radius: 50%;"></span> {{ request.user.first_name }} </a>
+						</li>
+					</div>
+				</div>	
+			</div>
+			<div class="row">
+				<div class="col">
+					<div class="">
+						<ul class="list-unstyled">
+							{% for user in users %}
+							<li class="media">
+								<div class="d-flex align-items-center">
+									<img class="rounded-circle" src="{{ user.avatar.url }}" alt="" style="width: 60px; height: 60px; margin-right: 10px;">
+									<h5 style="margin-right: 10px;">{{ user.user.first_name }}</h5>
+									<form action="send_invite" method="POST">
+										{% csrf_token %}
+										<input type="hidden" name="receiver" value="{{ user.user.username }}">
+										<button class="btn btn-primary" type="submit">Send Friend Request</button>
+									</form>
+								</div>
+							</li>
+							{% endfor %}
+						</ul>
+					</div>
 				</div>
 			</div>
 		</div>
 	</div>
+	{% endif %}
 
 	<div class="modal fade" id="friendsModal" tabindex="-1" aria-labelledby="friendsModalLabel" aria-hidden="true">
 		<div class="modal-dialog">
