@@ -2,7 +2,8 @@ from django.shortcuts import redirect, render
 from django.http import HttpResponse
 from django.template import loader
 from django.contrib.auth import login, logout
-from .models import UserProfile, Match, Friend, User, Tournament
+from .models import UserProfile, Match, Friend, User
+from .models import Tournament
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.cache import never_cache
 from django.core.validators import FileExtensionValidator
@@ -10,7 +11,7 @@ from django.contrib import messages
 from django.core.exceptions import ValidationError
 import requests
 import os
-from forms import RegularLogin
+from .forms import RegularLogin
 
 def home(request):
 	context = {}
@@ -165,7 +166,6 @@ def auth(request):
 	return redirect('home')
 
 
-
 # *********************************** TOURNOIS ***********************************
 
 # Dans cette fonction on créée un nouvel objet de type Tournament, en appelant la
@@ -203,10 +203,6 @@ def add_player_in_tournament(request, tournament_name):
 		players_info[newplayer_name] = len(players_info) + 1
 		tournament.save()
 	return redirect('home')
-# Ajouter une limitation de nombre de joueurs dans cette fonction cas échéant
-# Ai-je besoin de prendre en parametre le tournament_name si un seul tournoi
-# autorisé en cours ?
-# Et la limite de temps ? A quel moment ?
 
 # *********************************** MATCHS ***********************************
 
