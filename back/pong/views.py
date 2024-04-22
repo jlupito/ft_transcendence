@@ -2,7 +2,7 @@ from django.shortcuts import redirect, render
 from django.http import HttpResponse
 from django.template import loader
 from django.contrib.auth import login, logout
-from .models import UserProfile, Match, Friend, User
+from .models import UserProfile, Match, Friend, User, Tournament
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.cache import never_cache
 from django.core.validators import FileExtensionValidator
@@ -10,6 +10,7 @@ from django.contrib import messages
 from django.core.exceptions import ValidationError
 import requests
 import os
+from forms import RegularLogin
 
 def home(request):
 	context = {}
@@ -162,3 +163,80 @@ def auth(request):
 		UserProfile.objects.create(user=user)
 	login(request, user)
 	return redirect('home')
+
+
+
+# *********************************** TOURNOIS ***********************************
+
+# Dans cette fonction on créée un nouvel objet de type Tournament, en appelant la
+# classe, et esnuite le gestionnaire d' objets associé a celle-ci. Les objets ont
+# comme classmethod la fontion create() deja fournie par Django, elle prend en
+# argument les champs attributs de la classe et renvoie un nouvel objet.
+# on retourne ensuite au home, car SPA.
+
+#  ajouter l'info de player1 qui lance ?
+def create_tournament(request):
+	if request.method == 'GET':
+		return redirect('home')
+	new_tournament = Tournament.objects.create()
+	initiating_player = request.user.username
+	new_tournament.players_info[0] = initiating_player
+	new_tournament.save()
+	return redirect('home')
+
+# Dans ce code :
+# Nous récupérons le nom du nouveau joueur à partir de la requête POST.
+# Ensuite, nous récupérons l'instance du tournoi à l'aide de :
+# Tournament.objects.get(tournament_name=tournament_name).
+# Nous accédons au dictionnaire players_info de ce tournoi.
+# Nous ajoutons le nouveau joueur au dictionnaire en utilisant une nouvelle
+# clé qui est la longueur actuelle du dictionnaire plus un.
+# Nous sauvegardons ensuite le tournoi pour enregistrer les modifications.
+# ATTENTION aux infos contenues dans la requete POST (playername doit exister)
+def add_player_in_tournament(request, tournament_name):
+	if request.method == 'GET':
+		return redirect('home')
+	elif request.method == 'POST':
+		newplayer_name = request.POST.get("playername")
+		tournament = Tournament.objects.get(tournament_name=tournament_name)
+		players_info = tournament.players_info
+		players_info[newplayer_name] = len(players_info) + 1
+		tournament.save()
+	return redirect('home')
+# Ajouter une limitation de nombre de joueurs dans cette fonction cas échéant
+# Ai-je besoin de prendre en parametre le tournament_name si un seul tournoi
+# autorisé en cours ?
+# Et la limite de temps ? A quel moment ?
+
+# *********************************** MATCHS ***********************************
+
+def create_match(request):
+	if request.method == 'GET':
+		return redirect ('home')
+	player1_name = request.POST.get("player1_name")
+	player2_name = request.POST.get("player2_name")
+
+	player_1 = UserProfile.objects.get(username = player1_name)
+	player_2 = UserProfile.objects.get(username = player2_name)
+	new_match = Match.objects.create(
+		player_1=player_1,
+		player_2=player_2
+		)
+	new_match.save()
+	return redirect ('home')
+
+# *********************************** LOGIN ***********************************
+
+def login_view(request):
+	if request.method == 'GET':
+		return redirect ('home')
+	else:
+		loginform = RegularLogin(request.POST)
+		if loginform.is_valid():
+			# deux cas, new_account ou login
+			username=loginform.cleaned_data['username']
+			email=loginform.cleaned_data['email']
+			mdp=loginform.cleaned_data['mdp']
+			# Ajout de code pour enregistrer les infos dans la DB et parser
+			# les infos de connexion
+	return render(request, 'home', {'loginform': loginform})

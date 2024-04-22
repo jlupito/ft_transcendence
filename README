@@ -1,0 +1,25 @@
+Planifier vos endpoints d'API :
+Avant de commencer à écrire du code, déterminez quels endpoints d'API vous aurez besoin pour
+gérer les opérations CRUD (Create, Read, Update, Delete) sur vos tournois et les informations
+des joueurs. Définissez également les méthodes HTTP associées à chaque endpoint (GET, POST,
+PUT, DELETE).
+
+Écriver vos vues (views) :
+Définir les vues Django qui géreront les requêtes entrantes et renverront les réponses
+appropriées.
+Utiliser les décorateurs Django tels que @api_view pour déclarer vos vues d'API.
+Implémenter la logique nécessaire pour interagir avec les modèles Django et effectuer
+les opérations CRUD.
+Utiliser les classmethods pour la logique métier :
+Utiliser les classmethods dans les modèles Django pour implémenter la logique métier associée
+à vos tournois et joueurs. Par exemple, avoir des méthodes de classe pour créer un nouveau tournoi,
+ajouter un joueur à un tournoi, récupérer les détails d'un tournoi, etc.
+
+Gérer les requêtes AJAX : Si votre frontend envoie des requêtes AJAX à votre backend,
+assurez-vous de configurer correctement les CORS (Cross-Origin Resource Sharing) dans vos
+paramètres Django pour autoriser les requêtes depuis votre frontend.
+
+Tester vos endpoints : Utilisez des outils comme Postman ou Curl pour tester les endpoints
+d'API et assurez-vous qu'ils fonctionnent comme prévu. Assurez-vous également d'inclure des
+tests unitaires pour vos vues et méthodes de classe afin de garantir qu'elles fonctionnent
+correctement dans toutes les situations.
