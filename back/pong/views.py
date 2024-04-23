@@ -1,18 +1,18 @@
 from django.shortcuts import redirect, render
 from django.http import HttpResponse
-from django.contrib.auth import login, logout
+from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from .models import UserProfile, Match, Friend, User
 from .models import Tournament
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth import authenticate, login
 from django.views.decorators.cache import never_cache
 from django.core.validators import FileExtensionValidator
 from django.contrib import messages
 from django.core.exceptions import ValidationError
 import requests
 import os
-from .forms import RegularLogin
+from .forms import RegisterForm, LoginForm
 
 def home(request):
 	context = {}
@@ -229,30 +229,36 @@ def create_match(request):
 # fonctions et outils de Python/Django
 def login_view(request):
 	if request.method == 'POST':
-		loginform = RegularLogin(request.POST)
+		loginform = LoginForm(request.POST)
 		if loginform.is_valid():
 			# verifier avec le mail ou avec le username ???? Plus complexe avec un mail mais faisable
-			username=loginform.cleaned_data['username']
-			mdp=loginform.cleaned_data['password']
-			user=authenticate(request, username=username, password=mdp)
+			user=authenticate(
+				username=loginform.cleaned_data['username'],
+				password=loginform.cleaned_data['password']
+				)
 			if user is not None:
 				login(request, user)
-				return redirect ('home')
+				messages.success(request, 'Connected!')
 			else:
-				messages.add_message(request, messages.ERROR, 'Invalid username or password')
+				messages.error(request, 'Invalid username or password')
 	else:
-		loginform=RegularLogin()
+		loginform=LoginForm()
 	return redirect('home')
 
 # Lancer la creation d'un compte
 def new_account(request):
 	if request.method == 'POST':
-		loginform = RegularLogin(request.POST)
-		if loginform.is_valid():
+		registerform = RegisterForm(request.POST)
+		if registerform.is_valid():
+			username=registerform.cleaned_data['username']
+			mdp=registerform.cleaned_data['password']
 			new_user = User.objects.create_user(username=username, password=mdp)
 			UserProfile.objects.create(user=new_user)
 			login(request, new_user)
+			messages.success(request, 'Account created successfully!')
 			return redirect('home')
+		else:
+			messages.error(request, 'Invalid form data')
 	else:
-		loginform = RegularLogin()
+		registerform = RegisterForm()
 	return redirect('home')

@@ -2,7 +2,11 @@
 
 from django import forms
 
-class RegularLogin(forms.Form):
+class RegisterForm(forms.Form):
    username=forms.CharField(required=True)
    email=forms.EmailField(required=True)
-   mdp=forms.CharField(required=True, widget=forms.PasswordInput)
+   password=forms.CharField(required=True, widget=forms.PasswordInput)
+
+class LoginForm(forms.Form):
+   username=forms.CharField(required=True)
+   password=forms.CharField(required=True, widget=forms.PasswordInput)
