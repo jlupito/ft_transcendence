@@ -239,9 +239,20 @@ def login_view(request):
 				login(request, user)
 				return redirect ('home')
 			else:
-				# Lancer la creation d'un compte
-				new_account = UserProfile.objects.create()
-				new_account.save()
+				messages.add_message(request, messages.ERROR, 'Invalid username or password')
 	else:
 		loginform=RegularLogin()
-	return render(request, 'home', {'loginform': loginform})
+	return redirect('home')
+
+# Lancer la creation d'un compte
+def new_account(request):
+	if request.method == 'POST':
+		loginform = RegularLogin(request.POST)
+		if loginform.is_valid():
+			new_user = User.objects.create_user(username=username, password=mdp)
+			UserProfile.objects.create(user=new_user)
+			login(request, new_user)
+			return redirect('home')
+	else:
+		loginform = RegularLogin()
+	return redirect('home')

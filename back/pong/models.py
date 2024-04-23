@@ -49,6 +49,7 @@ class Friend(models.Model):
 # type tuples et dictionnaire (*args et **kwargs), et vient enregistrer ce qui doit l'etre.
 # Les * sont des conventions de Python.
 # Il ne peut y avoir qu'une seule methode save() dans la classe, tout mettre dedans.
+
 class Tournament(models.Model):
     tournament_name = models.fields.CharField(max_length=30, blank=True)
     players_number = models.fields.IntegerField(validators=[MinValueValidator(3), MaxValueValidator(8)])

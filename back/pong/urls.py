@@ -11,4 +11,5 @@ urlpatterns = [
 	path('handle_invite', views.handle_invite, name='handle_invite'),
 	path('send_invite', views.send_invite, name='send_invite'),
 	path('create_account', views.send_invite, name='send_invite'),
+	path('login_view', views.login_view, name='login_view'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
