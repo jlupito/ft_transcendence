@@ -1,7 +1,7 @@
 from django.shortcuts import redirect, render
 from django.http import HttpResponse
-from django.template import loader
 from django.contrib.auth import login, logout
+from django.contrib.auth.models import User
 from .models import UserProfile, Match, Friend, User
 from .models import Tournament
 from django.contrib.auth.decorators import login_required
@@ -238,8 +238,10 @@ def login_view(request):
 			if user is not None:
 				login(request, user)
 				return redirect ('home')
-			# else:
-			# 	# Lancer la creation d'un compte
+			else:
+				# Lancer la creation d'un compte
+				new_account = UserProfile.objects.create()
+				new_account.save()
 	else:
 		loginform=RegularLogin()
 	return render(request, 'home', {'loginform': loginform})

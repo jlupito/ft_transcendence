@@ -70,10 +70,10 @@
 							<input type="password" class="form-control" id="password" placeholder="Password">
 						</div>
 						<div class="mb-1">
-							<button type="submit" class="btn btn-dark text-light col-8">Sign in</button>							  
+							<button type="submit" class="btn btn-dark text-light col-8">Sign in</button>
 						</div>
 						<div class="mb-1">
-							<p class="text-light">No account yet? 
+							<p class="text-light">No account yet?
 								<a class="text-light link-underline-light link-opacity-25-hover" href="#" data-bs-toggle="modal" data-bs-target="#signupModal">Sign up here.</a>
 							</p>
 						</div>
@@ -85,10 +85,10 @@
 					</div>
 					<div class="mt-4 mb-3">
 						<button type="submit" class="btn btn-dark text-light col-8">Log in with
-							<a href="https://api.intra.42.fr/oauth/authorize?client_id=u-s4t2ud-e89e69c5fe7f3faa8ee39b53cb83c81983bb16e02bbdac061730ad8f23b94cbf&redirect_uri=http%3A%2F%2Flocalhost%3A8000%2Foauth&response_type=code">
+							<a href="https://api.intra.42.fr/oauth/authorize?client_id=u-s4t2ud-3a70afaba51906190086497a7ba969829c05c1df3fd947e5cef9d98f9def8f7c&redirect_uri=http%3A%2F%2Flocalhost%3A8000&response_type=code">
 								<img src="../static/images/42_Logo_white.svg.png" alt="Logo 42" style="height: 25px;">
 							</a>
-						</button>							  
+						</button>
 					</div>
 					<!-- <p class="text-light mx-auto my-3 fw-normal col-8">or log in using your  -->
 				</div>
@@ -144,7 +144,7 @@
 								<div class="col">
 									<h2>Profile</h2>
 									<a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#profileModal">
-										<img src="{{ avatar_url }}" alt="Profile Picture" style="margin-right: 10px; margin-left: 10px; width:25px; height: 25px; border-radius: 50%;">{{ request.user.first_name }} 
+										<img src="{{ avatar_url }}" alt="Profile Picture" style="margin-right: 10px; margin-left: 10px; width:25px; height: 25px; border-radius: 50%;">{{ request.user.first_name }}
 									</a>
 									<div class="ms-2 d-flex align-items-center ms-2">
 										<i class="bi bi-trophy fs-2 me-2"></i>Match history
