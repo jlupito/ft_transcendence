@@ -4,6 +4,9 @@ from django.contrib.auth.models import User
 from django.core.validators import MinValueValidator, MaxValueValidator
 from datetime import timedelta
 
+# on vient creer un modele UserProfile qui surcharge le modele User préconçu.
+# Il est recommandé de créer ce modele en debut de projet (pour le SQL), meme si
+# on ne surcharge pas ce dernier.
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     elo = models.IntegerField(default=1000)

@@ -1,10 +1,11 @@
 from django.shortcuts import redirect, render
 from django.http import HttpResponse
-from django.template import loader
 from django.contrib.auth import login, logout
+from django.contrib.auth.models import User
 from .models import UserProfile, Match, Friend, User
 from .models import Tournament
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth import authenticate, login
 from django.views.decorators.cache import never_cache
 from django.core.validators import FileExtensionValidator
 from django.contrib import messages
@@ -137,6 +138,8 @@ def send_invite(request):
 	Friend.objects.create(sender=sender, receiver=User.objects.get(username=receiver), status='pending')
 	return redirect('home')
 
+# never_cache est un décorateur qui indique au navigateur de ne pas mettre en cache la reponse
+# à cette view, a chaque fois que la view est appelee, la verification aura lieu.
 @never_cache
 def auth(request):
 	code = request.GET.get('code')
@@ -207,32 +210,38 @@ def add_player_in_tournament(request, tournament_name):
 # *********************************** MATCHS ***********************************
 
 def create_match(request):
-	if request.method == 'GET':
-		return redirect ('home')
-	player1_name = request.POST.get("player1_name")
-	player2_name = request.POST.get("player2_name")
+	if request.method == 'POST':
+		player1_name = request.POST.get("player1_name")
+		player2_name = request.POST.get("player2_name")
 
-	player_1 = UserProfile.objects.get(username = player1_name)
-	player_2 = UserProfile.objects.get(username = player2_name)
-	new_match = Match.objects.create(
-		player_1=player_1,
-		player_2=player_2
-		)
-	new_match.save()
+		player_1 = UserProfile.objects.get(username = player1_name)
+		player_2 = UserProfile.objects.get(username = player2_name)
+		new_match = Match.objects.create(
+			player_1=player_1,
+			player_2=player_2
+			)
+		new_match.save()
 	return redirect ('home')
 
 # *********************************** LOGIN ***********************************
 
+# Utilisation des fonctions is_valide(), authenticate() avec "is not None"
+# fonctions et outils de Python/Django
 def login_view(request):
-	if request.method == 'GET':
-		return redirect ('home')
-	else:
+	if request.method == 'POST':
 		loginform = RegularLogin(request.POST)
 		if loginform.is_valid():
-			# deux cas, new_account ou login
+			# verifier avec le mail ou avec le username ???? Plus complexe avec un mail mais faisable
 			username=loginform.cleaned_data['username']
-			email=loginform.cleaned_data['email']
-			mdp=loginform.cleaned_data['mdp']
-			# Ajout de code pour enregistrer les infos dans la DB et parser
-			# les infos de connexion
+			mdp=loginform.cleaned_data['password']
+			user=authenticate(request, username=username, password=mdp)
+			if user is not None:
+				login(request, user)
+				return redirect ('home')
+			else:
+				# Lancer la creation d'un compte
+				new_account = UserProfile.objects.create()
+				new_account.save()
+	else:
+		loginform=RegularLogin()
 	return render(request, 'home', {'loginform': loginform})
