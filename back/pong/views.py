@@ -1,8 +1,10 @@
 from django.shortcuts import redirect, render
 from django.http import HttpResponse
-from django.template import loader
-from django.contrib.auth import login, logout
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.models import User
 from .models import UserProfile, Match, Friend, User
+from .models import Tournament
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.cache import never_cache
 from django.core.validators import FileExtensionValidator
@@ -10,6 +12,7 @@ from django.contrib import messages
 from django.core.exceptions import ValidationError
 import requests
 import os
+from .forms import RegisterForm, LoginForm
 
 def home(request):
 	context = {}
@@ -135,6 +138,8 @@ def send_invite(request):
 	Friend.objects.create(sender=sender, receiver=User.objects.get(username=receiver), status='pending')
 	return redirect('home')
 
+# never_cache est un décorateur qui indique au navigateur de ne pas mettre en cache la reponse
+# à cette view, a chaque fois que la view est appelee, la verification aura lieu.
 @never_cache
 def auth(request):
 	code = request.GET.get('code')
@@ -161,4 +166,99 @@ def auth(request):
 		user = User.objects.create_user(username=intra_login, first_name=intra_login)
 		UserProfile.objects.create(user=user)
 	login(request, user)
+	return redirect('home')
+
+
+# *********************************** TOURNOIS ***********************************
+
+# Dans cette fonction on créée un nouvel objet de type Tournament, en appelant la
+# classe, et esnuite le gestionnaire d' objets associé a celle-ci. Les objets ont
+# comme classmethod la fontion create() deja fournie par Django, elle prend en
+# argument les champs attributs de la classe et renvoie un nouvel objet.
+# on retourne ensuite au home, car SPA.
+
+#  ajouter l'info de player1 qui lance ?
+def create_tournament(request):
+	if request.method == 'GET':
+		return redirect('home')
+	new_tournament = Tournament.objects.create()
+	initiating_player = request.user.username
+	new_tournament.players_info[0] = initiating_player
+	new_tournament.save()
+	return redirect('home')
+
+# Dans ce code :
+# Nous récupérons le nom du nouveau joueur à partir de la requête POST.
+# Ensuite, nous récupérons l'instance du tournoi à l'aide de :
+# Tournament.objects.get(tournament_name=tournament_name).
+# Nous accédons au dictionnaire players_info de ce tournoi.
+# Nous ajoutons le nouveau joueur au dictionnaire en utilisant une nouvelle
+# clé qui est la longueur actuelle du dictionnaire plus un.
+# Nous sauvegardons ensuite le tournoi pour enregistrer les modifications.
+# ATTENTION aux infos contenues dans la requete POST (playername doit exister)
+def add_player_in_tournament(request, tournament_name):
+	if request.method == 'GET':
+		return redirect('home')
+	elif request.method == 'POST':
+		newplayer_name = request.POST.get("playername")
+		tournament = Tournament.objects.get(tournament_name=tournament_name)
+		players_info = tournament.players_info
+		players_info[newplayer_name] = len(players_info) + 1
+		tournament.save()
+	return redirect('home')
+
+# *********************************** MATCHS ***********************************
+
+def create_match(request):
+	if request.method == 'POST':
+		player1_name = request.POST.get("player1_name")
+		player2_name = request.POST.get("player2_name")
+
+		player_1 = UserProfile.objects.get(username = player1_name)
+		player_2 = UserProfile.objects.get(username = player2_name)
+		new_match = Match.objects.create(
+			player_1=player_1,
+			player_2=player_2
+			)
+		new_match.save()
+	return redirect ('home')
+
+# *********************************** LOGIN ***********************************
+
+# Utilisation des fonctions is_valide(), authenticate() avec "is not None"
+# fonctions et outils de Python/Django
+def login_view(request):
+	if request.method == 'POST':
+		loginform = LoginForm(request.POST)
+		if loginform.is_valid():
+			# verifier avec le mail ou avec le username ???? Plus complexe avec un mail mais faisable
+			user=authenticate(
+				username=loginform.cleaned_data['username'],
+				password=loginform.cleaned_data['password']
+				)
+			if user is not None:
+				login(request, user)
+				messages.success(request, 'Connected!')
+			else:
+				messages.error(request, 'Invalid username or password')
+	else:
+		loginform=LoginForm()
+	return redirect('home')
+
+# Lancer la creation d'un compte
+def new_account(request):
+	if request.method == 'POST':
+		registerform = RegisterForm(request.POST)
+		if registerform.is_valid():
+			username=registerform.cleaned_data['username']
+			mdp=registerform.cleaned_data['password']
+			new_user = User.objects.create_user(username=username, password=mdp)
+			UserProfile.objects.create(user=new_user)
+			login(request, new_user)
+			messages.success(request, 'Account created successfully!')
+			return redirect('home')
+		else:
+			messages.error(request, 'Invalid form data')
+	else:
+		registerform = RegisterForm()
 	return redirect('home')
