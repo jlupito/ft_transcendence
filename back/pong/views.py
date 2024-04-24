@@ -2,8 +2,7 @@ from django.shortcuts import redirect, render
 from django.http import HttpResponse
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
-from .models import UserProfile, Match, Friend, User
-from .models import Tournament
+from .models import UserProfile, Match, Friend, Tournament
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.cache import never_cache
@@ -227,7 +226,7 @@ def create_match(request):
 
 # Utilisation des fonctions is_valide(), authenticate() avec "is not None"
 # fonctions et outils de Python/Django
-def login_view(request):
+def sign_in(request):
 	if request.method == 'POST':
 		loginform = LoginForm(request.POST)
 		if loginform.is_valid():
@@ -246,13 +245,13 @@ def login_view(request):
 	return redirect('home')
 
 # Lancer la creation d'un compte
-def new_account(request):
+def register(request):
 	if request.method == 'POST':
 		registerform = RegisterForm(request.POST)
 		if registerform.is_valid():
 			username=registerform.cleaned_data['username']
 			mdp=registerform.cleaned_data['password']
-			new_user = User.objects.create_user(username=username, password=mdp)
+			new_user = User.objects.create_user(username=username, password=mdp, first_name=username)
 			UserProfile.objects.create(user=new_user)
 			login(request, new_user)
 			messages.success(request, 'Account created successfully!')
