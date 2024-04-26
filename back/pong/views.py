@@ -49,11 +49,14 @@ def match_history(user):
 			opponent_score = match.player1_score
 			opponent = match.player1
 		if (user_score > opponent_score):
-			l.append("Win vs " + opponent.username + " (" + str(user_score) + " - " + str(opponent_score) + ") played on " + time)
+			l.append("Win vs " + opponent.username + " (" + str(user_score) + " - " + str(opponent_score) +")")
+			l.append("played on " + time)
 		elif (user_score < opponent_score):
-			l.append("Loss vs " + opponent.username + " (" + str(user_score) + " - " + str(opponent_score) + ") played on " + time)
+			l.append("Loss vs " + opponent.username + " (" + str(user_score) + " - " + str(opponent_score) + ")")
+			l.append("played on " + time)
 		else:
-			l.append("Draw vs " + opponent.username + " (" + str(user_score) + " - " + str(opponent_score) + ") played on " + time)
+			l.append("Draw vs " + opponent.username + " (" + str(user_score) + " - " + str(opponent_score) + ")")
+			l.append("played on " + time)
 	return l
 
 def friends_list(user):
@@ -121,6 +124,7 @@ def send_invite(request):
 	receiver = request.POST.get('receiver')
 	sender = request.user
 	friends_l = friends_list(sender)
+	request.session.set_expiry(4)
 	for friend in friends_l:
 		if friend.user.username == receiver:
 			messages.error(request, 'User is already your friend')
@@ -207,6 +211,20 @@ def add_player_in_tournament(request, tournament_name):
 	return redirect('home')
 
 # *********************************** MATCHS ***********************************
+
+def invite_play(request):
+	if request.method == 'POST':
+		player1_name = request.POST.get("player1_name")
+		player2_name = request.POST.get("player2_name")
+
+		player_1 = UserProfile.objects.get(username = player1_name)
+		player_2 = UserProfile.objects.get(username = player2_name)
+		new_match = Match.objects.create(
+			player_1=player_1,
+			player_2=player_2
+			)
+		new_match.save()
+	return redirect ('home')
 
 def create_match(request):
 	if request.method == 'POST':
