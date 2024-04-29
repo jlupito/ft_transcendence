@@ -5,6 +5,7 @@ let speedY = 2;
 let posX = window.innerWidth / 2;
 let posY = window.innerWidth / 2;
 
+
 function updateBackground() {
     document.body.style.background = `linear-gradient(${angle}deg, #ff006a, #00ffdd)`;
   }
