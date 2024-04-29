@@ -48,16 +48,24 @@ document.addEventListener('keydown', function(event) {
 
     switch(key) {
         case 'z':
-            p1_up = true;
+            if (chatSocket.readyState === WebSocket.OPEN)
+                chatSocket.send(JSON.stringify({'message': 'key_up_pressed'}));
+            break;
+        case 'w':
+            if (chatSocket.readyState === WebSocket.OPEN)
+                chatSocket.send(JSON.stringify({'message': 'key_up_pressed'}));
             break;
         case 's':
-            p1_down = true;
+            if (chatSocket.readyState === WebSocket.OPEN)
+                chatSocket.send(JSON.stringify({'message': 'key_down_pressed'}));
             break;
         case 'ArrowUp':
-            p2_up = true;
+            if (chatSocket.readyState === WebSocket.OPEN)
+                chatSocket.send(JSON.stringify({'message': 'p2key_up_pressed'}));
             break;
         case 'ArrowDown':
-            p2_down = true;
+            if (chatSocket.readyState === WebSocket.OPEN)
+                chatSocket.send(JSON.stringify({'message': 'p2key_down_pressed'}));
             break;
     }
 });
@@ -67,23 +75,27 @@ document.addEventListener('keyup', function(event) {
 
     switch(key) {
         case 'z':
-            p1_up = false;
+            if (chatSocket.readyState === WebSocket.OPEN)
+                chatSocket.send(JSON.stringify({'message': 'key_up_released'}));
+            break;
+        case 'w':
+            if (chatSocket.readyState === WebSocket.OPEN)
+                chatSocket.send(JSON.stringify({'message': 'key_up_released'}));
             break;
         case 's':
-            p1_down = false;
+            if (chatSocket.readyState === WebSocket.OPEN)
+                chatSocket.send(JSON.stringify({'message': 'key_down_released'}));
             break;
         case 'ArrowUp':
-            p2_up = false;
+            if (chatSocket.readyState === WebSocket.OPEN)
+                chatSocket.send(JSON.stringify({'message': 'p2key_up_released'}));
             break;
         case 'ArrowDown':
-            p2_down = false;
+            if (chatSocket.readyState === WebSocket.OPEN)
+                chatSocket.send(JSON.stringify({'message': 'p2key_down_released'}));
             break;
     }
 });
-
-// Dessiner un rectangle rouge
-
-
 
 function draw_objects(){
     ctx.fillStyle = 'black';
@@ -113,43 +125,47 @@ function draw(){
 
 chatSocket.onmessage = function(e){
     let data = JSON.parse(e.data)
-    paddle_speed = data.data.paddle_speed
+    if (data.type == 'update received')
+    {
+        paddle_speed = data.data.paddle_speed
 
-    paddle_width = parseInt(data.data.paddle_width)
-    paddle_height = parseInt(data.data.paddle_height)
-    
-    p1_x_pos = parseFloat(data.data.p1_x_pos)
-    p1_y_pos = HEIGHT / 2 - parseInt(data.data.paddle_height) / 2
+        paddle_width = parseInt(data.data.paddle_width)
+        paddle_height = parseInt(data.data.paddle_height)
+        
+        p1_x_pos = parseFloat(data.data.p1_x_pos)
+        p1_y_pos = parseFloat(data.data.p1_y_pos)
 
 
-    p2_x_pos = WIDTH - parseFloat(data.data.paddle_width) - 10
-    p2_y_pos = HEIGHT / 2 - parseFloat(data.data.paddle_height) / 2
+        p2_x_pos = parseFloat(data.data.p2_x_pos)
+        p2_y_pos = parseFloat(data.data.p2_y_pos)
 
-    p1_score = parseInt(data.data.p1_score)
-    p2_score = parseInt(data.data.p2_score)  
+        p1_score = parseInt(data.data.p1_score)
+        p2_score = parseInt(data.data.p2_score)  
 
-    ball_x_pos = parseFloat(data.data.ball_x_pos)
-    ball_y_pos = parseFloat(data.data.ball_y_pos)
-    ball_width = parseFloat(data.data.ball_width)
-    ball_x_velocity = parseFloat(data.data.ball_x_velocity)
-    ball_y_velocity = parseFloat(data.data.ball_y_velocity)
-    ball_x_normalspeed = parseFloat(data.data.ball_x_normalspeed)
-    console.log('Data:', data)
-    console.log("paddle speed", paddle_speed)
-    console.log("paddle_width", paddle_width)
-    console.log("paddle_height", paddle_height)
-    console.log("p1_x_pos", p1_x_pos)
-    console.log("p1_y_pos", p1_y_pos)
-    console.log("p2_x_pos", p2_x_pos)
-    console.log("p2_y_pos", p2_y_pos)
-    console.log("p1_score", p1_score)
-    console.log("p2_score", p2_score)
-    console.log("ball_x_pos", ball_x_pos)
-    console.log("ball_y_pos", ball_y_pos)
-    console.log("ball_width", ball_width)
-    console.log("ball_x_velocity", ball_x_velocity)
-    console.log("ball_y_velocity", ball_y_velocity)
-    console.log("ball_x_normalspeed", ball_x_normalspeed)
+        ball_x_pos = parseFloat(data.data.ball_x_pos)
+        ball_y_pos = parseFloat(data.data.ball_y_pos)
+        ball_width = parseFloat(data.data.ball_width)
+        ball_x_velocity = parseFloat(data.data.ball_x_velocity)
+        ball_y_velocity = parseFloat(data.data.ball_y_velocity)
+        ball_x_normalspeed = parseFloat(data.data.ball_x_normalspeed)
+        console.log('Data:', data)
+        console.log("paddle speed", paddle_speed)
+        console.log("paddle_width", paddle_width)
+        console.log("paddle_height", paddle_height)
+        console.log("p1_x_pos", p1_x_pos)
+        console.log("p1_y_pos", p1_y_pos)
+        console.log("p2_x_pos", p2_x_pos)
+        console.log("p2_y_pos", p2_y_pos)
+        console.log("p1_score", p1_score)
+        console.log("p2_score", p2_score)
+        console.log("ball_x_pos", ball_x_pos)
+        console.log("ball_y_pos", ball_y_pos)
+        console.log("ball_width", ball_width)
+        console.log("ball_x_velocity", ball_x_velocity)
+        console.log("ball_y_velocity", ball_y_velocity)
+        console.log("ball_x_normalspeed", ball_x_normalspeed)
+        console.log("p1ypos", data.data.p1_y_pos)
+    }
 }
 
 draw();
