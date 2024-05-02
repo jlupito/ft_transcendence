@@ -182,9 +182,13 @@
 							<h5 class="ms-3">Play</h5>
 							<hr class="col-10 mt-0 mb-2 mx-auto">
 							<div class="mt-4 mb-2 text-center">
-								<button type="" class="btn btn-dark shadow-sm text-light col-9" data-bs-toggle="modal" data-bs-target="#matchModal">Play a match
-									<i class="bi bi-joystick ms-2"></i>
-								</button>
+								<form action="launch_match" method="POST">
+									{% csrf_token %}
+									<input type="hidden" name="match" value="{{ match }}">
+									<button type="submit" class="btn btn-dark shadow-sm text-light col-9" data-bs-toggle="modal" data-bs-target="#matchModal">Play a match
+										<i class="bi bi-joystick ms-2"></i>
+									</button>
+								</form>
 							</div>
 							<div class="mt-2 mb-2 text-center">
 								<button type="" class="btn btn-dark shadow-sm text-light col-9">Create tournament
@@ -340,37 +344,7 @@
 					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 				</div>
 				<div class="modal-body">
-					<form action="update_profile" method="POST" enctype="multipart/form-data">
-						<ul class="list-unstyled overflow-auto" style="max-height: 200px;">
-							<p>Please invite a player to start a match:</p>
-							{% for user in users %}
-							<li class="d-flex align-items-center mb-2">
-								<div class="ms-5">
-									<img class="rounded-circle me-2" src="{{ user.avatar.url }}" alt="" style="width: 35px; height: 35px;">
-									{{ user.user.first_name }}
-								</div>
-								<form action="invite_play" method="POST">
-									{% csrf_token %}
-									<input type="hidden" name="receiver" value="{{ user.user.username }}">
-									<button class="btn btn-sm btn-primary shadow-sm ms-5" type="submit">Invite to play</button>
-								</form>
-							</li>
-							{% endfor %}
-						</ul>
-						<div class="modal-footer">
-							<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-						</div>
-					</form>
-				</div>
-			</div>
-		</div>
-	</div>
-	<div class="modal fade" id="gameModal" tabindex="-1" aria-labelledby="gameModalLabel" aria-hidden="true">
-		<div class="modal-dialog modal-dialog-centered modal-lg">
-			<div class="modal-content">
-				<div class="modal-header">
-					<h5 class="modal-title" id="gameModalLabel">Game</h5>
-					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+					<p class="text-center">Waiting for an opponent...</p>
 				</div>
 				<div class="modal-body">
 					<div class="canvas" width="600" height="600">

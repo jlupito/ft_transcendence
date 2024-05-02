@@ -212,20 +212,6 @@ def add_player_in_tournament(request, tournament_name):
 
 # *********************************** MATCHS ***********************************
 
-def invite_play(request):
-	if request.method == 'POST':
-		player1_name = request.POST.get("player1_name")
-		player2_name = request.POST.get("player2_name")
-
-		player_1 = UserProfile.objects.get(username = player1_name)
-		player_2 = UserProfile.objects.get(username = player2_name)
-		new_match = Match.objects.create(
-			player_1=player_1,
-			player_2=player_2
-			)
-		new_match.save()
-	return redirect ('home')
-
 def create_match(request):
 	if request.method == 'POST':
 		player1_name = request.POST.get("player1_name")
@@ -237,6 +223,11 @@ def create_match(request):
 			player_1=player_1,
 			player_2=player_2
 			)
+		#while (user1 or user2 score != 3 pts):
+  			#launch pong(user1, user2) 
+		#if user1 or user2 score == 3 pts:
+  			# end match, message results, save score, close window
+	
 		new_match.save()
 	return redirect ('home')
 
