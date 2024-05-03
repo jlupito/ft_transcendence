@@ -80,7 +80,7 @@ class Game():
             self.ball_y_velocity = -self.ball_y_velocity
 
         self.ball_x_pos += self.ball_x_velocity
-        self.ball_y_pos += self.ball_y_velocity
+        ball_y_pos += ball_y_velocity
 
     def run(self):
         self.is_running = True
