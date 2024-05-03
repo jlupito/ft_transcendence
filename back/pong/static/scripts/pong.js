@@ -37,6 +37,8 @@ let ball_width = 8
 let ball_x_velocity = -1
 let ball_y_velocity = 0
 let ball_x_normalspeed = 1
+let player1 = ""
+let player2 = ""
 
 const canvas = document.getElementById('myCanvas');
 const ctx = canvas.getContext('2d');
@@ -110,11 +112,16 @@ function draw_objects(){
     ctx.font = "45px sans-serif"
     ctx.fillText(p2_score, WIDTH / 4, HEIGHT / 4, 45)
     ctx.fillText(p1_score, WIDTH * 3 / 4, HEIGHT / 4, 45)
+    ctx.fillText(player1, WIDTH / 4, HEIGHT / 8, 90)
+    ctx.fillText(player2, WIDTH * 3 / 4, HEIGHT / 8, 90)
 }
 
 function get_update(){
     if (chatSocket.readyState === WebSocket.OPEN)
+    {
         chatSocket.send(JSON.stringify({'message': 'update'}));
+        console.log("update requested")
+    }
 }
 
 function draw(){
@@ -125,6 +132,8 @@ function draw(){
 
 chatSocket.onmessage = function(e){
     let data = JSON.parse(e.data)
+    if (data.type == 'connection_established')
+        console.log(data)
     if (data.type == 'update received')
     {
         paddle_speed = data.data.paddle_speed
@@ -148,23 +157,27 @@ chatSocket.onmessage = function(e){
         ball_x_velocity = parseFloat(data.data.ball_x_velocity)
         ball_y_velocity = parseFloat(data.data.ball_y_velocity)
         ball_x_normalspeed = parseFloat(data.data.ball_x_normalspeed)
-        console.log('Data:', data)
-        console.log("paddle speed", paddle_speed)
-        console.log("paddle_width", paddle_width)
-        console.log("paddle_height", paddle_height)
-        console.log("p1_x_pos", p1_x_pos)
-        console.log("p1_y_pos", p1_y_pos)
-        console.log("p2_x_pos", p2_x_pos)
-        console.log("p2_y_pos", p2_y_pos)
-        console.log("p1_score", p1_score)
-        console.log("p2_score", p2_score)
-        console.log("ball_x_pos", ball_x_pos)
-        console.log("ball_y_pos", ball_y_pos)
-        console.log("ball_width", ball_width)
-        console.log("ball_x_velocity", ball_x_velocity)
-        console.log("ball_y_velocity", ball_y_velocity)
-        console.log("ball_x_normalspeed", ball_x_normalspeed)
-        console.log("p1ypos", data.data.p1_y_pos)
+        player1 = data.data.player1
+        player2 = data.data.player2
+        // console.log('Data:', data)
+        // console.log("paddle speed", paddle_speed)
+        // console.log("paddle_width", paddle_width)
+        // console.log("paddle_height", paddle_height)
+        // console.log("p1_x_pos", p1_x_pos)
+        // console.log("p1_y_pos", p1_y_pos)
+        // console.log("p2_x_pos", p2_x_pos)
+        // console.log("p2_y_pos", p2_y_pos)
+        // console.log("p1_score", p1_score)
+        // console.log("p2_score", p2_score)
+        // console.log("ball_x_pos", ball_x_pos)
+        // console.log("ball_y_pos", ball_y_pos)
+        // console.log("ball_width", ball_width)
+        // console.log("ball_x_velocity", ball_x_velocity)
+        // console.log("ball_y_velocity", ball_y_velocity)
+        // console.log("ball_x_normalspeed", ball_x_normalspeed)
+        // console.log("p1ypos", data.data.p1_y_pos)
+        // console.log("player1", data.player1)
+        // console.log("player2", data.player2)
     }
 }
 

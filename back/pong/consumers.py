@@ -5,10 +5,15 @@ from . import game_instance
 class ChatConsumer(WebsocketConsumer):
     def connect(self):
         self.accept()
-
+        
+        user = self.scope['user']
+        if (game_instance.player1 == "" and game_instance.player2 != user.username):
+            game_instance.player1 = user.username
+        elif (game_instance.player2 == "" and game_instance.player1 != user.username):
+            game_instance.player2 = user.username
         self.send(text_data=json.dumps({
             'type':'connection_established',
-            'message':'You are now connected!'
+            'message':'you are connected'
         }))
 
     def receive(self, text_data):

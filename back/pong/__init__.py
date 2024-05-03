@@ -8,6 +8,8 @@ class Game():
         self.delay = 30
         self.WHITE = (255, 255, 255)
         self.BLACK = (0, 0, 0)
+        self.player1 = ""
+        self.player2 = ""
 
         self.WIDTH = 600
         self.HEIGHT = 600
