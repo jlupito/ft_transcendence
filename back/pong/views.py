@@ -270,3 +270,15 @@ def register(request):
 	else:
 		registerform = RegisterForm()
 	return redirect('home')
+
+import logging
+
+# Obtenez un objet logger
+logger = logging.getLogger(__name__)
+
+def my_view(request):
+    logger.debug('Ceci est un message de débogage')
+    logger.info('Ceci est un message d\'information')
+    logger.warning('Ceci est un message d\'avertissement')
+    logger.error('Ceci est un message d\'erreur')
+    logger.critical('Ceci est un message critique')
