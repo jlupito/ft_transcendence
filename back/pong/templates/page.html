@@ -145,11 +145,11 @@
 		</nav>
 	</header>
 	<main class="vh-100">
-		<section id="profile" class="pt-5 pb-4 container col-8 col-md-12 mb-1 mx-auto">
+		<section id="profile" class="pt-5 pb-4 container col-8 col-lg-12 col-md-12 mb-1 mx-auto">
 			<div class="bg-light text-center border border-light border-opacity-50 bg-opacity-25 rounded shadow text-light">
 				<div class="col mb-2 ">
 					<h2 class="text-light my-3">Welcome {{ request.user.first_name }} !</h2>
-					<img class="rounded-circle" src="{{ avatar_url }}" alt="User avatar" style="width: 50px; height: 50px;">
+					<img class="rounded-circle shadow-lg" src="{{ avatar_url }}" alt="User avatar" style="width: 50px; height: 50px;">
 				</div>
 				<div class="col mb-2">
 					<a class="btn btn-sm text-light" href="#" data-bs-toggle="modal" data-bs-target="#profileModal">
@@ -161,8 +161,8 @@
 		</section>
 		<section id="dashboard" class="container">
 			<div class="row">
-				<div class="col-10 col-md-6 mb-3 mx-auto">
-					<div class="p-3 bg-light border border-light border-opacity-50 bg-opacity-25 rounded shadow text-light">
+				<div class="col-8 col-lg-6 col-md-6 mb-3 mx-auto">
+					<div class="colSize p-3 bg-light border border-light border-opacity-50 bg-opacity-25 rounded shadow text-light">
 						<h2 class="mb-4">Game</h2>
 						<div class="mb-4">
 							<div class="ms-3 d-flex align-items-center fw-bold">
@@ -182,13 +182,13 @@
 							<h5 class="ms-3">Play</h5>
 							<hr class="col-10 mt-0 mb-2 mx-auto">
 							<div class="mt-4 mb-2 text-center">
-								<form action="launch_match" method="POST">
+								<!-- <form action="launch_match" method="POST">
 									{% csrf_token %}
-									<input type="hidden" name="match" value="{{ match }}">
-									<button type="submit" class="btn btn-dark shadow-sm text-light col-9" data-bs-toggle="modal" data-bs-target="#matchModal">Play a match
+									<input type="hidden" name="match" value="{{ match }}"> -->
+									<button type="" class="btn btn-dark shadow-sm text-light col-9" data-bs-toggle="modal" data-bs-target="#matchModal">Play a match
 										<i class="bi bi-joystick ms-2"></i>
 									</button>
-								</form>
+								<!-- </form> -->
 							</div>
 							<div class="mt-2 mb-2 text-center">
 								<button type="" class="btn btn-dark shadow-sm text-light col-9">Create tournament
@@ -203,8 +203,8 @@
 						</div>
 					</div>
 				</div>
-				<div class="col-10 col-md-6 mb-3 mx-auto">
-					<div class="p-3 bg-light border border-light border-opacity-50 bg-opacity-25 rounded shadow text-light">
+				<div class="col-8 col-lg-6 col-md-6 mb-3 mx-auto">
+					<div class="colSize p-3 bg-light border border-light border-opacity-50 bg-opacity-25 rounded shadow text-light">
 						<h2 class="mb-4">Friends</h2>
 						<div class="mb-4">
 							<div class="ms-3 mt-3 d-flex align-items-center">
@@ -337,14 +337,17 @@
 		</div>
 	</div>
 	<div class="modal fade" id="matchModal" tabindex="-1" aria-labelledby="matchModalLabel" aria-hidden="true">
-		<div class="modal-dialog">
+		<div class="modal-dialog matchModal" >
 			<div class="modal-content bg-dark-subtle shadow">
 				<div class="modal-header">
 					<h5 class="modal-title" id="matchModalLabel">Play a match</h5>
 					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 				</div>
-				<div class="modal-body">
-					<p class="text-center">Waiting for an opponent...</p>
+				<div class="modal-body d-flex justify-content-center align-items-center">
+					<p>Waiting for an opponent</p>
+					<div class="dot"></div>
+  					<div class="dot"></div>
+  					<div class="dot"></div>
 				</div>
 				<div class="modal-body">
 					<div class="canvas" width="600" height="600">

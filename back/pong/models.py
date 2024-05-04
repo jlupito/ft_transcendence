@@ -10,7 +10,7 @@ from datetime import timedelta
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     elo = models.IntegerField(default=1000)
-    avatar = models.ImageField(upload_to='avatars/', default='avatars/default.png')
+    avatar = models.ImageField(upload_to='avatars/', default='avatars/default2.png')
     def __str__(self):
         return self.user.first_name
 

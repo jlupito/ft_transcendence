@@ -99,7 +99,7 @@ def update_profile(request):
 	user.first_name = username
 	if (profile_picture is not None):
 		user_profile = UserProfile.objects.get(user=user)
-		if user_profile.avatar.url != "/media/avatars/default.png":
+		if user_profile.avatar.url != "/media/avatars/default2.png":
 			user_profile.avatar.delete()
 		profile_picture.name = user.username
 		user_profile.avatar = profile_picture
