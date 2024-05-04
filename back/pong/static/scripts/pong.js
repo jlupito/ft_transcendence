@@ -37,6 +37,8 @@ let ball_width = 8
 let ball_x_velocity = -1
 let ball_y_velocity = 0
 let ball_x_normalspeed = 1
+let player1 = ""
+let player2 = ""
 
 const canvas = document.getElementById('myCanvas');
 const ctx = canvas.getContext('2d');
@@ -110,6 +112,9 @@ function draw_objects(){
     ctx.font = "45px sans-serif"
     ctx.fillText(p2_score, WIDTH / 4, HEIGHT / 4, 45)
     ctx.fillText(p1_score, WIDTH * 3 / 4, HEIGHT / 4, 45)
+    ctx.fillText(player1, WIDTH * 3 / 4, HEIGHT / 8, 90)
+    ctx.fillText(player2, WIDTH / 4, HEIGHT / 8, 90)
+
 }
 
 function get_update(){
@@ -148,6 +153,8 @@ chatSocket.onmessage = function(e){
         ball_x_velocity = parseFloat(data.data.ball_x_velocity)
         ball_y_velocity = parseFloat(data.data.ball_y_velocity)
         ball_x_normalspeed = parseFloat(data.data.ball_x_normalspeed)
+        player1 = data.data.player1
+        player2 = data.data.player2
         console.log('Data:', data)
         console.log("paddle speed", paddle_speed)
         console.log("paddle_width", paddle_width)
