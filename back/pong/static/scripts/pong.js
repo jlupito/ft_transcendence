@@ -1,7 +1,69 @@
 let url = `ws://${window.location.host}/ws/socket-server/`
 
-const chatSocket = new WebSocket(url)
+let chatSocket
 
+function initWebSocket() {
+    chatSocket = new WebSocket(url);
+
+    chatSocket.onclose = function(event) {
+        console.log('WebSocket closed');
+        // Reconnexion à la websocket après une courte période
+        setTimeout(function() {
+            initWebSocket();
+        }, 2000); // Réessayez après 2 secondes
+    };
+
+    chatSocket.onmessage = function(e){
+        let data = JSON.parse(e.data)
+        if (data.type == 'connection_established')
+            console.log(e.data);
+        else if (data.type == 'update received')
+        {
+            paddle_speed = data.data.paddle_speed
+
+            paddle_width = parseInt(data.data.paddle_width)
+            paddle_height = parseInt(data.data.paddle_height)
+
+            p1_x_pos = parseFloat(data.data.p1_x_pos)
+            p1_y_pos = parseFloat(data.data.p1_y_pos)
+
+
+            p2_x_pos = parseFloat(data.data.p2_x_pos)
+            p2_y_pos = parseFloat(data.data.p2_y_pos)
+
+            p1_score = parseInt(data.data.p1_score)
+            p2_score = parseInt(data.data.p2_score)  
+
+            ball_x_pos = parseFloat(data.data.ball_x_pos)
+            ball_y_pos = parseFloat(data.data.ball_y_pos)
+            ball_width = parseFloat(data.data.ball_width)
+            ball_x_velocity = parseFloat(data.data.ball_x_velocity)
+            ball_y_velocity = parseFloat(data.data.ball_y_velocity)
+            ball_x_normalspeed = parseFloat(data.data.ball_x_normalspeed)
+            player1 = data.data.player1
+            player2 = data.data.player2
+            console.log('Data:', data)
+            console.log("paddle speed", paddle_speed)
+            console.log("paddle_width", paddle_width)
+            console.log("paddle_height", paddle_height)
+            console.log("p1_x_pos", p1_x_pos)
+            console.log("p1_y_pos", p1_y_pos)
+            console.log("p2_x_pos", p2_x_pos)
+            console.log("p2_y_pos", p2_y_pos)
+            console.log("p1_score", p1_score)
+            console.log("p2_score", p2_score)
+            console.log("ball_x_pos", ball_x_pos)
+            console.log("ball_y_pos", ball_y_pos)
+            console.log("ball_width", ball_width)
+            console.log("ball_x_velocity", ball_x_velocity)
+            console.log("ball_y_velocity", ball_y_velocity)
+            console.log("ball_x_normalspeed", ball_x_normalspeed)
+            console.log("p1ypos", data.data.p1_y_pos)
+        }
+    }
+}    
+
+initWebSocket()
 
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
@@ -69,6 +131,10 @@ document.addEventListener('keydown', function(event) {
             if (chatSocket.readyState === WebSocket.OPEN)
                 chatSocket.send(JSON.stringify({'message': 'p2key_down_pressed'}));
             break;
+        // case 'space':
+        //     if (chatSocket.readyState === WebSocket.OPEN)
+        //         chatSocket.send(JSON.stringify({'message': 'replay'}));
+        //     break;
     }
 });
 
@@ -126,53 +192,6 @@ function draw(){
     draw_objects()
     get_update()
     requestAnimationFrame(draw);
-}
-
-chatSocket.onmessage = function(e){
-    let data = JSON.parse(e.data)
-    if (data.type == 'update received')
-    {
-        paddle_speed = data.data.paddle_speed
-
-        paddle_width = parseInt(data.data.paddle_width)
-        paddle_height = parseInt(data.data.paddle_height)
-        
-        p1_x_pos = parseFloat(data.data.p1_x_pos)
-        p1_y_pos = parseFloat(data.data.p1_y_pos)
-
-
-        p2_x_pos = parseFloat(data.data.p2_x_pos)
-        p2_y_pos = parseFloat(data.data.p2_y_pos)
-
-        p1_score = parseInt(data.data.p1_score)
-        p2_score = parseInt(data.data.p2_score)  
-
-        ball_x_pos = parseFloat(data.data.ball_x_pos)
-        ball_y_pos = parseFloat(data.data.ball_y_pos)
-        ball_width = parseFloat(data.data.ball_width)
-        ball_x_velocity = parseFloat(data.data.ball_x_velocity)
-        ball_y_velocity = parseFloat(data.data.ball_y_velocity)
-        ball_x_normalspeed = parseFloat(data.data.ball_x_normalspeed)
-        player1 = data.data.player1
-        player2 = data.data.player2
-        console.log('Data:', data)
-        console.log("paddle speed", paddle_speed)
-        console.log("paddle_width", paddle_width)
-        console.log("paddle_height", paddle_height)
-        console.log("p1_x_pos", p1_x_pos)
-        console.log("p1_y_pos", p1_y_pos)
-        console.log("p2_x_pos", p2_x_pos)
-        console.log("p2_y_pos", p2_y_pos)
-        console.log("p1_score", p1_score)
-        console.log("p2_score", p2_score)
-        console.log("ball_x_pos", ball_x_pos)
-        console.log("ball_y_pos", ball_y_pos)
-        console.log("ball_width", ball_width)
-        console.log("ball_x_velocity", ball_x_velocity)
-        console.log("ball_y_velocity", ball_y_velocity)
-        console.log("ball_x_normalspeed", ball_x_normalspeed)
-        console.log("p1ypos", data.data.p1_y_pos)
-    }
 }
 
 draw();

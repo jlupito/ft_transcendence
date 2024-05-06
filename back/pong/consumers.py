@@ -8,9 +8,12 @@ from channels.generic.websocket import WebsocketConsumer
 import threading
 import time
 from typing import List
+from . import Game
+
+games: List[Game] = []
 
 class Game():
-    def __init__(self):
+    def __init__(self, maxscore):
         self.delay = 30
         self.WHITE = (255, 255, 255)
         self.BLACK = (0, 0, 0)
@@ -33,6 +36,7 @@ class Game():
 
         self.p1_score = 0
         self.p2_score = 0
+        self.maxscore = maxscore
 
         self.p1_up = False
         self.p1_down = False
@@ -42,9 +46,10 @@ class Game():
         self.ball_x_pos = self.WIDTH / 2
         self.ball_y_pos = self.HEIGHT / 2
         self.ball_width = 8
-        self.ball_x_velocity = 2.5
+        self.ball_x_velocity = 10
         self.ball_y_velocity = 0
-        self.ball_x_normalspeed = 1
+        self.ball_x_normalspeed = 10
+        self.has_finished = False
 
     def apply_player_movement(self):
         if (self.p1_up):
@@ -67,7 +72,7 @@ class Game():
             self.p1_score = self.p1_score + 1
             self.ball_x_pos = self.WIDTH / 2
             self.ball_y_pos = self.HEIGHT / 2
-            self.ball_x_velocity = 1
+            self.ball_x_velocity = self.ball_x_normalspeed
             self.ball_y_velocity = 0
             self.p1_y_pos = self.HEIGHT / 2 - self.paddle_height / 2
             self.p2_y_pos = self.HEIGHT / 2 - self.paddle_height / 2
@@ -80,7 +85,7 @@ class Game():
             self.p2_score = self.p2_score + 1
             self.ball_x_pos = self.WIDTH / 2
             self.ball_y_pos = self.HEIGHT / 2
-            self.ball_x_velocity = -1
+            self.ball_x_velocity = -self.ball_x_normalspeed
             self.ball_y_velocity = 0
             self.p1_y_pos = self.HEIGHT / 2 -self.paddle_height / 2
             self.p2_y_pos = self.HEIGHT / 2 -self.paddle_height / 2
@@ -90,9 +95,12 @@ class Game():
         self.ball_x_pos += self.ball_x_velocity
         self.ball_y_pos += self.ball_y_velocity
 
+        if (self.p1_score >= self.maxscore or self.p2_score >= self.maxscore):
+            self.endgame()
+
     def run(self):
         self.is_running = True
-        while True:
+        while self.is_running:
             self.apply_player_movement()
             self.apply_ball_movement()
             time.sleep(0.025)
@@ -100,6 +108,14 @@ class Game():
     def start(self):
         thread = threading.Thread(target=self.run)
         thread.start()
+
+    def endgame(self):
+        self.is_running = False #Stop la loop du jeu et sortira du thread
+        self.has_finished = True
+        games = [game for game in games if not game.has_finished]
+
+        
+
 
 # def get_user_count():
 #     return cache.get('users_count', 0)
@@ -125,7 +141,7 @@ class Game():
 
 
 
-games: List[Game] = []
+
 
 class ChatConsumer(WebsocketConsumer):
     def __init__(self, *args, **kwargs):
@@ -149,7 +165,7 @@ class ChatConsumer(WebsocketConsumer):
                     self.game.player2 = user.username
                 break
         if (game == None and self.game == None):
-            self.game = Game()
+            self.game = Game(5)
             self.game.player1 = user.username
             games.append(self.game)
         if (self.game.player1 != "" and self.game.player2 != ""):
@@ -160,6 +176,8 @@ class ChatConsumer(WebsocketConsumer):
             'data':self.game.__dict__
         }))
 
+    def disconnect(self, code):
+        pass
     def receive(self, text_data):
         text_data_json = json.loads(text_data)
         message = text_data_json['message']
@@ -214,7 +232,26 @@ class ChatConsumer(WebsocketConsumer):
                 'type':'debug',
                 'message':'p2 down released'
             }))
-        
+        # if (message == 'replay'):
+        #     user = self.scope['user']
+        #     game = None
+        #     for game in games:
+        #         if (game.player1 == user.username or game.player2 == user.username):
+        #             break
+        #         if (self.game == None and (game.player1 == "" or game.player2 == "")):
+        #             self.game = game
+        #         if (self.game.player1 == "" and self.game.player2 != user.username):
+        #             self.game.player1 = user.username
+        #         elif (self.game.player2 == "" and self.game.player1 != user.username):
+        #             self.game.player2 = user.username
+        #         break
+        #     if (game == None and self.game == None):
+        #         self.game = Game(5)
+        #         self.game.player1 = user.username
+        #         games.append(self.game)
+        #     if (self.game.player1 != "" and self.game.player2 != ""):
+        #         self.game.start()
+            
     
     def send_update(self):
         self.send(text_data=json.dumps({
