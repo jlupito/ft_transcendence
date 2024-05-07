@@ -172,28 +172,28 @@
 							<div style="height: 125px;">
 								<div class="col-9 bg-white bg-opacity-25 p-3 mb-2 rounded shadow-sm mx-auto" style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#resultsModal">
 									<div class="row align-items-center">
-										<div class="col-5 col-sm-4 col-lg-3 col-xl-2">
+										<div class="col-5">
 											<div class="d-flex align-items-center">
-												<p class="fw-bold m-0">wins</p>
+												<p class="fw-bold m-0">won ({{ matches_won }})</p>
 											</div>
 										</div>
-										<div class="col">
+										<div class="col-7">
 											<div class="progress" data-bs-toggle="tooltip" title="Out of last 20 matches">
-												<div class="progress-bar bg-primary" role="progressbar" style="width: 11%" aria-valuenow="11" aria-valuemin="1" aria-valuemax="101"></div>
+												<div class="progress-bar bg-primary" role="progressbar" style="width: 11%" aria-valuenow="11" aria-valuemin="1" aria-valuemax="10"></div>
 											</div>
 										</div>
 									</div>
 								</div>
 								<div class="col-9 bg-white bg-opacity-25 p-3 mb-2 rounded shadow-sm mx-auto" style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#resultsModal">
 									<div class="row align-items-center">
-										<div class="col-5 col-sm-4 col-lg-3 col-xl-2" >
+										<div class="col-5" >
 											<div class="d-flex align-items-center">
-												<p class="fw-bold m-0">losses</p>
+												<p class="fw-bold m-0">lost ({{ matches_lost }})</p>
 											</div>
 										</div>
-										<div class="col">
+										<div class="col-7">
 											<div class="progress" data-bs-toggle="tooltip" title="Out of last 20 matches">
-												<div class="progress-bar bg-primary" role="progressbar" style="width: 1%" aria-valuenow="80" aria-valuemin="1" aria-valuemax="101"></div>
+												<div class="progress-bar bg-danger" role="progressbar" style="width: 1%" aria-valuenow="80" aria-valuemin="0.1" aria-valuemax="10"></div>
 											</div>
 										</div>
 									</div>

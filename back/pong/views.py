@@ -19,6 +19,8 @@ def home(request):
 		avatar_url = UserProfile.objects.get(user=request.user).avatar.url
 		users = UserProfile.objects.exclude(user=request.user)
 		matches = match_history(request.user)
+		matches_l = matches_lost(request.user)
+		matches_w = matches_won(request.user)
 		friends = friends_list(request.user)
 		invites = invites_list(request.user)
 		invitees = invitees_list(request.user)
@@ -29,6 +31,8 @@ def home(request):
 			'friends': friends,
 			'matches': matches,
 			'invitees': invitees,
+			'matches_lost': matches_l,
+			'matches_won': matches_w
 		}
 	return render(request, 'page.html', context)
 
@@ -36,6 +40,22 @@ def home(request):
 def logout_view(request):
 	logout(request)
 	return redirect('home')
+
+def matches_won(user):
+	matches = Match.objects.filter(player1=user)
+	won = 0
+	for match in matches:
+		if match.player1_score > match.player2_score:
+			won += 1
+	return won
+
+def matches_lost(user):
+	matches = Match.objects.filter(player1=user)
+	lost = 0
+	for match in matches:
+		if match.player1_score < match.player2_score:
+			lost += 1
+	return lost
 
 def match_history(user):
 	matches = Match.objects.filter(player1=user) | Match.objects.filter(player2=user)
