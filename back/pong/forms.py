@@ -10,3 +10,6 @@ class RegisterForm(forms.Form):
 class LoginForm(forms.Form):
    username=forms.CharField(max_length=25, required=True)
    password=forms.CharField(required=True, widget=forms.PasswordInput)
+
+class localMatchForm(forms.Form):
+   local_player2_name=forms.CharField(max_length=25, required=True)

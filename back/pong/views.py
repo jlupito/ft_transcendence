@@ -224,10 +224,10 @@ def create_match(request):
 			player_2=player_2
 			)
 		#while (user1 or user2 score != 3 pts):
-  			#launch pong(user1, user2) 
+  			#launch pong(user1, user2)
 		#if user1 or user2 score == 3 pts:
   			# end match, message results, save score, close window
-	
+
 		new_match.save()
 	return redirect ('home')
 

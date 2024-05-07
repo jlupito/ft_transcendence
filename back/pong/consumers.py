@@ -64,7 +64,7 @@ class Game():
             self.ball_x_velocity = -(self.ball_x_velocity - 0.1)
             self.ball_y_velocity = (self.p1_y_pos + self.paddle_height / 2 - self.ball_y_pos) / 16
             self.ball_y_velocity = -self.ball_y_velocity
-        
+
         elif (self.ball_x_pos + self.ball_x_velocity < 0):
             self.p1_score = self.p1_score + 1
             self.ball_x_pos = self.WIDTH / 2
@@ -111,7 +111,7 @@ class Game():
         self.has_finished = True
         games = [game for game in games if not game.has_finished]
 
-        
+
 
 
 # def get_user_count():
@@ -125,7 +125,7 @@ class Game():
 #         # Incrémentez le compteur dans le cache
 #         cache.add('users_count', 0)
 #         cache.incr('users_count')
-        
+
 
 #         await self.accept()
 
@@ -148,7 +148,7 @@ class ChatConsumer(WebsocketConsumer):
     def connect(self):
         self.accept()
         self.game = None
-        
+
         user = self.scope['user']
         game = None
         for game in games:
@@ -248,8 +248,8 @@ class ChatConsumer(WebsocketConsumer):
         #         games.append(self.game)
         #     if (self.game.player1 != "" and self.game.player2 != ""):
         #         self.game.start()
-            
-    
+
+
     def send_update(self):
         self.send(text_data=json.dumps({
             'type':'update received',
