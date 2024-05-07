@@ -107,8 +107,8 @@
 		<div class="container mt-5">
 			{% if messages %}
 				{% for message in messages %}
-				<div class="alert alert-warning alert-dismissible fade show" role="alert"> 
-					{{ message }} 			
+				<div class="alert alert-warning alert-dismissible fade show" role="alert">
+					{{ message }}
 				</div>
 				{% endfor %}
 			{% endif %}
@@ -182,13 +182,13 @@
 							<h5 class="ms-3">Play</h5>
 							<hr class="col-10 mt-0 mb-2 mx-auto">
 							<div class="mt-4 mb-2 text-center">
-								<!-- <form action="launch_match" method="POST">
-									{% csrf_token %}
-									<input type="hidden" name="match" value="{{ match }}"> -->
-									<button type="" class="btn btn-dark shadow-sm text-light col-9" data-bs-toggle="modal" data-bs-target="#matchModal">Play a match
-										<i class="bi bi-joystick ms-2"></i>
-									</button>
-								<!-- </form> -->
+								<button type="" class="btn btn-dark shadow-sm text-light col-9" data-bs-toggle="modal" data-bs-target="#localmatchModal">Play local
+								</button>
+							</div>
+							<div class="mt-4 mb-2 text-center">
+								<button type="" class="btn btn-dark shadow-sm text-light col-9" data-bs-toggle="modal" data-bs-target="#matchModal">Play a match
+									<i class="bi bi-joystick ms-2"></i>
+								</button>
 							</div>
 							<div class="mt-2 mb-2 text-center">
 								<button type="" class="btn btn-dark shadow-sm text-light col-9">Create tournament
@@ -264,7 +264,7 @@
 										<form action="send_invite" method="POST">
 											{% csrf_token %}
 											<input type="hidden" name="receiver" value="{{ user.user.username }}">
-											<button class="btn btn-sm btn-primary shadow-sm me-4" type="submit">add friend</button>
+											<button class="btn btn-sm btn-primary shadow-sm me-4" type="submit">Add friend</button>
 										</form>
 									</li>
 									{% endif %}
@@ -336,6 +336,33 @@
 			</div>
 		</div>
 	</div>
+	<div class="modal fade" id="localmatchModal" tabindex="-1" aria-labelledby="localMatchModalLabel" aria-hidden="true">
+		<div class="modal-dialog matchModal" >
+			<div class="modal-content bg-dark-subtle shadow">
+				<div class="modal-header">
+					<h5 class="modal-title" id="localMatchModalLabel">Play a local match</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					<form id="localMatchForm" class="row gy-2 mt-4 d-flex align-items-center justify-content-center">
+						{% csrf_token %}
+						<div class="mb-1 col-8">
+							<input type="text" class="form-control" id="local_player2_name" name="local_player2_name" placeholder="Enter a name for the other player">
+						</div>
+						<button type="button" id="startLocalGameBtn" class="btn btn-primary">Start playing local</button>
+					</form>
+				</div>
+				<div class="modal-body">
+					<div class="canvas" width="600" height="600">
+						<canvas id="myCanvas" width="600" height="600"></canvas>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+				</div>
+			</div>
+		</div>
+	</div>
 	<div class="modal fade" id="matchModal" tabindex="-1" aria-labelledby="matchModalLabel" aria-hidden="true">
 		<div class="modal-dialog matchModal" >
 			<div class="modal-content bg-dark-subtle shadow">
@@ -348,11 +375,6 @@
 					<div class="dot"></div>
   					<div class="dot"></div>
   					<div class="dot"></div>
-				</div>
-				<div class="modal-body">
-					<div class="canvas" width="600" height="600">
-						<canvas id="myCanvas" width="600" height="600"></canvas>
-					</div>
 				</div>
 				<div class="modal-footer">
 					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
