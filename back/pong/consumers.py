@@ -8,6 +8,8 @@ import threading
 import time
 
 
+games = []
+
 class Game():
     def __init__(self, maxscore):
         self.delay = 30
@@ -109,6 +111,7 @@ class Game():
         self.is_running = False #Stop la loop du jeu et sortira du thread
         self.has_finished = True
 
+
         
 
 
@@ -135,7 +138,6 @@ class Game():
 #         cache.decr('users_count')
 
 
-games = []
 
 
 class ChatConsumer(WebsocketConsumer):
@@ -151,30 +153,37 @@ class ChatConsumer(WebsocketConsumer):
         #     self.channel_name
         # )
         self.accept()
-        
+        # if (games):
+        #     newgames = []
+        #     gamelist = None
+        #     for gamelist in games:
+        #         if (gamelist.has_finished == False):
+        #             newgames.append(gamelist)
+        #     games = newgames
         user = self.scope['user']
-        self.send(text_data=json.dumps({
-            'type':'connection_established',
-            'message':'you are connected',
-            'data':(games == [])
-        }))
         for game in games:
-            if (game.player1 == user.username or game.player2 == user.username):
+            if (game.has_finished == False and (game.player1 == user.username or game.player2 == user.username)):
                 self.game = game
                 break
-            if (self.game == None and (game.player1 == "" or game.player2 == "")):
+            if (self.game == None and game.has_finished == False and (game.player1 == "" or game.player2 == "")):
                 self.game = game
                 if (self.game.player1 == "" and self.game.player2 != user.username):
                     self.game.player1 = user.username
                 elif (self.game.player2 == "" and self.game.player1 != user.username):
                     self.game.player2 = user.username
                 break
+        
         if (self.game == None):
             self.game = Game(5)
             self.game.player1 = user.username
             games.append(self.game)
         if (self.game.player1 != "" and self.game.player2 != ""):
             self.game.start()
+        self.send(text_data=json.dumps({
+            'type':'connection_established',
+            'message':'you are connected',
+            'data':(self.game.__dict__)
+        }))
 
     def receive(self, text_data):
         text_data_json = json.loads(text_data)
