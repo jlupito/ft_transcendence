@@ -33,12 +33,12 @@ function launchBall() {
         speedY *= -1;
         angle = 180;
       }
-      
+
     if (posY + ballHeight >= windowHeight) {
         speedY *= -1;
         angle = 0;
     }
-    
+
     updateBackground(angle);
     ball.style.left = posX + 'px';
     ball.style.top = posY + 'px';
@@ -58,4 +58,19 @@ language.forEach(item => {
 
         item.classList.add('active');
     });
+});
+
+// gestion de la modale pour lancer le local game
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelector('#localMatchForm').addEventListener('submit', function(event) {
+      event.preventDefault(); // Empêcher le comportement par défaut du formulaire
+
+      // Envoyer les données via WebSocket
+      if (chatSocket.readyState === WebSocket.OPEN) {
+          chatSocket.send(JSON.stringify({
+              'message': 'start_local_game',
+              'data': formData
+          }));
+      }
+  });
 });

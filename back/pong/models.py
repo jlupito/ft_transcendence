@@ -25,8 +25,8 @@ class Match(models.Model):
     @classmethod
     def create_match_from_game(cls, game_instance):
         match = Match.objects.create(
-            player1_name=game_instance.p1_name,
-            player2_name=game_instance.p2_name,
+            player1=game_instance.p1_name,
+            player2=game_instance.p2_name,
             player1_score=game_instance.p1_score,
             player2_score=game_instance.p2_score
             )
@@ -34,7 +34,7 @@ class Match(models.Model):
         return match
 
     def __str__(self):
-        return self.player1_name.username + ' vs ' + self.player2_name.username
+        return self.player1.username + ' vs ' + self.player2.username
 
 
 class Friend(models.Model):
@@ -49,7 +49,7 @@ class Friend(models.Model):
     def __str__(self):
         return self.sender.username + ' -> ' + self.receiver.username + ' (' + self.status + ')'
 
-#  ********************************** AJOUTS **********************************
+#  ********************************** TOURNOIS **********************************
 
 # classmethod est une methode de la classe, un peu comme static en c++ sur les objets
 # on cree donc des methodes propres a la classe Tournament, a l' interieur de la def

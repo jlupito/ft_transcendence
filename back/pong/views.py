@@ -172,58 +172,23 @@ def auth(request):
 	login(request, user)
 	return redirect('home')
 
-
-# *********************************** TOURNOIS ***********************************
-
-# Dans cette fonction on créée un nouvel objet de type Tournament, en appelant la
-# classe, et esnuite le gestionnaire d' objets associé a celle-ci. Les objets ont
-# comme classmethod la fontion create() deja fournie par Django, elle prend en
-# argument les champs attributs de la classe et renvoie un nouvel objet.
-# on retourne ensuite au home, car SPA.
-
-#  ajouter l'info de player1 qui lance ?
-def create_tournament(request):
-	if request.method == 'GET':
-		return redirect('home')
-	new_tournament = Tournament.objects.create()
-	initiating_player = request.user.username
-	new_tournament.players_info[0] = initiating_player
-	new_tournament.save()
-	return redirect('home')
-
-# Dans ce code :
-# Nous récupérons le nom du nouveau joueur à partir de la requête POST.
-# Ensuite, nous récupérons l'instance du tournoi à l'aide de :
-# Tournament.objects.get(tournament_name=tournament_name).
-# Nous accédons au dictionnaire players_info de ce tournoi.
-# Nous ajoutons le nouveau joueur au dictionnaire en utilisant une nouvelle
-# clé qui est la longueur actuelle du dictionnaire plus un.
-# Nous sauvegardons ensuite le tournoi pour enregistrer les modifications.
-# ATTENTION aux infos contenues dans la requete POST (playername doit exister)
-def add_player_in_tournament(request, tournament_name):
-	if request.method == 'GET':
-		return redirect('home')
-	elif request.method == 'POST':
-		newplayer_name = request.POST.get("playername")
-		tournament = Tournament.objects.get(tournament_name=tournament_name)
-		players_info = tournament.players_info
-		players_info[newplayer_name] = len(players_info) + 1
-		tournament.save()
-	return redirect('home')
-
 # *********************************** MATCHS ***********************************
 
 def create_local_game(request):
 	if request.method == 'POST':
-
 		localform = localMatchForm(request.POST)
-		if localform.is_valid():
-			player1_name = request.user.username
-			player2_name = request.POST.get("local_player2_name")
-		new_game = Game.objects.create(player1_name=player1_name, player2_name=player2_name)
-		new_game.save()
-		return redirect('home')
 
+		if localform.is_valid():
+			player1 = request.user
+			player2 = localform.cleaned_data['local_player2_name']
+
+			if player2:
+				new_game = Game.objects.create(player1=player1, player2=player2)
+				new_game.save()
+				return redirect('home')
+			else:
+				messages.error(request, "Player 2 name cannot be empty.")
+				localform=localMatchForm()
 	return redirect('home')
 
 # *********************************** LOGIN ***********************************
@@ -233,6 +198,7 @@ def create_local_game(request):
 def sign_in(request):
 	if request.method == 'POST':
 		loginform = LoginForm(request.POST)
+
 		if loginform.is_valid():
 			# verifier avec le mail ou avec le username ???? Plus complexe avec un mail mais faisable
 			user=authenticate(
@@ -277,3 +243,42 @@ def my_view(request):
     logger.warning('Ceci est un message d\'avertissement')
     logger.error('Ceci est un message d\'erreur')
     logger.critical('Ceci est un message critique')
+
+
+# *********************************** TOURNOIS ***********************************
+
+# Dans cette fonction on créée un nouvel objet de type Tournament, en appelant la
+# classe, et esnuite le gestionnaire d' objets associé a celle-ci. Les objets ont
+# comme classmethod la fontion create() deja fournie par Django, elle prend en
+# argument les champs attributs de la classe et renvoie un nouvel objet.
+# on retourne ensuite au home, car SPA.
+
+#  ajouter l'info de player1 qui lance ?
+def create_tournament(request):
+	if request.method == 'GET':
+		return redirect('home')
+	new_tournament = Tournament.objects.create()
+	initiating_player = request.user.username
+	new_tournament.players_info[0] = initiating_player
+	new_tournament.save()
+	return redirect('home')
+
+# Dans ce code :
+# Nous récupérons le nom du nouveau joueur à partir de la requête POST.
+# Ensuite, nous récupérons l'instance du tournoi à l'aide de :
+# Tournament.objects.get(tournament_name=tournament_name).
+# Nous accédons au dictionnaire players_info de ce tournoi.
+# Nous ajoutons le nouveau joueur au dictionnaire en utilisant une nouvelle
+# clé qui est la longueur actuelle du dictionnaire plus un.
+# Nous sauvegardons ensuite le tournoi pour enregistrer les modifications.
+# ATTENTION aux infos contenues dans la requete POST (playername doit exister)
+def add_player_in_tournament(request, tournament_name):
+	if request.method == 'GET':
+		return redirect('home')
+	elif request.method == 'POST':
+		newplayer_name = request.POST.get("playername")
+		tournament = Tournament.objects.get(tournament_name=tournament_name)
+		players_info = tournament.players_info
+		players_info[newplayer_name] = len(players_info) + 1
+		tournament.save()
+	return redirect('home')
