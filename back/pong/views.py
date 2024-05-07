@@ -21,12 +21,14 @@ def home(request):
 		matches = match_history(request.user)
 		friends = friends_list(request.user)
 		invites = invites_list(request.user)
+		invitees = invitees_list(request.user)
 		context = {
 			'users': users,
 			'avatar_url': avatar_url,
 			'invites': invites,
 			'friends': friends,
 			'matches': matches,
+			'invitees': invitees,
 		}
 	return render(request, 'page.html', context)
 
@@ -79,6 +81,13 @@ def invites_list(user):
 	for invite in invites:
 		l.append(invite.sender.username)
 	return l
+
+def invitees_list(user):
+    invitees = Friend.objects.filter(sender=user, status='pending')
+    l = []
+    for invitee in invitees:
+        l.append(invitee.receiver.username)
+    return l
 
 def update_profile(request):
 	if request.method == 'GET':

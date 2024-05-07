@@ -25,13 +25,20 @@ body {
 	box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.5);
 }
 
+.buttonfriends {
+    height: 40px;
+    width: 80px;
+    font-size: 10px !important;
+    text-align: center; /* Center text horizontally */
+    line-height: 40px; /* Center text vertically */
+}
+
 .matchModal {
     min-width: 700px;
 }
 
 .colSize {
-   	height: 500px;
-	max-width: 400px;
+   	height: 530px;
 }
 
 .dot {
