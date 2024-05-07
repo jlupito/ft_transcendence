@@ -6,6 +6,7 @@ from django.core.cache import cache
 from channels.generic.websocket import WebsocketConsumer
 import threading
 import time
+from .models import Match
 
 games = []
 
@@ -109,35 +110,9 @@ class Game():
     def endgame(self):
         self.is_running = False #Stop la loop du jeu et sortira du thread
         self.has_finished = True
+        new_match = Match.create_match_from_game(self)
+        new_match.save()
         games = [game for game in games if not game.has_finished]
-
-
-
-
-# def get_user_count():
-#     return cache.get('users_count', 0)
-
-# class MyConsumer(AsyncWebsocketConsumer):
-#     async def connect(self):
-#         # Ajoutez l'utilisateur au groupe de canaux
-#         await self.channel_layer.group_add("users", self.channel_name)
-
-#         # Incrémentez le compteur dans le cache
-#         cache.add('users_count', 0)
-#         cache.incr('users_count')
-
-
-#         await self.accept()
-
-#     async def disconnect(self, close_code):
-#         # Retirez l'utilisateur du groupe de canaux
-#         await self.channel_layer.group_discard("users", self.channel_name)
-
-#         # Décrémentez le compteur dans le cache
-#         cache.decr('users_count')
-
-
-
 
 
 class ChatConsumer(WebsocketConsumer):
@@ -229,30 +204,9 @@ class ChatConsumer(WebsocketConsumer):
                 'type':'debug',
                 'message':'p2 down released'
             }))
-        # if (message == 'replay'):
-        #     user = self.scope['user']
-        #     game = None
-        #     for game in games:
-        #         if (game.player1 == user.username or game.player2 == user.username):
-        #             break
-        #         if (self.game == None and (game.player1 == "" or game.player2 == "")):
-        #             self.game = game
-        #         if (self.game.player1 == "" and self.game.player2 != user.username):
-        #             self.game.player1 = user.username
-        #         elif (self.game.player2 == "" and self.game.player1 != user.username):
-        #             self.game.player2 = user.username
-        #         break
-        #     if (game == None and self.game == None):
-        #         self.game = Game(5)
-        #         self.game.player1 = user.username
-        #         games.append(self.game)
-        #     if (self.game.player1 != "" and self.game.player2 != ""):
-        #         self.game.start()
-
 
     def send_update(self):
         self.send(text_data=json.dumps({
             'type':'update received',
             'data': self.game.__dict__
         }))
-    

@@ -14,17 +14,29 @@ class UserProfile(models.Model):
     def __str__(self):
         return self.user.first_name
 
-# methode de classe pour avoir juste directement le nom du vainqueur ? superflu?
+
 class Match(models.Model):
     player1 = models.ForeignKey(User, on_delete=models.CASCADE, related_name='player1')
     player2 = models.ForeignKey(User, on_delete=models.CASCADE, related_name='player2')
     player1_score = models.IntegerField(default=0)
     player2_score = models.IntegerField(default=0)
     timestamp = models.DateTimeField(auto_now_add=True)
-    def __str__(self):
-        return self.player1.username + ' vs ' + self.player2.username
 
-# classmethod pour accepter / rejeter les demandes d'ami ?
+    @classmethod
+    def create_match_from_game(cls, game_instance):
+        match = Match.objects.create(
+            player1_name=game_instance.p1_name,
+            player2_name=game_instance.p2_name,
+            player1_score=game_instance.p1_score,
+            player2_score=game_instance.p2_score
+            )
+        match.save()
+        return match
+
+    def __str__(self):
+        return self.player1_name.username + ' vs ' + self.player2_name.username
+
+
 class Friend(models.Model):
     STATUS_CHOICES = (
         ('pending', 'Pending'),

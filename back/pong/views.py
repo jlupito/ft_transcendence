@@ -11,7 +11,8 @@ from django.contrib import messages
 from django.core.exceptions import ValidationError
 import requests
 import os
-from .forms import RegisterForm, LoginForm
+from .forms import RegisterForm, LoginForm, localMatchForm
+from .consumers import Game
 
 def home(request):
 	context = {}
@@ -212,24 +213,18 @@ def add_player_in_tournament(request, tournament_name):
 
 # *********************************** MATCHS ***********************************
 
-def create_match(request):
+def create_local_game(request):
 	if request.method == 'POST':
-		player1_name = request.POST.get("player1_name")
-		player2_name = request.POST.get("player2_name")
 
-		player_1 = UserProfile.objects.get(username = player1_name)
-		player_2 = UserProfile.objects.get(username = player2_name)
-		new_match = Match.objects.create(
-			player_1=player_1,
-			player_2=player_2
-			)
-		#while (user1 or user2 score != 3 pts):
-  			#launch pong(user1, user2)
-		#if user1 or user2 score == 3 pts:
-  			# end match, message results, save score, close window
+		localform = localMatchForm(request.POST)
+		if localform.is_valid():
+			player1_name = request.user.username
+			player2_name = request.POST.get("local_player2_name")
+		new_game = Game.objects.create(player1_name=player1_name, player2_name=player2_name)
+		new_game.save()
+		return redirect('home')
 
-		new_match.save()
-	return redirect ('home')
+	return redirect('home')
 
 # *********************************** LOGIN ***********************************
 
