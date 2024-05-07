@@ -7,7 +7,6 @@ from channels.generic.websocket import WebsocketConsumer
 import threading
 import time
 
-games = []
 
 class Game():
     def __init__(self, maxscore):
@@ -109,7 +108,6 @@ class Game():
     def endgame(self):
         self.is_running = False #Stop la loop du jeu et sortira du thread
         self.has_finished = True
-        games = [game for game in games if not game.has_finished]
 
         
 
@@ -137,7 +135,7 @@ class Game():
 #         cache.decr('users_count')
 
 
-
+games = []
 
 
 class ChatConsumer(WebsocketConsumer):
@@ -146,13 +144,23 @@ class ChatConsumer(WebsocketConsumer):
         self.game = None
 
     def connect(self):
+        # self.room_group_name = 'test'
+
+        # async_to_sync(self.channel_layer.group_add)(
+        #     self.room_group_name,
+        #     self.channel_name
+        # )
         self.accept()
-        self.game = None
         
         user = self.scope['user']
-        game = None
+        self.send(text_data=json.dumps({
+            'type':'connection_established',
+            'message':'you are connected',
+            'data':(games == [])
+        }))
         for game in games:
             if (game.player1 == user.username or game.player2 == user.username):
+                self.game = game
                 break
             if (self.game == None and (game.player1 == "" or game.player2 == "")):
                 self.game = game
@@ -161,20 +169,13 @@ class ChatConsumer(WebsocketConsumer):
                 elif (self.game.player2 == "" and self.game.player1 != user.username):
                     self.game.player2 = user.username
                 break
-        if (game == None and self.game == None):
+        if (self.game == None):
             self.game = Game(5)
             self.game.player1 = user.username
             games.append(self.game)
         if (self.game.player1 != "" and self.game.player2 != ""):
             self.game.start()
-        self.send(text_data=json.dumps({
-            'type':'connection_established',
-            'message':'you are connected',
-            'data':self.game.__dict__
-        }))
 
-    def disconnect(self, code):
-        pass
     def receive(self, text_data):
         text_data_json = json.loads(text_data)
         message = text_data_json['message']
