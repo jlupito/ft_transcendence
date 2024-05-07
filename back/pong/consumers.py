@@ -1,16 +1,13 @@
 import json
 from channels.generic.websocket import WebsocketConsumer
-from . import game_instance
 import channels.layers
 from asgiref.sync import async_to_sync
 from django.core.cache import cache
 from channels.generic.websocket import WebsocketConsumer
 import threading
 import time
-from typing import List
-from . import Game
 
-games: List[Game] = []
+games = []
 
 class Game():
     def __init__(self, maxscore):
