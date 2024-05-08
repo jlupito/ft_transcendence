@@ -61,16 +61,10 @@ language.forEach(item => {
 });
 
 // gestion de la modale pour lancer le local game
+// Empêcher le comportement par défaut du formulaire
 document.addEventListener('DOMContentLoaded', function() {
   document.querySelector('#localMatchForm').addEventListener('submit', function(event) {
-      event.preventDefault(); // Empêcher le comportement par défaut du formulaire
+      event.preventDefault();
 
-      // Envoyer les données via WebSocket
-      if (chatSocket.readyState === WebSocket.OPEN) {
-          chatSocket.send(JSON.stringify({
-              'message': 'start_local_game',
-              'data': formData
-          }));
-      }
-  });
+    });
 });
