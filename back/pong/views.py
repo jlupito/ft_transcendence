@@ -249,6 +249,10 @@ def register(request):
 		registerform = RegisterForm(request.POST)
 		if registerform.is_valid():
 			username=registerform.cleaned_data['username']
+			if User.objects.filter(username=username).exists():
+				messages.error(request, 'This username is already used!') # Modifier la posiiton du message de front
+				# registerform = RegisterForm() # ne change rien == maintenir le form ?
+				return redirect('home')
 			mdp=registerform.cleaned_data['password']
 			new_user = User.objects.create_user(username=username, password=mdp, first_name=username)
 			UserProfile.objects.create(user=new_user)

@@ -113,7 +113,7 @@ class Game():
         self.has_finished = True
         new_match = Match.create_match_from_game(self)
         new_match.save()
-        games = [game for game in games if not game.has_finished]
+        # games = [game for game in games if not game.has_finished]
 
 
 class ChatConsumer(WebsocketConsumer):
@@ -123,7 +123,6 @@ class ChatConsumer(WebsocketConsumer):
 
     def connect(self):
         self.accept()
-        self.game = None
 
         user = self.scope['user']
         for game in games:
