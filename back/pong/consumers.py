@@ -104,7 +104,7 @@ class Game():
             self.apply_ball_movement()
             time.sleep(0.025)
 
-    def start(self):
+    def start(self): # démarre suite à l'instanciation de Game(5) dans la classe ChatConsumer()
         thread = threading.Thread(target=self.run)
         thread.start()
 
@@ -138,7 +138,7 @@ class ChatConsumer(WebsocketConsumer):
                 break
 
         if (self.game == None):
-            self.game = Game(5)
+            self.game = Game(5) # ICI on instancie un nouvel objet Game, qui à son tour lance sa methode start()
             self.game.player1 = user.username
             games.append(self.game)
         if (self.game.player1 != "" and self.game.player2 != ""):

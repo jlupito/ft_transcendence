@@ -209,7 +209,6 @@
 							</div>
 							<div class="mt-4 mb-2 text-center">
 								<button type="" class="btn btn-dark shadow-sm text-light col-9" data-bs-toggle="modal" data-bs-target="#matchModal">Play a match
-									<i class="bi bi-joystick ms-2"></i>
 								</button>
 							</div>
 							<div class="mt-2 mb-2 text-center">
@@ -344,6 +343,9 @@
 			</div>
 		</div>
 	</div>
+
+
+	{% comment %} MODALE POUR LE JEU LOCAL {% endcomment %}
 	<div class="modal fade" id="localmatchModal" tabindex="-1" aria-labelledby="localMatchModalLabel" aria-hidden="true">
 		<div class="modal-dialog matchModal" >
 			<div class="modal-content bg-dark-subtle shadow">
@@ -371,6 +373,7 @@
 			</div>
 		</div>
 	</div>
+	{% comment %} MODALE POUR LE JEU ONLINE {% endcomment %}
 	<div class="modal fade" id="matchModal" tabindex="-1" aria-labelledby="matchModalLabel" aria-hidden="true">
 		<div class="modal-dialog matchModal" >
 			<div class="modal-content bg-dark-subtle shadow">
@@ -390,6 +393,9 @@
 			</div>
 		</div>
 	</div>
+
+
+
 	<div class="modal fade" id="resultsModal" tabindex="-1" aria-labelledby="resultsModalLabel" aria-hidden="true">
 		<div class="modal-dialog resultsModal" >
 			<div class="modal-content bg-dark-subtle shadow">
