@@ -145,11 +145,11 @@
 		</nav>
 	</header>
 	<main class="vh-100">
-		<section id="profile" class="pt-5 pb-4 container col-8 col-lg-12 col-md-12 mb-1 mx-auto">
+		<section id="profile" class="pt-5 pb-4 container mx-auto" style="max-width : 800px">
 			<div class="bg-light text-center border border-light border-opacity-50 bg-opacity-25 rounded shadow text-light">
 				<div class="col mb-2 ">
 					<h2 class="text-light my-3">Welcome {{ request.user.first_name }} !</h2>
-					<img class="rounded-circle shadow-lg" src="{{ avatar_url }}" alt="User avatar" style="width: 50px; height: 50px;">
+					<img class="rounded-circle shadow-lg" src="{{ avatar_url }}" alt="User avatar" style="width: 60px; height: 60px;">
 				</div>
 				<div class="col mb-2">
 					<a class="btn btn-sm text-light" href="#" data-bs-toggle="modal" data-bs-target="#profileModal">
@@ -159,26 +159,48 @@
 				</div>
 			</div>
 		</section>
-		<section id="dashboard" class="container">
+		<section id="dashboard" class="container" style="max-width: 800px">
 			<div class="row">
-				<div class="col-8 col-lg-6 col-md-6 mb-3 mx-auto">
+				<div class="col mb-3 mx-auto">
 					<div class="colSize p-3 bg-light border border-light border-opacity-50 bg-opacity-25 rounded shadow text-light">
 						<h2 class="mb-4">Game</h2>
 						<div class="mb-4">
 							<div class="ms-3 d-flex align-items-center fw-bold">
-								<h5>Match history<i class="bi bi-clipboard-data ms-2"></i></h5>
+								<h5>Results<i class="bi bi-clipboard-data ms-2"></i></h5>
 							</div>
-							<hr class="col-10 mt-0 mb-2 mx-auto">
-							<ul class="list-unstyled ms-5">
-								{% if matches|length == 0 %}
-									<p>No matches</p>
-								{% endif %}
-								{% for match in matches %}
-									<li>{{ match }}</li>
-								{% endfor %}
-							</ul>
+							<hr class="col-10 mt-0 mb-3 mx-auto">
+							<div style="height: 125px;">
+								<div class="col-9 bg-white bg-opacity-25 p-3 mb-2 rounded shadow-sm mx-auto" style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#resultsModal">
+									<div class="row align-items-center">
+										<div class="col-5">
+											<div class="d-flex align-items-center">
+												<p class="fw-bold m-0">won ({{ matches_won }})</p>
+											</div>
+										</div>
+										<div class="col-7">
+											<div class="progress" data-bs-toggle="tooltip" title="Out of last 20 matches">
+												<div class="progress-bar bg-primary" role="progressbar" style="width: 11%" aria-valuenow="11" aria-valuemin="1" aria-valuemax="10"></div>
+											</div>
+										</div>
+									</div>
+								</div>
+								<div class="col-9 bg-white bg-opacity-25 p-3 mb-2 rounded shadow-sm mx-auto" style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#resultsModal">
+									<div class="row align-items-center">
+										<div class="col-5" >
+											<div class="d-flex align-items-center">
+												<p class="fw-bold m-0">lost ({{ matches_lost }})</p>
+											</div>
+										</div>
+										<div class="col-7">
+											<div class="progress" data-bs-toggle="tooltip" title="Out of last 20 matches">
+												<div class="progress-bar bg-danger" role="progressbar" style="width: 1%" aria-valuenow="80" aria-valuemin="0.1" aria-valuemax="10"></div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
 						</div>
-						<div>
+						<div style="height: 100px;">
 							<h5 class="ms-3">Play</h5>
 							<hr class="col-10 mt-0 mb-2 mx-auto">
 							<div class="mt-4 mb-2 text-center">
@@ -203,15 +225,15 @@
 						</div>
 					</div>
 				</div>
-				<div class="col-8 col-lg-6 col-md-6 mb-3 mx-auto">
+				<div class="col mb-3 mx-auto">
 					<div class="colSize p-3 bg-light border border-light border-opacity-50 bg-opacity-25 rounded shadow text-light">
 						<h2 class="mb-4">Friends</h2>
 						<div class="mb-4">
 							<div class="ms-3 mt-3 d-flex align-items-center">
 								<h5>Friends<i class="bi bi-people-fill ms-2"></i></h5>
 							</div>
-							<hr class="col-10 mt-0 mb-2 mx-auto">
-							<ul class="list-unstyled ms-5 overflow-auto" style="max-height: 80px;">
+							<hr class="col-10 mt-0 mb-3 mx-auto">
+							<ul class="list-unstyled ms-5 overflow-auto" style="height: 125px;">
 								{% if friends|length == 0 %}
 									<p>No friends :(</p>
 								{% endif %}
@@ -224,48 +246,34 @@
 							</ul>
 						</div>
 						<div class="mb-4">
-							<div class="ms-3 mt-3 d-flex align-items-center">
-								<h5>Friends requests<i class="bi bi-person-plus-fill ms-2"></i></h5>
-							</div>
-							<hr class="col-10 mt-0 mb-2 mx-auto">
-							{% if invites|length == 0 %}
-								<p class="ms-5">No requests</p>
-							{% endif %}
-							<ul class="list-unstyled overflow-auto" style="max-height: 80px;">
-								{% for invite in invites %}
-								<li class="d-flex align-items-center justify-content-between mb-2">
-									<div class="ms-5">
-										<img class="rounded-circle me-2" src="{{ friend.user.avatar.url }}" alt="Img" style="width: 35px; height: 35px;">
-										{{ invite }}
-									</div>
-									<form action="handle_invite" method="POST">
-										{% csrf_token %}
-										<input type="hidden" name="invite" value="{{ invite }}">
-										<button type="submit" name="status" value="accepted" class="btn px-3 btn-sm btn-primary shadow-sm"><i class="bi bi-check-square"></i></button>
-										<button type="submit" name="status" value="declined" class="px-3 btn btn-sm btn-danger me-4 shadow-sm"><i class="bi bi-x-square"></i></button>
-									</form>
-								</li>
-								{% endfor %}
-							</ul>
-						</div>
-						<div class="mb-4">
 							<div class="ms-3 d-flex align-items-center">
 								<h5>Users<i class="bi bi-people ms-2"></i></h5>
 							</div>
 							<hr class="col-10 mt-0 mb-3 mx-auto">
-							<ul class="list-unstyled overflow-auto" style="max-height: 80px;">
+							<ul class="list-unstyled overflow-auto" style="height: 150px;">
 								{% for user in users %}
-									{% if user not in friends and user not in invites %}
+									{% if user not in friends %}
 									<li class="d-flex align-items-center justify-content-between mb-2">
 										<div class="ms-5">
 											<img class="rounded-circle me-2" src="{{ user.avatar.url }}" alt="" style="width: 35px; height: 35px;">
 											{{ user.user.first_name }}
 										</div>
-										<form action="send_invite" method="POST">
-											{% csrf_token %}
-											<input type="hidden" name="receiver" value="{{ user.user.username }}">
-											<button class="btn btn-sm btn-primary shadow-sm me-4" type="submit">Add friend</button>
-										</form>
+										{% if user.user.first_name in invites %}
+											<form action="handle_invite" method="POST">
+												{% csrf_token %}
+												<input type="hidden" name="invite" value="{{ user.user.first_name }}">
+												<button type="submit" name="status" value="accepted" class="btn px-2 btn-sm btn-primary shadow-sm"><i class="bi bi-check-square"></i></button>
+												<button type="submit" name="status" value="declined" class="px-2 btn btn-sm btn-danger me-4 shadow-sm"><i class="bi bi-x-square"></i></button>
+											</form>
+										{% elif user.user.first_name in invitees %}
+											<button class="btn btn-sm btn-primary shadow-sm me-4 text-align-center" disabled>pending</button>
+										{% else %}
+											<form action="send_invite" method="POST">
+												{% csrf_token %}
+												<input type="hidden" name="receiver" value="{{ user.user.username }}">
+												<button class="btn btn-sm btn-primary shadow-sm me-4" type="submit">add friend</button>
+											</form>
+										{% endif %}
 									</li>
 									{% endif %}
 								{% endfor %}
@@ -375,6 +383,31 @@
 					<div class="dot"></div>
   					<div class="dot"></div>
   					<div class="dot"></div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="modal fade" id="resultsModal" tabindex="-1" aria-labelledby="resultsModalLabel" aria-hidden="true">
+		<div class="modal-dialog resultsModal" >
+			<div class="modal-content bg-dark-subtle shadow">
+				<div class="modal-header">
+					<h5 class="modal-title" id="resultsModalLabel">Match history</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					<div>
+						<ul class="list-unstyled ms-5" style="height: 110px;">
+							{% if matches|length == 0 %}
+								<p>No matches</p>
+							{% endif %}
+							{% for match in matches %}
+								<li>{{ match }}</li>
+							{% endfor %}
+						</ul>
+					</div>
 				</div>
 				<div class="modal-footer">
 					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>

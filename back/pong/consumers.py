@@ -8,6 +8,7 @@ import threading
 import time
 from .models import Match
 
+
 games = []
 
 class Game():
@@ -125,18 +126,19 @@ class ChatConsumer(WebsocketConsumer):
         self.game = None
 
         user = self.scope['user']
-        game = None
         for game in games:
-            if (game.player1 == user.username or game.player2 == user.username):
+            if (game.has_finished == False and (game.player1 == user.username or game.player2 == user.username)):
+                self.game = game
                 break
-            if (self.game == None and (game.player1 == "" or game.player2 == "")):
+            if (self.game == None and game.has_finished == False and (game.player1 == "" or game.player2 == "")):
                 self.game = game
                 if (self.game.player1 == "" and self.game.player2 != user.username):
                     self.game.player1 = user.username
                 elif (self.game.player2 == "" and self.game.player1 != user.username):
                     self.game.player2 = user.username
                 break
-        if (game == None and self.game == None):
+
+        if (self.game == None):
             self.game = Game(5)
             self.game.player1 = user.username
             games.append(self.game)
@@ -145,11 +147,9 @@ class ChatConsumer(WebsocketConsumer):
         self.send(text_data=json.dumps({
             'type':'connection_established',
             'message':'you are connected',
-            'data':self.game.__dict__
+            'data':(self.game.__dict__)
         }))
 
-    def disconnect(self, code):
-        pass
     def receive(self, text_data):
         text_data_json = json.loads(text_data)
         message = text_data_json['message']
