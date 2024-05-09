@@ -9,7 +9,6 @@
 	<link rel="stylesheet" type="text/css" href="../static/css/style.css">
 	<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Orbitron">
 	<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Russo+One">
-	<script src="../static/scripts/pong.js" defer></script>
 	<script src="../static/scripts/script.js" defer></script>
 </head>
 <body>
@@ -365,6 +364,30 @@
 				<div class="modal-body">
 					<div class="canvas" width="600" height="600">
 						<canvas id="myCanvas" width="600" height="600"></canvas>
+						<script>
+							var pongScript; // Variable pour stocker la référence du script pong.js
+	
+							document.addEventListener('DOMContentLoaded', function() {
+								var canvasModal = document.getElementById('localmatchModal'); // Remplacez localmatchModal par l'ID de votre modal contenant la canvas
+	
+								canvasModal.addEventListener('show.bs.modal', function () {
+									// Chargement dynamique de pong.js lorsque la modal s'ouvre
+									pongScript = document.createElement('script');
+									pongScript.src = '../static/scripts/pong.js'; // Chemin vers pong.js
+									pongScript.defer = true;
+									document.body.appendChild(pongScript);
+								});
+	
+								canvasModal.addEventListener('hidden.bs.modal', function () {
+							    // Suppression du script pong.js lorsque la modal est fermée pour arrêter son exécution
+							    if (pongScript) {
+							        document.body.removeChild(pongScript);
+							        pongScript = null;
+							        stopPongGame(); // Appel de la fonction pour arrêter l'exécution du jeu
+							    }
+							});
+							});
+						</script>
 					</div>
 				</div>
 				<div class="modal-footer">
