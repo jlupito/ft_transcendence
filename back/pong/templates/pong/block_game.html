@@ -1,0 +1,38 @@
+{% block game %}
+<div class="p-3 bg-light border border-light border-opacity-50 bg-opacity-25 rounded shadow text-light">
+	<h2 class="mb-4">Game</h2>
+	<div class="mb-4">
+		<div class="ms-3 d-flex align-items-center fw-bold">
+			<h5>Match history<i class="bi bi-clipboard-data ms-2"></i></h5>
+		</div>
+		<hr class="col-10 mt-0 mb-2 mx-auto">
+		<ul class="list-unstyled ms-5">
+			{% if matches|length == 0 %}
+				<p>No matches</p>
+			{% endif %}
+			{% for match in matches %}
+				<li>{{ match }}</li>
+			{% endfor %}
+		</ul>
+	</div>
+	<div>
+		<h5 class="ms-3">Play</h5>
+		<hr class="col-10 mt-0 mb-2 mx-auto">
+		<div class="mt-4 mb-2 text-center">
+			<button type="" class="btn btn-dark shadow-sm text-light col-9" data-bs-toggle="modal" data-bs-target="#matchModal">Play a match
+				<i class="bi bi-joystick ms-2"></i>
+			</button>
+		</div>
+		<div class="mt-2 mb-2 text-center">
+			<button type="" class="btn btn-dark shadow-sm text-light col-9">Create tournament
+				<i class="bi bi-trophy ms-2"></i>
+			</button>
+		</div>
+		<div class="mt-2 mb-3 text-center">
+			<button type="hidden" class="btn btn-primary shadow-sm text-light col-9">Live tournament
+				<i class="bi bi-trophy ms-2"></i>
+			</button>
+		</div>
+	</div>
+</div>
+{% endblock game %}

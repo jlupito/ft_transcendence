@@ -60,6 +60,12 @@ language.forEach(item => {
     });
 });
 
+const divMsg = document.getElementById('div-message');
+setTimeout(function() {
+	divMsg.remove('div-message');
+}, 5000);
+
+
 // FONCTION DE GESTION DES MODALES
 // Empêcher le comportement par défaut de la modale + form avec event.preventDefault();
 document.addEventListener('DOMContentLoaded', function() {

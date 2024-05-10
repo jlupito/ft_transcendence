@@ -1,0 +1,71 @@
+{% block friends %}
+	<div class="p-3 bg-light border border-light border-opacity-50 bg-opacity-25 rounded shadow text-light">
+		<h2 class="mb-4">Friends</h2>
+		<div class="mb-4">
+			<div class="ms-3 mt-3 d-flex align-items-center">
+				<h5>Friends<i class="bi bi-people-fill ms-2"></i></h5>
+			</div>
+			<hr class="col-10 mt-0 mb-2 mx-auto">
+			<ul class="list-unstyled ms-5 overflow-auto" style="max-height: 80px;">
+				{% if friends|length == 0 %}
+					<p>No friends :(</p>
+				{% endif %}
+				{% for friend in friends %}
+					<li class="mb-2">
+						<img class="rounded-circle me-2" src="{{ friend.avatar.url }}" alt="Friend avatar" style="width: 35px; height: 35px;">
+						{{ friend.user.username }}
+					</li>
+				{% endfor %}
+			</ul>
+		</div>
+		<div class="mb-4">
+			<div class="ms-3 mt-3 d-flex align-items-center">
+				<h5>Friends requests<i class="bi bi-person-plus-fill ms-2"></i></h5>
+			</div>
+			<hr class="col-10 mt-0 mb-2 mx-auto">
+			{% if invites|length == 0 %}
+				<p class="ms-5">No requests</p>
+			{% endif %}
+			<ul class="list-unstyled overflow-auto" style="max-height: 80px;">
+				{% for invite in invites %}
+				<li class="d-flex align-items-center justify-content-between mb-2">
+					<div class="ms-5">
+						<img class="rounded-circle me-2" src="{{ user.avatar.url }}" alt="Img" style="width: 35px; height: 35px;">
+						{{ invite.user.username }}
+						{{ invite }}
+					</div>
+					<form action="handle_invite" method="POST">
+						{% csrf_token %}
+						<input type="hidden" name="invite" value="{{ invite }}">
+						<button type="submit" name="status" value="accepted" class="btn px-3 btn-sm btn-primary shadow-sm"><i class="bi bi-check-square"></i></button>
+						<button type="submit" name="status" value="declined" class="px-3 btn btn-sm btn-danger me-4 shadow-sm"><i class="bi bi-x-square"></i></button>
+					</form>
+				</li>
+				{% endfor %}
+			</ul>
+		</div>
+		<div class="mb-4">
+			<div class="ms-3 d-flex align-items-center">
+				<h5>Users<i class="bi bi-people ms-2"></i></h5>
+			</div>
+			<hr class="col-10 mt-0 mb-3 mx-auto">
+			<ul class="list-unstyled overflow-auto" style="max-height: 80px;">
+				{% for user in users %}
+					{% if user not in friends and user not in invites %}
+					<li class="d-flex align-items-center justify-content-between mb-2">
+						<div class="ms-5">
+							<img class="rounded-circle me-2" src="{{ user.user.avatar_url }}" alt="" style="width: 35px; height: 35px;">
+							{{ user.user.username }}
+						</div>
+						<form action="send_invite" method="POST">
+							{% csrf_token %}
+							<input type="hidden" name="receiver" value="{{ user.user.username }}">
+							<button class="btn btn-sm btn-primary shadow-sm me-4" type="submit">add friend</button>
+						</form>
+					</li>
+					{% endif %}
+				{% endfor %}
+			</ul>
+		</div>
+	</div>
+{% endblock friends %}

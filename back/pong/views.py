@@ -1,4 +1,6 @@
 from django.shortcuts import redirect, render
+from users.models import UserProfile
+from friends.views import friends_list, invites_list, invitees_list
 from .models import Match, Tournament
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required

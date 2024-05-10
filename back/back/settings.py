@@ -46,6 +46,9 @@ INSTALLED_APPS = [
 	'doubleAuth',
 ]
 
+LOGIN_URL = '/login/'
+#AUTH_USER_MODEL = 'users.UserProfile'
+
 ASGI_APPLICATION = 'back.asgi.application'
 
 #LOGGING = {
@@ -158,5 +161,3 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-LOGIN_URL = '/login/'
-#AUTH_USER_MODEL = 'users.UserProfile'

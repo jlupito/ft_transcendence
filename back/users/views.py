@@ -34,7 +34,7 @@ def login_user(request):
 				return redirect('home')
 			else:
 				messages.error(request, 'Invalid username or password')
-	return render(request, 'accounts/login.html', {'form': loginform})
+	return render(request, 'users/login.html', {'form': loginform})
 
 def signup(request):
 	if request.method == 'POST':
@@ -55,7 +55,7 @@ def signup(request):
 			messages.error(request, 'Invalid form data')
 	else:
 		registerform = RegisterForm()
-	return render(request, 'accounts/signup.html')
+	return render(request, 'users/signup.html')
 
 
 @login_required
@@ -90,7 +90,7 @@ def edit_profile(request):
 		else:
 			user.save()
 		return redirect('home')
-	return render(request, 'accounts/edit_profile.html')
+	return render(request, 'users/edit_profile.html')
 	
 
 # never_cache est un décorateur qui indique au navigateur de ne pas mettre en cache la reponse

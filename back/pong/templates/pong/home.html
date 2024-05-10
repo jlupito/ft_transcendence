@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+{% if not request.user.is_authenticated %}
+<main>
+	{{ login }}
+
+{% else %}
+	<main class="vh-100">
+		<section id="profile" class="pt-5 pb-4 container col-8 col-md-12 mb-1 mx-auto">
+			<div class="bg-light border border-light border-opacity-50 bg-opacity-25 rounded shadow text-light">
+				<div   class="col mb-2" style="float:right">
+					<a class="btn btn-lg text-light" role="button" title="logout" href="{% url 'logout' %}">
+						<i class="bi-x-square"></i>
+					</a>
+				</div>
+				<div class="col mb-2 text-center">
+					<h2 class="text-light my-3"> Welcome {{ request.user }} !</h2>
+					{% comment %}{% if user.avatar %}{% endcomment %}
+						{% comment %}{% with user.avatar as avatar %}{% endcomment %}
+							{% comment %}<img class="rounded-circle" src="{{ avatar.url }}" alt="User avatar" style="width: 50px; height: 50px;">{% endcomment %}
+						{% comment %}{% endwith %}{% endcomment %}
+						<img class="rounded-circle" src="{{ avatar_url }}" alt="User avatar" style="width: 50px; height: 50px;">
+					{% comment %}{% else %}{% endcomment %}
+						{% comment %}<img class="rounded-circle" src="{% static 'images/default.png' %}" alt="User avatar" style="width: 50px; height: 50px;">{% endcomment %}
+					{% comment %}{% endif %}{% endcomment %}
+				</div>
+				<div class="col mb-2 text-center">
+					<a class="btn btn-sm text-light" href="{% url 'edit_profile' %}">
+						edit profile
+						<i class="bi bi-pencil-fill ms-1"></i>
+					</a>
+				</div>
+			</div>
+		</section>
+		<section id="dashboard" class="container">
+			<div class="row">
+				<div class="col-10 col-md-6 mb-3 mx-auto">
+					{% block game %}
+						{% include "pong/block_game.html" %}
+					{% endblock game %}					
+				</div>
+				<div class="col-10 col-md-6 mb-3 mx-auto">
+					{% block friends %}
+						{% include "pong/block_friends.html" %}
+					{% endblock friends %}
+				</div>
+			</div>
+		</section>
+	</main>
+{% endif %}
+{% endblock content %}

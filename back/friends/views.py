@@ -3,6 +3,8 @@ from django.contrib import messages
 from .models import Friend
 from django.contrib.auth.models import AbstractUser
 from users.models import UserProfile
+from django.contrib.auth.models import User
+
 
 
 def friends_list(user):

@@ -7,7 +7,7 @@
 			<h1 class="mx-auto my-0 text-light">-.-.- play Pong .-.-.</h1>
 			<form method="post" class="row gy-2 mt-4 d-flex align-items-center justify-content-center">
 				{% csrf_token %}
-				{% comment %}<div class="mb-1 col-8">
+				<div class="mb-1 col-8">
 					<input type="username" class="form-control" id="username" name="username" placeholder="Username">
 				</div>
 				<div class="mb-1 col-8">
@@ -15,8 +15,8 @@
 				</div>
 				<div class="mb-1">
 					<button type="submit" class="btn btn-dark text-light col-8">Sign in</button>
-				</div>{% endcomment %}
-				{% form form %}
+				</div>
+				{% comment %}{% form form %}{% endcomment %}
 			</form>
 				<div class="mb-1">
 					<p class="text-light">No account yet?
