@@ -14,10 +14,25 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+from django.conf import settings
 from django.contrib import admin
-from django.urls import path, include
+from django.conf.urls.static import static
+from django.urls import path
+from users.views import signup, login_user, logout_user, edit_profile, auth
+from doubleAuth.views import verify_view
+from pong.views import home, create_local_game
+from friends.views import handle_invite, send_invite
 
 urlpatterns = [
-    path('', include('pong.urls')),
     path('admin/', admin.site.urls),
-]
+	path('', home, name='home'),
+	path('oauth/', auth, name='auth'),
+	path('edit_profile/', edit_profile, name='edit_profile'),
+	path('signup/', signup, name="signup"),
+	path('logout/', logout_user, name="logout"),
+	path('accounts/login/', login_user, name="login"),
+	path('accounts/verify/', verify_view, name="verify-view"),
+	path('handle_invite', handle_invite, name='handle_invite'),
+	path('send_invite', send_invite, name='send_invite'),
+	path('create_local_game', create_local_game, name='create_local_game')
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

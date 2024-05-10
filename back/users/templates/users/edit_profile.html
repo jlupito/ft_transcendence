@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<main>
+	<div class="container d-flex align-items-center justify-content-center vh-100">
+		<div class="d-flex align-items-center justify-content-center">
+			<div class="text-center col-8 bg-light border border-opacity-50 border-light bg-opacity-25 p-4 rounded shadow">
+				<h1 class="mx-auto my-0 text-light">-.-.- Edit Profile .-.-.</h1>
+				<form method="post", enctype="multipart/form-data" class="row gy-2 mt-4 d-flex align-items-center justify-content-center">
+					{% csrf_token %}
+					<div class="mb-1 col-8">
+						<input type="username" class="form-control" id="username" name="username" value="{{ request.user }}" placeholder="Username">
+					</div>
+					<div class="mb-1 col-8">
+						<input type="email" class="form-control" id="email" name="email" value="{{ request.user.email }}" placeholder="Email adress">
+					</div>
+					<div class="mb-1 col-8">
+						<input type="password" class="form-control" id="password" name="password" placeholder="password">
+					</div>
+					<div class="mb-1 col-8">
+						<input type="file" class="form-control" id="avatar" name="avatar" placeholder="avatar">
+					</div>
+					<div class="mb-1">
+						<button type="submit" class="btn btn-dark text-light col-8">Save</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+</main>
+{% endblock content %}

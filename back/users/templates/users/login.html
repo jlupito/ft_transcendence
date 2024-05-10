@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<div class="container d-flex align-items-center justify-content-center vh-100">
+	<div class="d-flex align-items-center justify-content-center">
+		<div class="text-center col-8 bg-light border border-opacity-50 border-light bg-opacity-25 p-4 rounded shadow">
+			<h1 class="mx-auto my-0 text-light">-.-.- play Pong .-.-.</h1>
+			<form method="post" class="row gy-2 mt-4 d-flex align-items-center justify-content-center">
+				{% csrf_token %}
+				{% comment %}<div class="mb-1 col-8">
+					<input type="username" class="form-control" id="username" name="username" placeholder="Username">
+				</div>
+				<div class="mb-1 col-8">
+					<input type="password" class="form-control" id="password" name="password" placeholder="Password">
+				</div>
+				<div class="mb-1">
+					<button type="submit" class="btn btn-dark text-light col-8">Sign in</button>
+				</div>{% endcomment %}
+				{% form form %}
+			</form>
+				<div class="mb-1">
+					<p class="text-light">No account yet?
+						<a class="text-light link-underline-light link-opacity-25-hover" href="{% url 'signup' %}">Sign up here</a>
+					</p>
+				</div>
+			<div class="d-flex align-items-center justify-content-center">
+				<hr class="col-4">
+				<span class="mx-2 text-light">or</span>
+				<hr class="col-4">
+			</div>
+			<div class="mt-4 mb-3">
+				<a href="https://api.intra.42.fr/oauth/authorize?client_id=u-s4t2ud-e89e69c5fe7f3faa8ee39b53cb83c81983bb16e02bbdac061730ad8f23b94cbf&redirect_uri=http%3A%2F%2Flocalhost%3A8000%2Foauth&response_type=code">
+					<button type="submit" class="btn btn-dark text-light col-8">Log in with
+							<img src="{% static 'images/42_Logo_white.svg.png' %}" alt="Logo 42" style="height: 25px;">
+					</button>
+				</a>
+			</div>
+		</div>
+	</div>
+</div>
+<div id="ball"></div>
+{% endblock %}
