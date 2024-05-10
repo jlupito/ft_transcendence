@@ -48,27 +48,28 @@ INSTALLED_APPS = [
 
 LOGIN_URL = '/login/'
 #AUTH_USER_MODEL = 'users.UserProfile'
+#AUTH_USER_MODEL = 'users.User'
 
 ASGI_APPLICATION = 'back.asgi.application'
 
-#LOGGING = {
-#    'version': 1,
-#    'disable_existing_loggers': False,
-#    'handlers': {
-#        'file': {
-#            'level': 'DEBUG',
-#            'class': 'logging.FileHandler',
-#            'filename': '/var/log/django.log',
-#        },
-#    },
-#    'loggers': {
-#        'django': {
-#            'handlers': ['file'],
-#            'level': 'DEBUG',
-#            'propagate': True,
-#        },
-#    },
-#}
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': '/var/log/django.log',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['file'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+    },
+}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
