@@ -173,12 +173,12 @@
 									<div class="row align-items-center">
 										<div class="col-5">
 											<div class="d-flex align-items-center">
-												<p class="fw-bold m-0">won ({{ matches_won }})</p>
+												<p class="fw-lighter m-0">won ({{ matches_won }})</p>
 											</div>
 										</div>
 										<div class="col-7">
-											<div class="progress" data-bs-toggle="tooltip" title="Out of last 20 matches">
-												<div class="progress-bar bg-primary" role="progressbar" style="width: 11%" aria-valuenow="11" aria-valuemin="1" aria-valuemax="10"></div>
+											<div class="progress" data-bs-toggle="tooltip" title="{{ won_perc }}% of matches won">
+												<div class="progress-bar bg-primary" role="progressbar" style="width: {{ won_perc }}%" aria-valuenow="{{ won_perc }}" aria-valuemin="0" aria-valuemax="100"></div>
 											</div>
 										</div>
 									</div>
@@ -187,12 +187,12 @@
 									<div class="row align-items-center">
 										<div class="col-5" >
 											<div class="d-flex align-items-center">
-												<p class="fw-bold m-0">lost ({{ matches_lost }})</p>
+												<p class="fw-lighter m-0">lost ({{ matches_lost }})</p>
 											</div>
 										</div>
 										<div class="col-7">
-											<div class="progress" data-bs-toggle="tooltip" title="Out of last 20 matches">
-												<div class="progress-bar bg-danger" role="progressbar" style="width: 1%" aria-valuenow="80" aria-valuemin="0.1" aria-valuemax="10"></div>
+											<div class="progress" data-bs-toggle="tooltip" title="{{ lost_perc }}% of matches lost">
+												<div class="progress-bar bg-danger" role="progressbar" style="width: {{ lost_perc }}%" aria-valuenow="{{ lost_perc }}" aria-valuemin="0" aria-valuemax="100"></div>
 											</div>
 										</div>
 									</div>
@@ -206,7 +206,7 @@
 								<button type="" class="btn btn-dark shadow-sm text-light col-9" data-bs-toggle="modal" data-bs-target="#localmatchModal">Play local
 								</button>
 							</div>
-							<div class="mt-4 mb-2 text-center">
+							<div class="mt-2 mb-2 text-center">
 								<button type="" class="btn btn-dark shadow-sm text-light col-9" data-bs-toggle="modal" data-bs-target="#matchModal">Play a match
 								</button>
 							</div>

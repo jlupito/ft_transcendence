@@ -22,6 +22,8 @@ def home(request):
 		matches = match_history(request.user)
 		matches_l = matches_lost(request.user)
 		matches_w = matches_won(request.user)
+		matches_lperc = matches_lp(request.user)
+		matches_wperc = matches_wp(request.user)
 		friends = friends_list(request.user)
 		invites = invites_list(request.user)
 		invitees = invitees_list(request.user)
@@ -33,7 +35,9 @@ def home(request):
 			'matches': matches,
 			'invitees': invitees,
 			'matches_lost': matches_l,
-			'matches_won': matches_w
+			'matches_won': matches_w,
+			'won_perc': matches_wperc,
+			'lost_perc': matches_lperc
 		}
 	return render(request, 'page.html', context)
 
@@ -57,6 +61,22 @@ def matches_lost(user):
 		if match.player1_score < match.player2_score:
 			lost += 1
 	return lost
+
+def matches_wp(user):
+	matches = Match.objects.filter(player1=user)
+	won = matches_won(user)
+	total = matches.count()
+	if total == 0:
+		return 0
+	return round(won / total * 100, 2)
+
+def matches_lp(user):
+	matches = Match.objects.filter(player1=user)
+	lost = matches_lost(user)
+	total = matches.count()
+	if total == 0:
+		return 0
+	return round(lost / total * 100, 2)
 
 def match_history(user):
 	matches = Match.objects.filter(player1=user) | Match.objects.filter(player2=user)

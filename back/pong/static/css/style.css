@@ -7,6 +7,9 @@
 
 body {
 	background: linear-gradient(180deg, #ff006a, #00ffdd);
+	background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-size: cover;
 	font-family: 'Orbitron', sans-serif;
 }
 
