@@ -91,15 +91,26 @@ def match_history(user):
 			user_score = match.player2_score
 			opponent_score = match.player1_score
 			opponent = match.player1
+		match_result = {
+        "opponent_name": opponent.username,
+        "opponent_score": opponent_score,
+        "user_score": user_score,
+        "time": time,
+		}
 		if (user_score > opponent_score):
-			l.append("Win vs " + opponent.username + " (" + str(user_score) + " - " + str(opponent_score) +")")
-			l.append("played on " + time)
+			match_result["result"] = "Win"
 		elif (user_score < opponent_score):
-			l.append("Loss vs " + opponent.username + " (" + str(user_score) + " - " + str(opponent_score) + ")")
-			l.append("played on " + time)
-		else:
-			l.append("Draw vs " + opponent.username + " (" + str(user_score) + " - " + str(opponent_score) + ")")
-			l.append("played on " + time)
+			match_result["result"] = "Loss"
+		# if (user_score > opponent_score):
+		# 	l.append("Win vs " + opponent.username + " (" + str(user_score) + " - " + str(opponent_score) +")")
+		# 	l.append("played on " + time)
+		# elif (user_score < opponent_score):
+		# 	l.append("Loss vs " + opponent.username + " (" + str(user_score) + " - " + str(opponent_score) + ")")
+		# 	l.append("played on " + time)
+		# else:
+		# 	l.append("Draw vs " + opponent.username + " (" + str(user_score) + " - " + str(opponent_score) + ")")
+		# 	l.append("played on " + time)
+		l.append(match_result)
 	return l
 
 def friends_list(user):

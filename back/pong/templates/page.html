@@ -236,7 +236,7 @@
 									<p>No friends :(</p>
 								{% endif %}
 								{% for friend in friends %}
-									<li class="mb-2">
+									<li class="mb-2" data-bs-toggle="tooltip" data-bs-placement="top" title="Wins - Losses history">
 										<img class="rounded-circle me-2" src="{{ friend.avatar.url }}" alt="Friend avatar" style="width: 35px; height: 35px;">
 										{{ friend.user.first_name }}
 									</li>
@@ -343,7 +343,6 @@
 		</div>
 	</div>
 
-
 	{% comment %} MODALE POUR LE JEU LOCAL {% endcomment %}
 	<div class="modal fade" id="localmatchModal" tabindex="-1" aria-labelledby="localMatchModalLabel" aria-hidden="true">
 		<div class="modal-dialog matchModal" >
@@ -426,14 +425,27 @@
 					<h5 class="modal-title" id="resultsModalLabel">Match history</h5>
 					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 				</div>
-				<div class="modal-body">
+				<div class="modal-body ms-5 overflow-auto" style="height: 300px;">
 					<div>
-						<ul class="list-unstyled ms-5" style="height: 110px;">
+						<ul class="list-unstyled">
 							{% if matches|length == 0 %}
 								<p>No matches</p>
 							{% endif %}
 							{% for match in matches %}
-								<li>{{ match }}</li>
+								<li class="">
+									{% if match.result == "Win" %}
+										<p><span class="bg-primary p-1 rounded-1 text-light shadow-sm px-2">win</span>
+										vs <span class="bg-white bg-opacity-50 p-1 rounded-1 text-dark shadow-sm px-2">{{ match.opponent_name }}</span>
+										({{ match.user_score }} - {{ match.opponent_score }})</p>
+										<p class="ms-3 fw-light text-dark">played on {{ match.time }}</p>
+
+									{% elif match.result == "Loss" %}
+										<p><span class="bg-danger p-1 rounded-1 text-light shadow-sm px-2">loss</span>
+										vs <span class="bg-white bg-opacity-50 p-1 rounded-1 text-dark shadow-sm px-2">{{ match.opponent_name }}</span>
+										({{ match.user_score }} - {{ match.opponent_score }})</p>
+										<p class="ms-3 fw-light text-dark">played on {{ match.time }}</p>
+									{%endif%}
+								</li>
 							{% endfor %}
 						</ul>
 					</div>
