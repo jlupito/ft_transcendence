@@ -10,6 +10,7 @@
 	<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Orbitron">
 	<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Russo+One">
 	<script src="../static/scripts/script.js" defer></script>
+	<script src="../static/scripts/gameSelection.js" defer></script>
 </head>
 <body>
 	{% if not request.user.is_authenticated %}
@@ -165,7 +166,7 @@
 						<h2 class="mb-4">Game</h2>
 						<div class="mb-4">
 							<div class="ms-3 d-flex align-items-center fw-bold">
-								<h5>Results<i class="bi bi-clipboard-data ms-2"></i></h5>
+								<h5>Results<i class="bi bi-trophy ms-2"></i></h5>
 							</div>
 							<hr class="col-10 mt-0 mb-3 mx-auto">
 							<div style="height: 125px;">
@@ -202,23 +203,14 @@
 						<div style="height: 100px;">
 							<h5 class="ms-3">Play<i class="bi bi-joystick ms-2"></i></h5>
 							<hr class="col-10 mt-0 mb-2 mx-auto">
-							<div class="mt-3 mb-2 text-center">
-								<button type="" class="btn btn-dark shadow-sm text-light col-9" data-bs-toggle="modal" data-bs-target="#localmatchModal">Play local
-								</button>
-							</div>
-							<div class="mt-2 mb-2 text-center">
-								<button type="" class="btn btn-dark shadow-sm text-light col-9" data-bs-toggle="modal" data-bs-target="#matchModal">Play a match
-								</button>
-							</div>
-							<div class="mt-2 mb-2 text-center">
-								<button type="" class="btn btn-dark shadow-sm text-light col-9">Create tournament
-									<i class="bi bi-trophy ms-2"></i>
-								</button>
-							</div>
-							<div class="mt-2 mb-3 text-center">
-								<button type="hidden" class="btn btn-primary shadow-sm text-light col-9">Live tournament
-									<i class="bi bi-trophy ms-2"></i>
-								</button>
+							<div id="playDiv" style="height: 170px; display: flex; flex-direction: column; justify-content: center;" class="col-9 bg-white bg-opacity-25 p-1 rounded shadow-sm mx-auto mt-3 mb-2">
+								<div class="mt-3 mb-3 text-center text-light">
+									Please select a format:
+								</div>
+								<div class="mb-3 text-center">
+									<button id="playSingle" class="btn btn-primary btn-sm shadow-sm text-light col-8 mb-2">match 1v1</button>
+									<button id="playTournament" class="btn btn-primary btn-sm shadow-sm text-light col-8 mb-3">tournament</button>
+								</div>
 							</div>
 						</div>
 					</div>
@@ -449,7 +441,44 @@
 			</div>
 		</div>
 	</div>
-
+	{% comment %} MODALE POUR LE TOURNAMENT LOCAL {% endcomment %}
+	<div class="modal fade" id="localTournament" tabindex="-1" aria-labelledby="tourModalLabel" aria-hidden="true">
+		<div class="modal-dialog tourModal" >
+			<div class="modal-content bg-dark-subtle shadow">
+				<div class="modal-header">
+					<h5 class="modal-title" id="tourModalLabel">Play a local tournament</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body d-flex justify-content-center align-items-center">
+					<div class="canvas" width="600" height="600">
+						<canvas id="CanvasTourLocal" width="600" height="600"></canvas>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	{% comment %} MODALE POUR LE TOURNAMENT ONLINE {% endcomment %}
+	<div class="modal fade" id="onlineTournament" tabindex="-1" aria-labelledby="tourModalLabel" aria-hidden="true">
+		<div class="modal-dialog tourModal" >
+			<div class="modal-content bg-dark-subtle shadow">
+				<div class="modal-header">
+					<h5 class="modal-title" id="tourModalLabel">Play an online tournament</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body d-flex justify-content-center align-items-center">
+					<div class="canvas" width="600" height="600">
+						<canvas id="CanvasOnline" width="600" height="600"></canvas>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+				</div>
+			</div>
+		</div>
+	</div>
 
 
 	<div class="modal fade" id="resultsModal" tabindex="-1" aria-labelledby="resultsModalLabel" aria-hidden="true">
