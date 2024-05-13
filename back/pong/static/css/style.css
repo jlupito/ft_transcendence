@@ -29,11 +29,13 @@ body {
 }
 
 .buttonfriends {
-    height: 40px;
-    width: 80px;
-    font-size: 10px !important;
-    text-align: center; /* Center text horizontally */
-    line-height: 40px; /* Center text vertically */
+    height: 30px;
+    width: 85px;
+}
+
+.buttonvalid {
+    height: 30px;
+    width: 40px;
 }
 
 .matchModal {

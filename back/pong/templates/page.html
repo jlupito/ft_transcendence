@@ -200,7 +200,7 @@
 							</div>
 						</div>
 						<div style="height: 100px;">
-							<h5 class="ms-3">Play</h5>
+							<h5 class="ms-3">Play<i class="bi bi-joystick ms-2"></i></h5>
 							<hr class="col-10 mt-0 mb-2 mx-auto">
 							<div class="mt-3 mb-2 text-center">
 								<button type="" class="btn btn-dark shadow-sm text-light col-9" data-bs-toggle="modal" data-bs-target="#localmatchModal">Play local
@@ -248,7 +248,7 @@
 								<h5>Users<i class="bi bi-people ms-2"></i></h5>
 							</div>
 							<hr class="col-10 mt-0 mb-3 mx-auto">
-							<ul class="list-unstyled overflow-auto" style="height: 150px;">
+							<ul class="list-unstyled overflow-auto" style="height: 175px;">
 								{% for user in users %}
 									{% if user not in friends %}
 									<li class="d-flex align-items-center justify-content-between mb-2">
@@ -260,16 +260,20 @@
 											<form action="handle_invite" method="POST">
 												{% csrf_token %}
 												<input type="hidden" name="invite" value="{{ user.user.first_name }}">
-												<button type="submit" name="status" value="accepted" class="btn px-2 btn-sm btn-primary shadow-sm"><i class="bi bi-check-square"></i></button>
-												<button type="submit" name="status" value="declined" class="px-2 btn btn-sm btn-danger me-4 shadow-sm"><i class="bi bi-x-square"></i></button>
+												<button type="submit" name="status" value="accepted" class="btn buttonvalid px-2 btn-sm btn-primary shadow-sm"
+												style="--bs-btn-font-size: .75rem;"><i class="bi bi-check-square"></i></button>
+												<button type="submit" name="status" value="declined" class="px-2 buttonvalid btn btn-sm btn-danger me-4 shadow-sm"
+												style="--bs-btn-font-size: .75rem;"><i class="bi bi-x-square"></i></button>
 											</form>
 										{% elif user.user.first_name in invitees %}
-											<button class="btn btn-sm btn-primary shadow-sm me-4 text-align-center" disabled>pending</button>
+											<button class="btn buttonfriends btn-sm btn-primary shadow-sm me-4 text-align-center" disabled
+											style="--bs-btn-font-size: .75rem;">pending</button>
 										{% else %}
 											<form action="send_invite" method="POST">
 												{% csrf_token %}
 												<input type="hidden" name="receiver" value="{{ user.user.username }}">
-												<button class="btn btn-sm btn-primary shadow-sm me-4" type="submit">add friend</button>
+												<button class="btn buttonfriends btn-sm btn-primary shadow-sm me-4" type="submit"
+												style="--bs-btn-font-size: .75rem;">add friend</button>
 											</form>
 										{% endif %}
 									</li>
