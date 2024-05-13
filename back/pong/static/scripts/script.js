@@ -73,6 +73,7 @@ document.addEventListener('DOMContentLoaded', function() {
         modalBody.innerHTML = '<div class="canvas" width="600" height="600"><canvas id="CanvasOnline" width="600" height="600"></canvas></div>';
       }
   }
+  setupLocalMatchModal();
 
   function setupMatchModal() {
     //   waitingMessage(); // Afficher le message d'attente au début avant que les deux joueurs soient en Mode Match
@@ -95,6 +96,5 @@ document.addEventListener('DOMContentLoaded', function() {
       modalBody.innerHTML = '<div class="canvas" width="600" height="600"><canvas id="CanvasOnline" width="600" height="600"></canvas></div>';
   }
 
-  setupLocalMatchModal();
   setupMatchModal();
 });
