@@ -1,5 +1,5 @@
 function runsocket(){
-let url = `ws://${window.location.host}/ws/socket-server/`
+let url = `ws://${window.location.host}/ws/socket-pong-online/`
 
 const chatSocket = new WebSocket(url);
 
@@ -85,7 +85,7 @@ let ball_x_normalspeed = 1
 let player1 = ""
 let player2 = ""
 
-const canvas = document.getElementById('myCanvas');
+const canvas = document.getElementById('CanvasOnline');
 
 const ctx = canvas.getContext('2d');
 

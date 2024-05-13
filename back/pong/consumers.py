@@ -9,7 +9,8 @@ import time
 from .models import Match
 
 
-games = []
+games_online = []
+games_local = []
 
 class Game():
     def __init__(self, maxscore):
@@ -104,7 +105,7 @@ class Game():
             self.apply_ball_movement()
             time.sleep(0.025)
 
-    def start(self): # démarre suite à l'instanciation de Game(5) dans la classe ChatConsumer()
+    def start(self): 
         thread = threading.Thread(target=self.run)
         thread.start()
 
@@ -113,10 +114,10 @@ class Game():
         self.has_finished = True
         new_match = Match.create_match_from_game(self)
         new_match.save()
-        # games = [game for game in games if not game.has_finished]
+        # games_online = [game for game in games_online if not game.has_finished]
 
 
-class ChatConsumer(WebsocketConsumer):
+class PongOnline(WebsocketConsumer):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.game = None
@@ -125,7 +126,7 @@ class ChatConsumer(WebsocketConsumer):
         self.accept()
 
         user = self.scope['user']
-        for game in games:
+        for game in games_online:
             if (game.has_finished == False and (game.player1 == user.username or game.player2 == user.username)):
                 self.game = game
                 break
@@ -140,12 +141,12 @@ class ChatConsumer(WebsocketConsumer):
         if (self.game == None):
             self.game = Game(5) # ICI on instancie un nouvel objet Game, qui à son tour lance sa methode start()
             self.game.player1 = user.username
-            games.append(self.game)
+            games_online.append(self.game)
         if (self.game.player1 != "" and self.game.player2 != ""):
             self.game.start()
         self.send(text_data=json.dumps({
             'type':'connection_established',
-            'message':'you are connected',
+            'message':'you are connected' + user.username,
             'data':(self.game.__dict__)
         }))
 
@@ -198,6 +199,96 @@ class ChatConsumer(WebsocketConsumer):
                 'message':'p2 down pressed'
             }))
         if (message == 'p2key_down_released' and self.game.player2 == username):
+            self.game.p2_down = False
+            self.send(text_data=json.dumps({
+                'type':'debug',
+                'message':'p2 down released'
+            }))
+
+    def send_update(self):
+        self.send(text_data=json.dumps({
+            'type':'update received',
+            'data': self.game.__dict__
+        }))
+
+
+class PongLocal(WebsocketConsumer):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.game = None
+
+    def connect(self):
+        self.accept()
+
+        user = self.scope['user']
+        user1 = user.username + "_1"
+        user2 = user.username + "_2"
+        for game in games_local:
+            if (game.has_finished == False and (game.player1 == user1 and game.player2 == user2)):
+                self.game = game
+                break
+
+        if (self.game == None):
+            self.game = Game(5) # ICI on instancie un nouvel objet Game, qui à son tour lance sa methode start()
+            self.game.player1 = user1
+            self.game.player2 = user2
+            games_local.append(self.game)
+        if (self.game.player1 != "" and self.game.player2 != ""):
+            self.game.start()
+        self.send(text_data=json.dumps({
+            'type':'connection_established',
+            'message':'you are connected' + user1 + user2,
+            'data':(self.game.__dict__)
+        }))
+
+    def receive(self, text_data):
+        text_data_json = json.loads(text_data)
+        message = text_data_json['message']
+        if (message == 'update'):
+            self.send_update()
+        elif (message == 'key_up_pressed'):
+            self.game.p1_up = True
+            self.send(text_data=json.dumps({
+                'type':'debug',
+                'message':'p1 up'
+            }))
+        elif (message == 'key_up_released'):
+            self.game.p1_up = False
+            self.send(text_data=json.dumps({
+                'type':'debug',
+                'message':'p1 up released'
+            }))
+        elif (message == 'key_down_pressed'):
+            self.game.p1_down = True
+            self.send(text_data=json.dumps({
+                'type':'debug',
+                'message':'p1 down'
+            }))
+        elif (message == 'key_down_released'):
+            self.game.p1_down = False
+            self.send(text_data=json.dumps({
+                'type':'debug',
+                'message':'p1 down released'
+            }))
+        elif (message == 'p2key_up_pressed'):
+            self.game.p2_up = True
+            self.send(text_data=json.dumps({
+                'type':'debug',
+                'message':'p2 up pressed'
+            }))
+        elif (message == 'p2key_up_released'):
+            self.game.p2_up = False
+            self.send(text_data=json.dumps({
+                'type':'debug',
+                'message':'p2 up released'
+            }))
+        elif (message == 'p2key_down_pressed'):
+            self.game.p2_down = True
+            self.send(text_data=json.dumps({
+                'type':'debug',
+                'message':'p2 down pressed'
+            }))
+        elif (message == 'p2key_down_released'):
             self.game.p2_down = False
             self.send(text_data=json.dumps({
                 'type':'debug',

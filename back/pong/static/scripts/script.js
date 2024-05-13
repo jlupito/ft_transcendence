@@ -69,17 +69,17 @@ document.addEventListener('DOMContentLoaded', function() {
           startLocalGame();
       });
       function startLocalGame() {
-          const modalBody = document.querySelector('#localMatchModal .modal-body');
-          modalBody.innerHTML = '<div class="canvas" width="600" height="600"><canvas id="localCanvas" width="600" height="600"></canvas></div>';
+        const modalBody = document.querySelector('#matchModal .modal-body');
+        modalBody.innerHTML = '<div class="canvas" width="600" height="600"><canvas id="CanvasOnline" width="600" height="600"></canvas></div>';
       }
   }
 
   function setupMatchModal() {
-      waitingMessage(); // Afficher le message d'attente au début avant que les deux joueurs soient en Mode Match
+    //   waitingMessage(); // Afficher le message d'attente au début avant que les deux joueurs soient en Mode Match
       // Mettre ici logique pour vérifier si les joueurs sont prêts à commencer le jeu
-      // startGame() pour lancer le jeu
+      startGame() //pour lancer le jeu
 
-      setTimeout(startGame, 6000); // a supprimer une fois le declanchement des connexions faites
+    //   setTimeout(startGame, 6000); // a supprimer une fois le declanchement des connexions faites
   }
 
   function waitingMessage() { // on fait un rappel du html pour le message d'attente
@@ -92,7 +92,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
   function startGame() {
       const modalBody = document.querySelector('#matchModal .modal-body');
-      modalBody.innerHTML = '<div class="canvas" width="600" height="600"><canvas id="matchCanvas" width="600" height="600"></canvas></div>';
+      modalBody.innerHTML = '<div class="canvas" width="600" height="600"><canvas id="CanvasOnline" width="600" height="600"></canvas></div>';
   }
 
   setupLocalMatchModal();

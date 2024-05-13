@@ -8,7 +8,8 @@ https://docs.djangoproject.com/en/5.0/howto/deployment/asgi/
 """
 
 import os
-
+from django.urls import re_path
+from pong import consumers
 from django.core.asgi import get_asgi_application
 from channels.routing import ProtocolTypeRouter, URLRouter
 from channels.auth import AuthMiddlewareStack
@@ -19,7 +20,11 @@ application = ProtocolTypeRouter({
     'http':get_asgi_application(),
     'websocket':AuthMiddlewareStack(
         URLRouter(
-            pong.routing.websocket_urlpatterns
+            # pong.routing.websocket_urlpatterns
+            [
+            re_path(r'ws/socket-pong-local/', consumers.PongLocal.as_asgi()),
+            re_path(r'ws/socket-pong-online/', consumers.PongOnline.as_asgi())
+            ]
         )
     )
 })
