@@ -30,7 +30,7 @@
 				{% for invite in invites %}
 				<li class="d-flex align-items-center justify-content-between mb-2">
 					<div class="ms-5">
-						<img class="rounded-circle me-2" src="{{ user.avatar.url }}" alt="Img" style="width: 35px; height: 35px;">
+						<img class="rounded-circle me-2" src="{{ invite.avatar.url }}" alt="Img" style="width: 35px; height: 35px;">
 						{{ invite.user.username }}
 						{{ invite }}
 					</div>
@@ -54,7 +54,7 @@
 					{% if user not in friends and user not in invites %}
 					<li class="d-flex align-items-center justify-content-between mb-2">
 						<div class="ms-5">
-							<img class="rounded-circle me-2" src="{{ user.user.avatar_url }}" alt="" style="width: 35px; height: 35px;">
+							<img class="rounded-circle me-2" src="{{ user.avatar.url }}" alt="" style="width: 35px; height: 35px;">
 							{{ user.user.username }}
 						</div>
 						<form action="send_invite" method="POST">

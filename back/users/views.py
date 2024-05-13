@@ -47,7 +47,8 @@ def signup(request):
 				messages.error(request, 'User already exists')
 				return redirect('home')
 			new_user = User.objects.create_user(username=username, password=mdp, email=email)
-			UserProfile.objects.create(user=new_user)
+			new_user_profile = UserProfile.objects.create(user=new_user)
+			new_user_profile.avatar = "avatars/default.png"
 			login(request, new_user)
 			messages.success(request, 'Account created successfully!')
 			return redirect('home')
