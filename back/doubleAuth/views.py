@@ -1,6 +1,9 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from back import send_email
 from doubleAuth.forms import DoubleAuthForm
+from users.models import UserProfile
+from django.contrib import messages
+from django.contrib.auth import login
 
 def verify_view(request):
 	form = DoubleAuthForm(request.POST or None)
