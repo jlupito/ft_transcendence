@@ -24,9 +24,12 @@ class Match(models.Model):
 
     @classmethod
     def create_match_from_game(cls, game_instance):
+        player1_user=User.objects.get(username=game_instance.player1)
+        player2_user=User.objects.create(username=game_instance.player2)
+
         match = Match.objects.create(
-            player1=game_instance.p1_name,
-            player2=game_instance.p2_name,
+            player1=player1_user,
+            player2=player2_user,
             player1_score=game_instance.p1_score,
             player2_score=game_instance.p2_score
             )
@@ -46,6 +49,7 @@ class Friend(models.Model):
     sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sender')
     receiver = models.ForeignKey(User, on_delete=models.CASCADE, related_name='receiver')
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')
+
     def __str__(self):
         return self.sender.username + ' -> ' + self.receiver.username + ' (' + self.status + ')'
 
