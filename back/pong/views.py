@@ -68,7 +68,7 @@ def matches_wp(user):
 	total = matches.count()
 	if total == 0:
 		return 0
-	return round(won / total * 100, 2)
+	return round(won / total * 100)
 
 def matches_lp(user):
 	matches = Match.objects.filter(player1=user)
@@ -76,7 +76,7 @@ def matches_lp(user):
 	total = matches.count()
 	if total == 0:
 		return 0
-	return round(lost / total * 100, 2)
+	return round(lost / total * 100)
 
 def match_history(user):
 	matches = Match.objects.filter(player1=user) | Match.objects.filter(player2=user)

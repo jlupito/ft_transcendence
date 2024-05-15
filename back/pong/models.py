@@ -25,7 +25,8 @@ class Match(models.Model):
     @classmethod
     def create_match_from_game(cls, game_instance):
         player1_user=User.objects.get(username=game_instance.player1)
-        player2_user=User.objects.create(username=game_instance.player2)
+        player2_username = game_instance.player2
+        player2_user, created = User.objects.get_or_create(username=player2_username)
 
         match = Match.objects.create(
             player1=player1_user,
