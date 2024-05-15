@@ -285,7 +285,11 @@ def register(request):
 				# registerform = RegisterForm() # ne change rien == maintenir le form ?
 				return redirect('home')
 			mdp=registerform.cleaned_data['password']
-			new_user = User.objects.create_user(username=username, password=mdp, first_name=username)
+			email=registerform.cleaned_data['email']
+			if User.objects.filter(email=email).exists():
+				messages.error(request, 'This email is already in use...')
+				return redirect('home')
+			new_user = User.objects.create_user(username=username, password=mdp, email=email, first_name=username)
 			UserProfile.objects.create(user=new_user)
 			login(request, new_user)
 			messages.success(request, 'Account created successfully!')

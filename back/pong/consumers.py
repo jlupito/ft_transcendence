@@ -105,13 +105,16 @@ class Game():
             self.apply_ball_movement()
             time.sleep(0.025)
 
-    def start(self): 
+    def start(self):
         thread = threading.Thread(target=self.run)
         thread.start()
 
     def endgame(self):
         self.is_running = False #Stop la loop du jeu et sortira du thread
         self.has_finished = True
+
+        print("Final scores: Player 1 =", self.p1_score, ", Player 2 =", self.p2_score)
+
         new_match = Match.create_match_from_game(self)
         new_match.save()
         # games_online = [game for game in games_online if not game.has_finished]
@@ -211,7 +214,7 @@ class PongOnline(WebsocketConsumer):
             'data': self.game.__dict__
         }))
 
-
+# pourquoi _1 et _2, u lieu de demander un nom de joueur ? choisir l'un ou l'autre
 class PongLocal(WebsocketConsumer):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -221,7 +224,7 @@ class PongLocal(WebsocketConsumer):
         self.accept()
 
         user = self.scope['user']
-        user1 = user.username + "_1"
+        user1 = user.username
         user2 = user.username + "_2"
         for game in games_local:
             if (game.has_finished == False and (game.player1 == user1 and game.player2 == user2)):

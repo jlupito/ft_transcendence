@@ -179,7 +179,7 @@
 										</div>
 										<div class="col-7">
 											<div class="progress" data-bs-toggle="tooltip" title="{{ won_perc }}% of matches won">
-												<div class="progress-bar bg-primary" role="progressbar" style="width: {{ won_perc }}%" aria-valuenow="{{ won_perc }}" aria-valuemin="0" aria-valuemax="100"></div>
+												<div class="progress-bar bg-primary" role="progressbar" style="width: {{ won_perc }}%" aria-valuenow="{{ won_perc }}" aria-valuemin="0" aria-valuemax="100">{{ won_perc }}%</div>
 											</div>
 										</div>
 									</div>
@@ -193,7 +193,7 @@
 										</div>
 										<div class="col-7">
 											<div class="progress" data-bs-toggle="tooltip" title="{{ lost_perc }}% of matches lost">
-												<div class="progress-bar bg-danger" role="progressbar" style="width: {{ lost_perc }}%" aria-valuenow="{{ lost_perc }}" aria-valuemin="0" aria-valuemax="100"></div>
+												<div class="progress-bar bg-danger" role="progressbar" style="width: {{ lost_perc }}%" aria-valuenow="{{ lost_perc }}" aria-valuemin="0" aria-valuemax="100">{{ lost_perc }}%</div>
 											</div>
 										</div>
 									</div>
@@ -279,7 +279,6 @@
 		</section>
 	</main>
 	{% endif %}
-
 	<div class="modal fade" id="signupModal" tabindex="-1" aria-labelledby="signupModalLabel" aria-hidden="true">
 		<div class="modal-dialog">
 			<div class="modal-content bg-dark-subtle shadow">
@@ -292,15 +291,15 @@
 						{% csrf_token %}
 						<div class="mb-3">
 							<label for="username" class="form-label">Username</label>
-							<input type="text" class="form-control" id="username" name="username" value="{{ request.user.first_name }}">
+							<input type="text" class="form-control" id="username" name="username" value="">
 						</div>
 						<div class="mb-3">
 							<label for="email" class="form-label">Email adress</label>
-							<input type="text" class="form-control" id="email" name="email" value="{{ request.user.email }}">
+							<input type="text" class="form-control" id="email" name="email" value="">
 						</div>
 						<div class="mb-3">
 							<label for="password" class="form-label">Password</label>
-							<input type="password" class="form-control" id="password" name="password" value="{{ request.user.password }}">
+							<input type="password" class="form-control" id="password" name="password" value="">
 						</div>
 						<div class="modal-footer">
 							<button type="submit" class="btn btn-primary">Submit</button>
@@ -386,7 +385,7 @@
 						<canvas id="CanvasOnline" width="600" height="600"></canvas>
 						<script>
 							  var pongScript; // Variable pour stocker la référence du script pong.js
-							  
+
 							document.addEventListener('DOMContentLoaded', function() {
 	
 								var canvasModal = document.getElementById('onlineMatchModal'); // Remplacez localmatchModal par l'ID de votre modal contenant la canvas
@@ -405,7 +404,7 @@
 								if (pongScript) {
 									document.body.removeChild(pongScript);
 									pongScript = null;
-									stopPongGame(); // Appel de la fonction pour arrêter l'exécution du jeu
+									// stopPongGame(); //Appel de la fonction pour arrêter l'exécution du jeu
 									}
 								});
 							});
