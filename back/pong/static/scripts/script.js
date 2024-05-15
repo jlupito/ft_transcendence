@@ -63,38 +63,68 @@ language.forEach(item => {
 // FONCTION DE GESTION DES MODALES
 // Empêcher le comportement par défaut de la modale + form avec event.preventDefault();
 document.addEventListener('DOMContentLoaded', function() {
-  function setupLocalMatchModal() {
-      document.querySelector('#localMatchForm').addEventListener('submit', function(event) {
-          event.preventDefault();
-          startLocalGame();
-      });
-      function startLocalGame() {
-        const modalBody = document.querySelector('#matchModal .modal-body');
-        modalBody.innerHTML = '<div class="canvas" width="600" height="600"><canvas id="CanvasOnline" width="600" height="600"></canvas></div>';
-      }
-  }
-  setupLocalMatchModal();
+  var pongScript;
 
-  function setupMatchModal() {
-    //   waitingMessage(); // Afficher le message d'attente au début avant que les deux joueurs soient en Mode Match
-      // Mettre ici logique pour vérifier si les joueurs sont prêts à commencer le jeu
-      startGame() //pour lancer le jeu
+  document.querySelector('#localMatchForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+    document.querySelector('#formView').style.display = 'none';
+    document.querySelector('#gameView').style.display = 'block';
 
-    //   setTimeout(startGame, 6000); // a supprimer une fois le declanchement des connexions faites
-  }
+    pongScript = document.createElement('script');
+    pongScript.src = '../static/scripts/ponglocal.js';
+    pongScript.defer = true;
+    document.body.appendChild(pongScript);
+  });
 
-  function waitingMessage() { // on fait un rappel du html pour le message d'attente
-      const modalBody = document.querySelector('#matchModal .modal-body');
-      modalBody.innerHTML = '<p class="my-auto me-2">Waiting for an opponent</p>' +
-                             '<div class="dot"></div>' +
-                             '<div class="dot"></div>' +
-                             '<div class="dot"></div>';
-  }
+  var canvasModal = document.getElementById('localMatchModal');
+  canvasModal.addEventListener('hidden.bs.modal', function () {
+    if (pongScript) {
+      document.body.removeChild(pongScript);
+      pongScript = null;
+    }
 
-  function startGame() {
-      const modalBody = document.querySelector('#matchModal .modal-body');
-      modalBody.innerHTML = '<div class="canvas" width="600" height="600"><canvas id="CanvasOnline" width="600" height="600"></canvas></div>';
-  }
-
-  setupMatchModal();
+    document.querySelector('#formView').style.display = 'block';
+    document.querySelector('#gameView').style.display = 'none';
+  });
 });
+// document.addEventListener('DOMContentLoaded', function() {
+//   function setupLocalMatchModal() {
+//     document.querySelector('#localMatchForm').addEventListener('submit', function(event) {
+//       event.preventDefault();
+//       startLocalGame();
+//       });
+//       function startLocalGame() {
+        
+//       document.querySelector('#form-view').style.display = 'none';
+//       document.querySelector('#game-view').style.display = 'block';
+//       var pongScript = document.createElement('script');
+//       pongScript.src = '../static/scripts/ponglocal.js'; // Chemin vers pong.js
+//       pongScript.defer = true;
+//       document.body.appendChild(pongScript);
+//       }
+//   }
+//   setupLocalMatchModal();
+
+//   function setupMatchModal() {
+//     //   waitingMessage(); // Afficher le message d'attente au début avant que les deux joueurs soient en Mode Match
+//       // Mettre ici logique pour vérifier si les joueurs sont prêts à commencer le jeu
+//       startGame() //pour lancer le jeu
+
+//     //   setTimeout(startGame, 6000); // a supprimer une fois le declanchement des connexions faites
+//   }
+
+//   function waitingMessage() { // on fait un rappel du html pour le message d'attente
+//       const modalBody = document.querySelector('#onlineMatchModal .modal-body');
+//       modalBody.innerHTML = '<p class="my-auto me-2">Waiting for an opponent</p>' +
+//                              '<div class="dot"></div>' +
+//                              '<div class="dot"></div>' +
+//                              '<div class="dot"></div>';
+//   }
+
+//   function startGame() {
+//       const modalBody = document.querySelector('#onlineMatchModal .modal-body');
+//       modalBody.innerHTML = '<div class="canvas" width="600" height="600"><canvas id="CanvasOnline" width="600" height="600"></canvas></div>';
+//   }
+
+//   setupMatchModal();
+// });

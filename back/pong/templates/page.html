@@ -205,7 +205,7 @@
 							<hr class="col-10 mt-0 mb-2 mx-auto">
 							<div id="playDiv" style="height: 170px; display: flex; flex-direction: column; justify-content: center;" class="col-9 bg-white bg-opacity-25 p-1 rounded shadow-sm mx-auto mt-3 mb-2">
 								<div class="mt-3 mb-3 text-center text-light fw-bold">
-									Please select a format:
+									Choose a format:
 								</div>
 								<div class="mb-3 text-center">
 									<button id="playSingle" class="btn btn-dark btn-sm shadow-sm text-light col-8 mb-2 fw-bold">match 1v1</button>
@@ -341,50 +341,27 @@
 
 	{% comment %} MODALE POUR LE JEU LOCAL {% endcomment %}
 	<div class="modal fade" id="localMatchModal" tabindex="-1" aria-labelledby="localMatchModalLabel" aria-hidden="true">
-		<div class="modal-dialog matchModal" >
+		<div class="modal-dialog" style="min-width: 700px;">
 			<div class="modal-content bg-dark-subtle shadow">
 				<div class="modal-header">
 					<h5 class="modal-title" id="localMatchModalLabel">Play a local match</h5>
 					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 				</div>
 				<div class="modal-body">
-					<form id="localMatchForm" class="row gy-2 mt-4 d-flex align-items-center justify-content-center">
-						{% csrf_token %}
-						<div class="mb-1 col-8">
-							<input type="text" class="form-control" id="local_player2_name" name="local_player2_name" placeholder="Choose an alias for your opponent">
+					<div id="formView">
+						<form id="localMatchForm" class="row gy-2 mt-4 d-flex align-items-center justify-content-center">
+							{% csrf_token %}
+							<div class="col-7">
+								<input type="text" class="form-control" id="local_player2_name" name="local_player2_name" placeholder="Choose an alias for your opponent">
+							</div>
+							<button type="submit" id="startLocalGameBtn" class="btn btn-primary col-2">Start</button>
+						</form>
+					</div>
+					<div id="gameView" style="display: none;">
+						<div class="canvas" width="600" height="600">
+							<canvas id="CanvasLocal" width="600" height="600"></canvas>
 						</div>
-						<button type="submit" id="startLocalGameBtn" class="btn btn-primary">Start</button>
-					</form>
-				</div>
-				<div class="modal-body">
-					<div class="canvas" width="600" height="600">
-						<canvas id="CanvasLocal" width="600" height="600"></canvas>
-						<script>
-							var pongScript; // Variable pour stocker la référence du script pong.js
-							document.addEventListener('DOMContentLoaded', function() {
-							  var canvasModal = document.getElementById('localMatchModal'); // Remplacez localmatchModal par l'ID de votre modal contenant la canvas
-	
-								canvasModal.addEventListener('show.bs.modal', function () {
-								  console.log('OFFLINE')  
-  
-									// Chargement dynamique de pong.js lorsque la modal s'ouvre
-									pongScript = document.createElement('script');
-									pongScript.src = '../static/scripts/ponglocal.js'; // Chemin vers pong.js
-									pongScript.defer = true;
-									document.body.appendChild(pongScript);
-								});
-	
-								canvasModal.addEventListener('hidden.bs.modal', function () {
-								// Suppression du script pong.js lorsque la modal est fermée pour arrêter son exécution
-								if (pongScript) {
-									document.body.removeChild(pongScript);
-									pongScript = null;
-								  //   stopPongGame(); // Appel de la fonction pour arrêter l'exécution du jeu
-								}
-							});
-							});
-						</script>
-						</div>
+					</div>
 				</div>
 				<div class="modal-footer">
 					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -394,7 +371,7 @@
 	</div>
 	{% comment %} MODALE POUR LE JEU ONLINE {% endcomment %}
 	<div class="modal fade" id="onlineMatchModal" tabindex="-1" aria-labelledby="matchModal" aria-hidden="true">
-		<div class="modal-dialog matchModal" >
+		<div class="modal-dialog" style="min-width: 700px;">
 			<div class="modal-content bg-dark-subtle shadow">
 				<div class="modal-header">
 					<h5 class="modal-title" id="matchModalLabel">Play a match</h5>
@@ -405,24 +382,24 @@
 					<!-- <div class="dot"></div> -->
   					<!-- <div class="dot"></div> -->
   					<!-- <div class="dot"></div> -->
-					  <div class="canvas" width="600" height="600">
+					<div class="canvas" width="600" height="600">
 						<canvas id="CanvasOnline" width="600" height="600"></canvas>
 						<script>
 							  var pongScript; // Variable pour stocker la référence du script pong.js
 							  
 							document.addEventListener('DOMContentLoaded', function() {
 	
-							var canvasModal = document.getElementById('onlineMatchModal'); // Remplacez localmatchModal par l'ID de votre modal contenant la canvas
-	  
-							canvasModal.addEventListener('show.bs.modal', function () {
-								console.log('ONLINE')
-								// Chargement dynamique de pong.js lorsque la modal s'ouvre
-								pongScript = document.createElement('script');
-								pongScript.src = '../static/scripts/pongonline.js'; // Chemin vers pong.js
-								pongScript.defer = true;
-								document.body.appendChild(pongScript);
-							});
-	  
+								var canvasModal = document.getElementById('onlineMatchModal'); // Remplacez localmatchModal par l'ID de votre modal contenant la canvas
+
+								canvasModal.addEventListener('show.bs.modal', function () {
+									console.log('ONLINE')
+									// Chargement dynamique de pong.js lorsque la modal s'ouvre
+									pongScript = document.createElement('script');
+									pongScript.src = '../static/scripts/pongonline.js'; // Chemin vers pong.js
+									pongScript.defer = true;
+									document.body.appendChild(pongScript);
+								});
+
 								canvasModal.addEventListener('hidden.bs.modal', function () {
 								// Suppression du script pong.js lorsque la modal est fermée pour arrêter son exécution
 								if (pongScript) {
@@ -433,7 +410,7 @@
 								});
 							});
 						</script>
-						</div>
+					</div>
 				</div>
 				<div class="modal-footer">
 					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>

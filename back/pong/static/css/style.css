@@ -6,7 +6,7 @@
 }
 
 body {
-	background: linear-gradient(180deg, #ff006a, #00ffdd);
+	background: linear-gradient(180deg, #e4712e, #1490e2);
 	background-repeat: no-repeat;
     background-attachment: fixed;
     background-size: cover;
@@ -36,10 +36,6 @@ body {
 .buttonvalid {
     height: 30px;
     width: 40px;
-}
-
-.matchModal {
-    min-width: 700px;
 }
 
 .colSize {
