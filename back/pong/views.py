@@ -20,10 +20,7 @@ def home(request):
 		avatar_url = UserProfile.objects.get(user=request.user).avatar.url
 		users = UserProfile.objects.exclude(user=request.user)
 		matches = match_history(request.user)
-		matches_l = matches_lost(request.user)
-		matches_w = matches_won(request.user)
-		matches_lperc = matches_lp(request.user)
-		matches_wperc = matches_wp(request.user)
+		stats = match_stats(request.user)
 		friends = friends_list(request.user)
 		invites = invites_list(request.user)
 		invitees = invitees_list(request.user)
@@ -34,10 +31,7 @@ def home(request):
 			'friends': friends,
 			'matches': matches,
 			'invitees': invitees,
-			'matches_lost': matches_l,
-			'matches_won': matches_w,
-			'won_perc': matches_wperc,
-			'lost_perc': matches_lperc
+			'stats' : stats
 		}
 	return render(request, 'page.html', context)
 
@@ -46,37 +40,36 @@ def logout_view(request):
 	logout(request)
 	return redirect('home')
 
-def matches_won(user):
-	matches = Match.objects.filter(player1=user)
-	won = 0
-	for match in matches:
-		if match.player1_score > match.player2_score:
-			won += 1
-	return won
+def match_stats(user):
+    matches = Match.objects.filter(player1=user) | Match.objects.filter(player2=user)
+    won = 0
+    lost = 0
+    for match in matches:
+        if match.player1 == user:
+            if match.player1_score > match.player2_score:
+                won += 1
+            else:
+                lost += 1
+        else:
+            if match.player1_score < match.player2_score:
+                won += 1
+            else:
+                lost += 1
 
-def matches_lost(user):
-	matches = Match.objects.filter(player1=user)
-	lost = 0
-	for match in matches:
-		if match.player1_score < match.player2_score:
-			lost += 1
-	return lost
+    total = matches.count()
+    if total == 0:
+        won_perc = 0
+        lost_perc = 0
+    else:
+        won_perc = round(won / total * 100)
+        lost_perc = round(lost / total * 100)
 
-def matches_wp(user):
-	matches = Match.objects.filter(player1=user)
-	won = matches_won(user)
-	total = matches.count()
-	if total == 0:
-		return 0
-	return round(won / total * 100, 2)
-
-def matches_lp(user):
-	matches = Match.objects.filter(player1=user)
-	lost = matches_lost(user)
-	total = matches.count()
-	if total == 0:
-		return 0
-	return round(lost / total * 100, 2)
+    return {
+        'won': won,
+        'lost': lost,
+        'wp': won_perc,
+        'lp': lost_perc,
+    }
 
 def match_history(user):
 	matches = Match.objects.filter(player1=user) | Match.objects.filter(player2=user)

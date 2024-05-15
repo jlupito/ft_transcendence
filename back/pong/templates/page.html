@@ -169,17 +169,17 @@
 								<h5>Results<i class="bi bi-trophy ms-2"></i></h5>
 							</div>
 							<hr class="col-10 mt-0 mb-3 mx-auto">
-							<div style="height: 125px;">
+							<div style="height: 130px;" class="overflow-auto">
 								<div class="col-9 bg-white bg-opacity-25 p-3 mb-2 rounded shadow-sm mx-auto" style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#resultsModal">
 									<div class="row align-items-center">
 										<div class="col-5">
 											<div class="d-flex align-items-center">
-												<p class="fw-lighter m-0">won ({{ matches_won }})</p>
+												<p class="fw-lighter m-0">won ({{ stats.won }})</p>
 											</div>
 										</div>
 										<div class="col-7">
-											<div class="progress" data-bs-toggle="tooltip" title="{{ won_perc }}% of matches won">
-												<div class="progress-bar bg-primary" role="progressbar" style="width: {{ won_perc }}%" aria-valuenow="{{ won_perc }}" aria-valuemin="0" aria-valuemax="100">{{ won_perc }}%</div>
+											<div class="progress" data-bs-toggle="tooltip" title="{{ stats.wp }}% of matches won">
+												<div class="progress-bar bg-primary" role="progressbar" style="width: {{ stats.wp }}%" aria-valuenow="{{ stats.wp }}" aria-valuemin="0" aria-valuemax="100">{{ stats.wp }}%</div>
 											</div>
 										</div>
 									</div>
@@ -188,12 +188,12 @@
 									<div class="row align-items-center">
 										<div class="col-5" >
 											<div class="d-flex align-items-center">
-												<p class="fw-lighter m-0">lost ({{ matches_lost }})</p>
+												<p class="fw-lighter m-0">lost ({{ stats.lost }})</p>
 											</div>
 										</div>
 										<div class="col-7">
-											<div class="progress" data-bs-toggle="tooltip" title="{{ lost_perc }}% of matches lost">
-												<div class="progress-bar bg-danger" role="progressbar" style="width: {{ lost_perc }}%" aria-valuenow="{{ lost_perc }}" aria-valuemin="0" aria-valuemax="100">{{ lost_perc }}%</div>
+											<div class="progress" data-bs-toggle="tooltip" title="{{ stats.lp }}% of matches lost">
+												<div class="progress-bar bg-danger" role="progressbar" style="width: {{ stats.lp }}%" aria-valuenow="{{ stats.lp }}" aria-valuemin="0" aria-valuemax="100">{{ stats.lp }}%</div>
 											</div>
 										</div>
 									</div>
@@ -223,7 +223,7 @@
 								<h5>Friends<i class="bi bi-people-fill ms-2"></i></h5>
 							</div>
 							<hr class="col-10 mt-0 mb-3 mx-auto">
-							<ul class="list-unstyled ms-5 overflow-auto" style="height: 125px;">
+							<ul class="list-unstyled ms-5 overflow-auto" style="height: 130px;">
 								{% if friends|length == 0 %}
 									<p>No friends :(</p>
 								{% endif %}
@@ -474,13 +474,13 @@
 								<li class="d-flex flex-column text-align-center">
 									{% if match.result == "Win" %}
 										<p class="mb-1"><span class="bg-primary p-1 rounded-1 text-light shadow-sm px-2">win</span>
-										vs <span class="bg-white bg-opacity-50 p-1 rounded-1 text-dark shadow-sm px-2 fw-bold">{{ match.opponent_name }}</span>
+										vs <span class="bg-white bg-opacity-50 p-1 rounded-1 text-dark shadow-sm px-2">{{ match.opponent_name }}</span>
 										({{ match.user_score }} - {{ match.opponent_score }})</p>
 										<p class="ms-3 fw-light text-dark text-opacity-75">played on {{ match.time }}</p>
 
 									{% elif match.result == "Loss" %}
 										<p class="mb-1"><span class="bg-danger p-1 rounded-1 text-light shadow-sm px-2">loss</span>
-										vs <span class="bg-white bg-opacity-50 p-1 rounded-1 text-dark shadow-sm px-2 fw-bold">{{ match.opponent_name }}</span>
+										vs <span class="bg-white bg-opacity-50 p-1 rounded-1 text-dark shadow-sm px-2">{{ match.opponent_name }}</span>
 										({{ match.user_score }} - {{ match.opponent_score }})</p>
 										<p class="ms-3 fw-light text-dark text-opacity-75">played on {{ match.time }}</p>
 									{%endif%}
