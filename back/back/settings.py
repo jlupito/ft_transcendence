@@ -30,7 +30,7 @@ ALLOWED_HOSTS = []
 
 
 # Application definition
-
+# on installe ici "channels" pour l'extension Django Channels (gestion communications asynchrones)
 INSTALLED_APPS = [
     'channels',
 

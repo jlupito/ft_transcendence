@@ -117,7 +117,6 @@ class Game():
 
         new_match = Match.create_match_from_game(self)
         new_match.save()
-        # games_online = [game for game in games_online if not game.has_finished]
 
 
 class PongOnline(WebsocketConsumer):
@@ -214,7 +213,6 @@ class PongOnline(WebsocketConsumer):
             'data': self.game.__dict__
         }))
 
-# pourquoi _1 et _2, u lieu de demander un nom de joueur ? choisir l'un ou l'autre
 class PongLocal(WebsocketConsumer):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
