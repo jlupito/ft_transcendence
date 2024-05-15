@@ -7,7 +7,8 @@ let posY = window.innerWidth / 2;
 
 
 function updateBackground() {
-    document.body.style.background = `linear-gradient(${angle}deg, #ff006a, #00ffdd)`;
+    // document.body.style.background = `linear-gradient(${angle}deg, #ff006a, #00ffdd)`;
+    document.body.style.background = `linear-gradient(${angle}deg, #e4712e, #1490e2)`;
   }
 
 function launchBall() {
