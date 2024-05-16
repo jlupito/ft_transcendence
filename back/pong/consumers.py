@@ -112,9 +112,6 @@ class Game():
     def endgame(self):
         self.is_running = False #Stop la loop du jeu et sortira du thread
         self.has_finished = True
-
-        print("Final scores: Player 1 =", self.p1_score, ", Player 2 =", self.p2_score)
-
         new_match = Match.create_match_from_game(self)
         new_match.save()
 
@@ -296,8 +293,20 @@ class PongLocal(WebsocketConsumer):
                 'message':'p2 down released'
             }))
 
+    # def send_update(self):
+    #     self.send(text_data=json.dumps({
+    #         'type':'update received',
+    #         'data': self.game.__dict__
+    #     }))
+
     def send_update(self):
-        self.send(text_data=json.dumps({
-            'type':'update received',
-            'data': self.game.__dict__
+        if (self.game.has_finished and self.game.is_running):
+            self.send(text_data=json.dumps({
+                'type':'game_over',
+                'data': self.game.__dict__
+        }))
+        else:
+            self.send(text_data=json.dumps({
+                'type':'update received',
+                'data': self.game.__dict__
         }))
