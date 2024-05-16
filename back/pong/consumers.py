@@ -236,6 +236,8 @@ class PongLocal(WebsocketConsumer):
             self.game.player1 = user1
             self.game.player2 = user2
             games_local.append(self.game)
+        else:
+            self.game.is_running = True
         if (self.game.player1 != "" and self.game.player2 != ""):
             self.game.start()
         self.send(text_data=json.dumps({
@@ -243,6 +245,8 @@ class PongLocal(WebsocketConsumer):
             'message':'you are connected' + user1 + user2,
             'data':(self.game.__dict__)
         }))
+    def disconnect(self):
+        self.game.is_running = False
 
     def receive(self, text_data):
         text_data_json = json.loads(text_data)

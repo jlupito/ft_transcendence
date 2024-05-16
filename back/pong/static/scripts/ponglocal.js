@@ -32,6 +32,7 @@ function runsocket(){
             ball_x_normalspeed = parseFloat(data.data.ball_x_normalspeed)
             player1 = data.data.player1
             player2 = opponent.value
+            console.log(data);
             // console.log('Data:', data)
             // console.log("paddle speed", paddle_speed)
             // console.log("paddle_width", paddle_width)
