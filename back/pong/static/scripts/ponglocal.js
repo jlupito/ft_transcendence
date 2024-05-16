@@ -53,10 +53,6 @@ function runsocket(){
             // console.log("ball_x_normalspeed", ball_x_normalspeed)
             // console.log("p1ypos", data.data.p1_y_pos)
         }
-        else if (data.type == 'game_over')
-        {
-            console.log("GAME OVER SIGNAL RECEIVED")
-        }
     }
 
     WHITE = (255, 255, 255)

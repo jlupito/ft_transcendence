@@ -1,4 +1,4 @@
-// FONCTION POUR LA BALLE ET LE FOND D ECRAN LOGIN PAGE
+// FONCTION POUR LA BALLE ET LE FOND D'ECRAN LOGIN PAGE
 
 const ball = document.getElementById('ball');
 let angle = 90;
@@ -71,7 +71,7 @@ document.addEventListener("DOMContentLoaded", function(){
   })
 });
 
-// FONCTION DE GESTION DES MODALES
+// ************************ FONCTION DE GESTION DES MODALES *****************************
 
 document.addEventListener('DOMContentLoaded', function() {
   var pongScript;
@@ -86,7 +86,7 @@ document.addEventListener('DOMContentLoaded', function() {
     document.querySelector('#gameView').style.display = 'block';
     // this.reset()
   });
-  
+
   var canvasModal = document.getElementById('localMatchModal');
   canvasModal.addEventListener('hidden.bs.modal', function () {
     if (pongScript) {
@@ -105,7 +105,7 @@ document.addEventListener('DOMContentLoaded', function() {
 //       startLocalGame();
 //       });
 //       function startLocalGame() {
-        
+
 //       document.querySelector('#form-view').style.display = 'none';
 //       document.querySelector('#game-view').style.display = 'block';
 //       var pongScript = document.createElement('script');

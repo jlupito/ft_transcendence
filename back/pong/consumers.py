@@ -302,12 +302,6 @@ class PongLocal(WebsocketConsumer):
                 'message':'p2 down released'
             }))
 
-    # def send_update(self):
-    #     self.send(text_data=json.dumps({
-    #         'type':'update received',
-    #         'data': self.game.__dict__
-    #     }))
-
     def send_update(self):
         self.send(text_data=json.dumps({
             'type':'update received',
