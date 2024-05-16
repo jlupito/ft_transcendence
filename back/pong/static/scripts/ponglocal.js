@@ -2,10 +2,10 @@ function runsocket(){
     let url = `ws://${window.location.host}/ws/socket-pong-local/`
 
     const chatSocket = new WebSocket(url);
-    let running = true // ajout sacha
 
     opponent = document.getElementById('local_player2_name')
     console.log("opponent_name: ", opponent.value)
+    let running = true
 
     chatSocket.onmessage = function(e){
         let data = JSON.parse(e.data)
@@ -35,6 +35,8 @@ function runsocket(){
             player1 = data.data.player1
             player2 = opponent.value
             console.log(data);
+            if (data.data.has_finished === true)
+                running = false
             // console.log('Data:', data)
             // console.log("paddle speed", paddle_speed)
             // console.log("paddle_width", paddle_width)
@@ -60,7 +62,6 @@ function runsocket(){
 
     WIDTH = 600
     HEIGHT = 600
-
     let delay = 30
 
     let paddle_speed = 5
@@ -183,6 +184,22 @@ function runsocket(){
             get_update()
             requestAnimationFrame(draw);
         }
+        else
+        {
+           ctx.fillStyle = 'black'
+           ctx.fillRect(0, 0, canvas.width, canvas.height);
+           ctx.fillStyle = 'red';
+           ctx.textAlign = "center"
+           ctx.fillText("Game Over", WIDTH/2, HEIGHT/2)
+           let win_message
+           if (p1_score > p2_score){
+               win_message = player1 + " won the match"
+           }
+           else
+               win_message = player2 + " won the match"
+           ctx.fillStyle = 'white'
+           ctx.fillText(win_message, WIDTH/2 + 40, HEIGHT/2 +40)
+           }
     }
 
     draw();
