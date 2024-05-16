@@ -8,7 +8,6 @@ import threading
 import time
 from .models import Match
 
-
 games_online = []
 games_local = []
 
@@ -221,7 +220,8 @@ class PongLocal(WebsocketConsumer):
         user = self.scope['user']
         user1 = user.username
         user2 = user.username + "_2"
-        for game in games_local:
+
+        for game in games_local: #loop pour cherchr sil y a deja une partie en cours
             if (game.has_finished == False and (game.player1 == user1 and game.player2 == user2)):
                 self.game = game
                 break
@@ -244,6 +244,11 @@ class PongLocal(WebsocketConsumer):
         message = text_data_json['message']
         if (message == 'update'):
             self.send_update()
+        elif message == 'setOpponentAlias':
+            opponent = text_data_json['opponent']
+            self.game.player2= opponent
+            # if (self.game.player1 != "" and self.game.player2 != ""):
+            #     self.game.start()
         elif (message == 'key_up_pressed'):
             self.game.p1_up = True
             self.send(text_data=json.dumps({
