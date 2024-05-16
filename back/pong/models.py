@@ -14,7 +14,6 @@ class UserProfile(models.Model):
     def __str__(self):
         return self.user.first_name
 
-
 class Match(models.Model):
     player1 = models.ForeignKey(User, on_delete=models.CASCADE, related_name='player1')
     player2 = models.ForeignKey(User, on_delete=models.CASCADE, related_name='player2')

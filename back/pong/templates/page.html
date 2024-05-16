@@ -228,9 +228,15 @@
 									<p>No friends :(</p>
 								{% endif %}
 								{% for friend in friends %}
-									<li class="mb-2" data-bs-toggle="tooltip" data-bs-placement="top" title="Wins - Losses history">
+									<li class="mb-2">
 										<img class="rounded-circle me-2" src="{{ friend.avatar.url }}" alt="Friend avatar" style="width: 35px; height: 35px;">
-										{{ friend.user.first_name }}
+										<button type="button" class="btn btn-secondary"
+        									data-bs-toggle="popover" data-bs-placement="right"
+        									data-bs-custom-class="custom-popover"
+        									data-bs-title="Custom popover"
+        									data-bs-content="This popover is themed via CSS variables.">
+											{{ friend.user.first_name }}
+										</button>
 									</li>
 								{% endfor %}
 							</ul>
@@ -396,6 +402,7 @@
 									pongScript = document.createElement('script');
 									pongScript.src = '../static/scripts/pongonline.js'; // Chemin vers pong.js
 									pongScript.defer = true;
+									pongScript.data.opponent = "{{ opponent }}";
 									document.body.appendChild(pongScript);
 								});
 

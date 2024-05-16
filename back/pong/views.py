@@ -55,7 +55,6 @@ def match_stats(user):
                 won += 1
             else:
                 lost += 1
-
     total = matches.count()
     if total == 0:
         won_perc = 0
@@ -63,7 +62,6 @@ def match_stats(user):
     else:
         won_perc = round(won / total * 100)
         lost_perc = round(lost / total * 100)
-
     return {
         'won': won,
         'lost': lost,
@@ -94,15 +92,6 @@ def match_history(user):
 			match_result["result"] = "Win"
 		elif (user_score < opponent_score):
 			match_result["result"] = "Loss"
-		# if (user_score > opponent_score):
-		# 	l.append("Win vs " + opponent.username + " (" + str(user_score) + " - " + str(opponent_score) +")")
-		# 	l.append("played on " + time)
-		# elif (user_score < opponent_score):
-		# 	l.append("Loss vs " + opponent.username + " (" + str(user_score) + " - " + str(opponent_score) + ")")
-		# 	l.append("played on " + time)
-		# else:
-		# 	l.append("Draw vs " + opponent.username + " (" + str(user_score) + " - " + str(opponent_score) + ")")
-		# 	l.append("played on " + time)
 		l.append(match_result)
 	return l
 
@@ -116,7 +105,6 @@ def friends_list(user):
 			profiles.append(UserProfile.objects.get(user=friend.sender))
 	l = []
 	for profile in profiles:
-
 		l.append(profile)
 	return l
 

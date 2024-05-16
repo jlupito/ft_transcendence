@@ -3,6 +3,8 @@ function runsocket(){
     
     const chatSocket = new WebSocket(url);
     
+    opponent = document.getElementById('local_player2_name')
+    console.log("opponent_name: ", opponent.value)
     
     chatSocket.onmessage = function(e){
         let data = JSON.parse(e.data)
@@ -29,7 +31,7 @@ function runsocket(){
             ball_y_velocity = parseFloat(data.data.ball_y_velocity)
             ball_x_normalspeed = parseFloat(data.data.ball_x_normalspeed)
             player1 = data.data.player1
-            player2 = data.data.player2
+            player2 = opponent.value
             // console.log('Data:', data)
             // console.log("paddle speed", paddle_speed)
             // console.log("paddle_width", paddle_width)

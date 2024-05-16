@@ -1,10 +1,11 @@
+// FONCTION POUR LA BALLE ET LE FOND D ECRAN LOGIN PAGE
+
 const ball = document.getElementById('ball');
 let angle = 90;
 let speedX = 2;
 let speedY = 2;
 let posX = window.innerWidth / 2;
 let posY = window.innerWidth / 2;
-
 
 function updateBackground() {
     // document.body.style.background = `linear-gradient(${angle}deg, #ff006a, #00ffdd)`;
@@ -43,13 +44,12 @@ function launchBall() {
     updateBackground(angle);
     ball.style.left = posX + 'px';
     ball.style.top = posY + 'px';
-    // console.log(posX, posY);
-    // console.log(windowWidth, windowHeight);
 
 }
 
 setInterval(launchBall, 3);
 
+// FONCTION POUR LE CHOIX DES LANGUES
 const language = document.querySelectorAll('.chooseLanguage');
 language.forEach(item => {
     item.addEventListener('click', () => {
@@ -61,22 +61,32 @@ language.forEach(item => {
     });
 });
 
+// FONCTION POUR INIT LES POPOVERS
+document.addEventListener("DOMContentLoaded", function(){
+  var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'))
+  var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
+    return new bootstrap.Popover(popoverTriggerEl, {
+      customClass: 'custom-popover'
+    })
+  })
+});
+
 // FONCTION DE GESTION DES MODALES
-// Empêcher le comportement par défaut de la modale + form avec event.preventDefault();
+
 document.addEventListener('DOMContentLoaded', function() {
   var pongScript;
 
   document.querySelector('#localMatchForm').addEventListener('submit', function(event) {
     event.preventDefault();
     document.querySelector('#formView').style.display = 'none';
-    document.querySelector('#gameView').style.display = 'block';
-
     pongScript = document.createElement('script');
     pongScript.src = '../static/scripts/ponglocal.js';
     pongScript.defer = true;
     document.body.appendChild(pongScript);
+    document.querySelector('#gameView').style.display = 'block';
+    // this.reset()
   });
-
+  
   var canvasModal = document.getElementById('localMatchModal');
   canvasModal.addEventListener('hidden.bs.modal', function () {
     if (pongScript) {
