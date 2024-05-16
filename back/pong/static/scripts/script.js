@@ -71,12 +71,14 @@ document.addEventListener("DOMContentLoaded", function(){
   })
 });
 
+
 // FONCTION DE GESTION DES MODALES
 
 document.addEventListener('DOMContentLoaded', function() {
   var pongScript;
+  var canvasModal = document.getElementById('localMatchModal');
 
-  document.querySelector('#localMatchForm').addEventListener('submit', function(event) {
+  canvasModal.addEventListener('submit', function(event) {
     event.preventDefault();
     document.querySelector('#formView').style.display = 'none';
     pongScript = document.createElement('script');
@@ -84,19 +86,23 @@ document.addEventListener('DOMContentLoaded', function() {
     pongScript.defer = true;
     document.body.appendChild(pongScript);
     document.querySelector('#gameView').style.display = 'block';
-    // this.reset()
   });
   
-  var canvasModal = document.getElementById('localMatchModal');
   canvasModal.addEventListener('hidden.bs.modal', function () {
     if (pongScript) {
       document.body.removeChild(pongScript);
       pongScript = null;
     }
-
     document.querySelector('#formView').style.display = 'block';
     document.querySelector('#gameView').style.display = 'none';
+    this.reset()
   });
+
+  Array.from(document.getElementsByClassName("closeRefresh")).forEach(function(element) {
+    element.addEventListener("click", function() {
+        location.reload(true);
+    });
+});
 });
 // document.addEventListener('DOMContentLoaded', function() {
 //   function setupLocalMatchModal() {

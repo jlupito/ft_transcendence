@@ -141,7 +141,7 @@ class PongOnline(WebsocketConsumer):
                 break
 
         if (self.game == None):
-            self.game = Game(5) # ICI on instancie un nouvel objet Game, qui à son tour lance sa methode start()
+            self.game = Game(2) # ICI on instancie un nouvel objet Game, qui à son tour lance sa methode start()
             self.game.player1 = user.username
             games_online.append(self.game)
         if (self.game.player1 != "" and self.game.player2 != ""):
