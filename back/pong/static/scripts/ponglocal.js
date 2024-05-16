@@ -2,6 +2,7 @@ function runsocket(){
     let url = `ws://${window.location.host}/ws/socket-pong-local/`
 
     const chatSocket = new WebSocket(url);
+    let running = true // ajout sacha
 
 
     chatSocket.onmessage = function(e){
@@ -51,7 +52,6 @@ function runsocket(){
         else if (data.type == 'game_over')
         {
             console.log("GAME OVER SIGNAL RECEIVED")
-            has_finished = False
         }
     }
 
@@ -61,7 +61,6 @@ function runsocket(){
     WIDTH = 600
     HEIGHT = 600
 
-    let running = true
     let delay = 30
 
     let paddle_speed = 5

@@ -300,13 +300,7 @@ class PongLocal(WebsocketConsumer):
     #     }))
 
     def send_update(self):
-        if (self.game.has_finished and self.game.is_running):
-            self.send(text_data=json.dumps({
-                'type':'game_over',
-                'data': self.game.__dict__
-        }))
-        else:
-            self.send(text_data=json.dumps({
-                'type':'update received',
-                'data': self.game.__dict__
+        self.send(text_data=json.dumps({
+            'type':'update received',
+            'data': self.game.__dict__
         }))
