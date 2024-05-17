@@ -204,12 +204,12 @@
 							<h5 class="ms-3">Play<i class="bi bi-joystick ms-2"></i></h5>
 							<hr class="col-10 mt-0 mb-2 mx-auto">
 							<div id="playDiv" style="height: 170px; display: flex; flex-direction: column; justify-content: center;" class="col-9 bg-white bg-opacity-25 p-1 rounded shadow-sm mx-auto mt-3 mb-2">
-								<div class="mt-3 mb-3 text-center text-light fw-bold">
+								<div class="mt-3 mb-3 text-center text-light">
 									Choose a format:
 								</div>
 								<div class="mb-3 text-center">
-									<button id="playSingle" class="btn btn-dark btn-sm shadow-sm text-light col-8 mb-2 fw-bold">match 1v1</button>
-									<button id="playTournament" class="btn btn-dark btn-sm shadow-sm text-light col-8 mb-3 fw-bold">tournament</button>
+									<button id="playSingle" class="btn btn-dark btn-sm shadow-sm text-light col-8 mb-2">match 1v1</button>
+									<button id="playTournament" class="btn btn-dark btn-sm shadow-sm text-light col-8 mb-3">tournament</button>
 								</div>
 							</div>
 						</div>
@@ -223,19 +223,22 @@
 								<h5>Friends<i class="bi bi-people-fill ms-2"></i></h5>
 							</div>
 							<hr class="col-10 mt-0 mb-3 mx-auto">
-							<ul class="list-unstyled ms-5 overflow-auto" style="height: 130px;">
+							<ul class="list-unstyled overflow-auto" style="height: 130px;">
 								{% if friends|length == 0 %}
-									<p>No friends :(</p>
+									<p class="ms-5">No friends :(</p>
 								{% endif %}
 								{% for friend in friends %}
-									<li class="mb-2">
-										<img class="rounded-circle me-2" src="{{ friend.avatar.url }}" alt="Friend avatar" style="width: 35px; height: 35px;">
-										<button type="button" class="btn btn-secondary"
-        									data-bs-toggle="popover" data-bs-placement="right"
-        									data-bs-custom-class="custom-popover"
-        									data-bs-title="Custom popover"
+									<li class="mb-2 d-flex align-items-center justify-content-between">
+										<div class="ms-5">
+											<img class="rounded-circle me-2" src="{{ friend.avatar.url }}" alt="Friend avatar" style="width: 35px; height: 35px;">
+										</div>
+										{{ friend.user.first_name }}
+										<button type="button" class="btn btn-sm btn-transparent text-light text-decoration-none"
+        									data-bs-toggle="popover" data-bs-placement="right" data-bs-trigger="focus"
+        									data-bs-custom-class="custom-popover bg-light bg-opacity-25"
+        									data-bs-title="Match history"
         									data-bs-content="This popover is themed via CSS variables.">
-											{{ friend.user.first_name }}
+											see profile
 										</button>
 									</li>
 								{% endfor %}
@@ -350,7 +353,7 @@
 			<div class="modal-content bg-dark-subtle shadow">
 				<div class="modal-header">
 					<h5 class="modal-title" id="localMatchModalLabel">Play a local match</h5>
-					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+					<button type="button" class="btn-close closeRefresh" data-bs-dismiss="modal" aria-label="Close"></button>
 				</div>
 				<div class="modal-body">
 					<div id="formView">
@@ -369,7 +372,7 @@
 					</div>
 				</div>
 				<div class="modal-footer">
-					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+					<button type="button" class="btn btn-secondary closeRefresh" data-bs-dismiss="modal">Close</button>
 				</div>
 			</div>
 		</div>
@@ -380,7 +383,7 @@
 			<div class="modal-content bg-dark-subtle shadow">
 				<div class="modal-header">
 					<h5 class="modal-title" id="matchModalLabel">Play a match</h5>
-					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+					<button type="button" class="btn-close closeRefresh" data-bs-dismiss="modal" aria-label="Close"></button>
 				</div>
 				<div class="modal-body d-flex justify-content-center align-items-center">
 					<!-- <p class="my-auto me-2">Waiting for an opponent</p> -->
@@ -419,7 +422,7 @@
 					</div>
 				</div>
 				<div class="modal-footer">
-					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+					<button type="button" class="btn btn-secondary closeRefresh" data-bs-dismiss="modal">Close</button>
 				</div>
 			</div>
 		</div>
