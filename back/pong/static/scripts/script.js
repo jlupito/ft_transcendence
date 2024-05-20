@@ -61,6 +61,14 @@ language.forEach(item => {
     });
 });
 
+// FOCNTION POUR TIMEOUT LES MESSAGES
+document.addEventListener('DOMContentLoaded', (event) => {
+  const divMsg = document.getElementById('div-message');
+  setTimeout(function() {
+      divMsg.remove();
+  }, 5000);
+});
+
 // FONCTION POUR INIT LES POPOVERS
 document.addEventListener("DOMContentLoaded", function(){
   var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'))

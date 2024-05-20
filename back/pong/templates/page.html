@@ -59,11 +59,11 @@
 		</nav>
 	</header>
 	<main>
-		{% if messages %}
+		<!-- {% if messages %}
 			{% for message in messages %}
 				<div class="alert alert-danger" role="alert"> {{ message }} </div>
 			{% endfor %}
-		{% endif %}
+		{% endif %} -->
 		<div class="container d-flex align-items-center justify-content-center vh-100">
 			<div class="d-flex align-items-center justify-content-center">
 				<div class="text-center col-8 bg-light border border-opacity-25 border-light bg-opacity-25 p-4 rounded shadow">
@@ -104,15 +104,6 @@
 	<div id="ball"></div>
 	{% else %}
 	<header>
-		<div class="container mt-5">
-			{% if messages %}
-				{% for message in messages %}
-				<div class="alert alert-warning alert-dismissible fade show" role="alert">
-					{{ message }}
-				</div>
-				{% endfor %}
-			{% endif %}
-		</div>
 		<nav class="navbar navbar-expand-md navbar-dark fixed-top" id="mainNav">
 			<div class="container px-2 px-lg-3">
 				<h1 class="navbar-brand" href="#">ft_transcendance</h1>
@@ -145,7 +136,7 @@
 		</nav>
 	</header>
 	<main class="vh-100">
-		<section id="profile" class="pt-5 pb-4 container mx-auto" style="max-width : 800px">
+		<section id="profile" class="mt-5 pt-5 pb-4 container mx-auto" style="max-width : 800px">
 			<div class="bg-light text-center border border-light border-opacity-25 bg-opacity-25 rounded shadow text-light">
 				<div class="col mb-2 ">
 					<h2 class="text-light my-3">Welcome {{ request.user.first_name }} !</h2>
@@ -225,21 +216,23 @@
 							<hr class="col-10 mt-0 mb-3 mx-auto">
 							<ul class="list-unstyled overflow-auto" style="height: 130px;">
 								{% if friends|length == 0 %}
-									<p class="ms-5">No friends :(</p>
+									<p class="ms-5">No friends yet</p>
 								{% endif %}
 								{% for friend in friends %}
-									<li class="mb-2 d-flex align-items-center justify-content-between">
-										<div class="ms-5">
-											<img class="rounded-circle me-2" src="{{ friend.avatar.url }}" alt="Friend avatar" style="width: 35px; height: 35px;">
+									<li class="mb-2">
+										<div class="d-flex justify-content-between align-items-center col-9 bg-white bg-opacity-25 mb-2 rounded shadow-sm mx-auto p-3">
+											<div class="d-flex align-items-center">
+												<img class="rounded-circle me-2" src="{{ friend.avatar.url }}" alt="Friend avatar" style="width: 35px; height: 35px;">
+												<div style="max-width: 7ch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+													{{ friend.user.first_name }}
+													{{ friend.user.stats.won }}
+												</div>
+											</div>
+											<button class="btn buttonfriends btn-sm btn-dark shadow-sm" style="--bs-btn-font-size: .75rem;"
+											data-bs-toggle="modal" data-bs-target="#friendsProfile">
+											profile
+											</button>
 										</div>
-										{{ friend.user.first_name }}
-										<button type="button" class="btn btn-sm btn-transparent text-light text-decoration-none"
-        									data-bs-toggle="popover" data-bs-placement="right" data-bs-trigger="focus"
-        									data-bs-custom-class="custom-popover bg-light bg-opacity-25"
-        									data-bs-title="Match history"
-        									data-bs-content="This popover is themed via CSS variables.">
-											see profile
-										</button>
 									</li>
 								{% endfor %}
 							</ul>
@@ -252,31 +245,35 @@
 							<ul class="list-unstyled overflow-auto" style="height: 175px;">
 								{% for user in users %}
 									{% if user not in friends %}
-									<li class="d-flex align-items-center justify-content-between mb-2">
-										<div class="ms-5">
-											<img class="rounded-circle me-2" src="{{ user.avatar.url }}" alt="" style="width: 35px; height: 35px;">
-											{{ user.user.first_name }}
-										</div>
-										{% if user.user.first_name in invites %}
+									<li>
+										<div class="d-flex justify-content-between align-items-center col-9 bg-white bg-opacity-25 p-3 mb-2 rounded shadow-sm mx-auto">
+											<div class="d-flex align-items-center">
+												<img class="rounded-circle me-2" src="{{ user.avatar.url }}" alt="" style="width: 35px; height: 35px;">
+												<div style="max-width: 7ch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+													{{ user.user.first_name }}
+												</div>
+											</div>
+											{% if user.user.first_name in invites %}
 											<form action="handle_invite" method="POST">
 												{% csrf_token %}
 												<input type="hidden" name="invite" value="{{ user.user.first_name }}">
 												<button type="submit" name="status" value="accepted" class="btn buttonvalid px-2 btn-sm btn-primary shadow-sm"
 												style="--bs-btn-font-size: .75rem;"><i class="bi bi-check-square"></i></button>
-												<button type="submit" name="status" value="declined" class="px-2 buttonvalid btn btn-sm btn-danger me-4 shadow-sm"
+												<button type="submit" name="status" value="declined" class="px-2 buttonvalid btn btn-sm btn-danger shadow-sm"
 												style="--bs-btn-font-size: .75rem;"><i class="bi bi-x-square"></i></button>
 											</form>
-										{% elif user.user.first_name in invitees %}
-											<button class="btn buttonfriends btn-sm btn-primary shadow-sm me-4 text-align-center" disabled
+											{% elif user.user.first_name in invitees %}
+											<button class="btn buttonfriends btn-sm btn-primary shadow-sm" disabled
 											style="--bs-btn-font-size: .75rem;">pending</button>
-										{% else %}
+											{% else %}
 											<form action="send_invite" method="POST">
 												{% csrf_token %}
 												<input type="hidden" name="receiver" value="{{ user.user.username }}">
-												<button class="btn buttonfriends btn-sm btn-primary shadow-sm me-4" type="submit"
+												<button class="btn buttonfriends btn-sm btn-primary shadow-sm" type="submit"
 												style="--bs-btn-font-size: .75rem;">add friend</button>
 											</form>
-										{% endif %}
+											{% endif %}
+										</div>
 									</li>
 									{% endif %}
 								{% endfor %}
@@ -286,8 +283,18 @@
 				</div>
 			</div>
 		</section>
+		<div class="container mt-2" id="div-message">
+			{% if messages %}
+				{% for message in messages %}
+				<div class="alert alert-warning alert-dismissible fade show" role="alert">
+					{{ message }}
+				</div>
+				{% endfor %}
+			{% endif %}
+		</div>
 	</main>
 	{% endif %}
+	{% comment %} MODALE POUR AFFICHER LE SIGN UP {% endcomment %}
 	<div class="modal fade" id="signupModal" tabindex="-1" aria-labelledby="signupModalLabel" aria-hidden="true">
 		<div class="modal-dialog">
 			<div class="modal-content bg-dark-subtle shadow">
@@ -319,6 +326,7 @@
 			</div>
 		</div>
 	</div>
+	{% comment %} MODALE POUR EDITER LE USER PROFILE {% endcomment %}
 	<div class="modal fade" id="profileModal" tabindex="-1" aria-labelledby="profileModalLabel" aria-hidden="true">
 		<div class="modal-dialog">
 			<div class="modal-content bg-dark-subtle shadow">
@@ -346,7 +354,58 @@
 			</div>
 		</div>
 	</div>
-
+	{% comment %} MODALE POUR AFFICHER LE PROFILE DU FRIEND {% endcomment %}
+	<div class="modal fade" id="friendsProfile" tabindex="-1" aria-labelledby="friendsProfileLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content bg-dark-subtle shadow">
+				<div class="modal-header">
+					<h5 class="modal-title" id="friendsProfileLabel">Profile</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					{{friend.user.first_name }}
+						{% for user in users %}
+							{% if user.user.first_name == friend.user.first_name %}
+							<div style="height: 130px;" class="overflow-auto">
+								<div class="col-9 bg-white bg-opacity-25 p-3 mb-2 rounded shadow-sm mx-auto" style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#resultsModal">
+									<div class="row align-items-center">
+										<div class="col-5">
+											<div class="d-flex align-items-center">
+												<p class="fw-lighter m-0">won ({{ user.stats.won }})</p>
+											</div>
+										</div>
+										<div class="col-7">
+											<div class="progress" data-bs-toggle="tooltip" title="{{ user.stats.wp }}% of matches won">
+												<div class="progress-bar bg-primary" role="progressbar" style="width: {{ user.stats.wp }}%" aria-valuenow="{{ user.stats.wp }}" aria-valuemin="0" aria-valuemax="100">{{ user.stats.wp }}%</div>
+											</div>
+										</div>
+									</div>
+								</div>
+								<div class="col-9 bg-white bg-opacity-25 p-3 mb-2 rounded shadow-sm mx-auto" style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#resultsModal">
+									<div class="row align-items-center">
+										<div class="col-5" >
+											<div class="d-flex align-items-center">
+												<p class="fw-lighter m-0">lost ({{ user.stats.lost }})</p>
+											</div>
+										</div>
+										<div class="col-7">
+											<div class="progress" data-bs-toggle="tooltip" title="{{ user.stats.lp }}% of matches lost">
+												<div class="progress-bar bg-danger" role="progressbar" style="width: {{ user.stats.lp }}%" aria-valuenow="{{ user.stats.lp }}" aria-valuemin="0" aria-valuemax="100">{{ user.stats.lp }}%</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+							{% endif %}
+						{% endfor %}
+						<div class="modal-footer">
+							<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
 	{% comment %} MODALE POUR LE JEU LOCAL {% endcomment %}
 	<div class="modal fade" id="localMatchModal" tabindex="-1" aria-labelledby="localMatchModalLabel" aria-hidden="true">
 		<div class="modal-dialog" style="min-width: 700px;">

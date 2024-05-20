@@ -14,5 +14,6 @@ urlpatterns = [
 	path('create_account', views.send_invite, name='send_invite'),
 	path('register', views.register, name='register'),
     path('sign_in', views.sign_in, name='sign_in'),
-	path('create_local_game', views.create_local_game, name='create_local_game')
+	path('create_local_game', views.create_local_game, name='create_local_game'),
+    path('friend/<int:friend_id>/', views.friend_profile, name='friend_profile'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

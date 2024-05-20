@@ -183,6 +183,29 @@ def send_invite(request):
 	Friend.objects.create(sender=sender, receiver=User.objects.get(username=receiver), status='pending')
 	return redirect('home')
 
+def friend_profile(request, friend_id):
+    friend = User.objects.get(id=friend_id)
+    if friend:
+        avatar_url = UserProfile.objects.get(user=friend).avatar.url
+        users = UserProfile.objects.exclude(user=friend)
+        matches = match_history(friend)
+        stats = match_stats(friend)
+        friends = friends_list(friend)
+        invites = invites_list(friend)
+        invitees = invitees_list(friend)
+        context = {
+            'users': users,
+            'avatar_url': avatar_url,
+            'invites': invites,
+            'friends': friends,
+            'matches': matches,
+            'invitees': invitees,
+            'stats' : stats
+        }
+        return render(request, 'friend_profile.html', context)
+    else:
+        return HttpResponse('<h1>Friend not found</h1>')
+
 # never_cache est un décorateur qui indique au navigateur de ne pas mettre en cache la reponse
 # à cette view, a chaque fois que la view est appelee, la verification aura lieu.
 @never_cache
