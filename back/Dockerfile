@@ -6,9 +6,17 @@ ENV PYTHONUNBUFFERED 1
 
 WORKDIR /code
 RUN apt-get update && apt-get install -y netcat-openbsd
+RUN apt-get install libpq-dev
+RUN pip install django-extensions
 COPY requirements.txt /code/
 RUN pip install --no-cache-dir -r requirements.txt
 RUN pip install channels==3.0.4
+
+RUN pip install werkzeug
+# RUN pip install django-extensions
+RUN pip install pyOpenSSL
+RUN pip install psycopg2-binary==2.8.6
+
 COPY . /code/
 COPY ./entrypoint.sh /code/entrypoint.sh
 RUN chmod +x /code/entrypoint.sh

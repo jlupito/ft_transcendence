@@ -4,7 +4,7 @@ all : build
 
 build :
 	docker-compose -f $(FILE) build
-	docker-compose -f $(FILE) up -d
+	docker-compose -f $(FILE) up
 
 clean :
 	docker-compose -f $(FILE) down
