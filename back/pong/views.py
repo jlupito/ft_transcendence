@@ -190,13 +190,13 @@ def auth(request):
 	code = request.GET.get('code')
 	uid = os.environ.get('UID')
 	secret = os.environ.get('SECRET')
-	token_url = 'https://api.intra.42.fr/oauth/token'
+	token_url = 'http://api.intra.42.fr/oauth/token'
 	data = {
 		'grant_type': 'authorization_code',
 		'client_id': uid,
 		'client_secret': secret,
 		'code': code,
-		'redirect_uri': 'http://localhost:8000/oauth',
+		'redirect_uri': 'https://localhost:8000/oauth',
 	}
 	response = requests.post(token_url, data=data)
 	if (response.status_code != 200):
