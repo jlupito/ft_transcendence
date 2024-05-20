@@ -104,7 +104,6 @@ class Game():
         self.is_running = False
         self.has_finished = True
         print("Final scores: Player 1 =", self.p1_score, ", Player 2 =", self.p2_score)
-        # Suppose que la méthode Match.create_match_from_game et save() existent
         new_match = Match.create_match_from_game(self)
         new_match.save()
 
@@ -146,7 +145,7 @@ class BasePongConsumer(WebsocketConsumer):
         self.send_connection_message()
 
     def setup_game(self):
-        pass  # Doit être implémenté par les classes dérivées
+        pass  # Doit être implémenté par les classes dérivées à leurs créations
 
     def send_connection_message(self):
         user = self.scope['user']
