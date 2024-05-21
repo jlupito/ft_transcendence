@@ -268,7 +268,7 @@
 											{% else %}
 											<form action="send_invite" method="POST">
 												{% csrf_token %}
-												<input type="hidden" name="receiver" value="{{ user.user.username }}">
+												<input type="hidden" name="receiver" value="{{ user.user.first_name }}">
 												<button class="btn buttonfriends btn-sm btn-primary shadow-sm" type="submit"
 												style="--bs-btn-font-size: .75rem;">add friend</button>
 											</form>

@@ -13,6 +13,9 @@ import requests
 import os
 from .forms import RegisterForm, LoginForm, localMatchForm
 from .consumers import Game
+from django.core.files.base import ContentFile
+from django.core.files import File
+from django.core.files.temp import NamedTemporaryFile
 
 def home(request):
 	context = {}
@@ -229,10 +232,24 @@ def auth(request):
 	if (response.status_code != 200):
 		return HttpResponse('<h1>Failed to get user info</h1>')
 	intra_login = response.json()['login']
+	intra_email = response.json()['email']
+	# intra_picture = response.json()['image']['link']
+	intra_url = response.json()['image']['link']
 	user = User.objects.filter(username=intra_login).first()
 	if user is None:
-		user = User.objects.create_user(username=intra_login, first_name=intra_login)
+		user = User.objects.create_user(username=intra_login, first_name=intra_login, email=intra_email)
 		UserProfile.objects.create(user=user)
+	response_pic = requests.get(intra_url)
+	img_temp = NamedTemporaryFile(delete=True)
+	img_temp.write(response_pic.content)
+	img_temp.flush()
+	user_profile = UserProfile.objects.get(user=user)
+	if user_profile.avatar.url != "/media/avatars/default2.png":
+		user_profile.avatar.delete()
+	intra_url.name = user.username
+	user_profile.avatar = intra_url
+	user_profile.save()
+	user.save()
 	login(request, user)
 	return redirect('home')
 
