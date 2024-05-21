@@ -62,12 +62,18 @@ language.forEach(item => {
 });
 
 // FOCNTION POUR TIMEOUT LES MESSAGES
-document.addEventListener('DOMContentLoaded', (event) => {
-  const divMsg = document.getElementById('div-message');
-  setTimeout(function() {
-      divMsg.remove();
-  }, 5000);
-});
+function closeAlert(divMsg) {
+  var alert = divMsg.parentElement;
+  alert.style.animation = 'slideOut 0.5s forwards';
+  alert.addEventListener('animationend', function() {
+      alert.remove();
+  });
+}
+const divMsg = document.getElementById('div-message');
+setTimeout(function() {
+  closeAlert(divMsg);
+}, 4000);
+
 
 // FONCTION POUR INIT LES POPOVERS
 document.addEventListener("DOMContentLoaded", function(){

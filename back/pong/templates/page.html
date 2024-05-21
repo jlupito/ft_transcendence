@@ -13,6 +13,16 @@
 	<script src="../static/scripts/gameSelection.js" defer></script>
 </head>
 <body>
+	<div class="container pe-3 col-5" style="position: fixed; top: 8%; right: 0; z-index: 9999;">
+		{% if messages %}
+			{% for message in messages %}
+			<div  id="div-message" class="alert alert-warning bg-dark text-light border border-dark text-center shadow" 
+			role="alert" style="animation: slideIn 0.5s forwards;">
+				{{ message }}
+			</div>
+			{% endfor %}
+		{% endif %}
+	</div>
 	{% if not request.user.is_authenticated %}
 	<header>
 		<nav class="navbar navbar-expand-md navbar-dark fixed-top" id="mainNav">
@@ -59,11 +69,6 @@
 		</nav>
 	</header>
 	<main>
-		<!-- {% if messages %}
-			{% for message in messages %}
-				<div class="alert alert-danger" role="alert"> {{ message }} </div>
-			{% endfor %}
-		{% endif %} -->
 		<div class="container d-flex align-items-center justify-content-center vh-100">
 			<div class="d-flex align-items-center justify-content-center">
 				<div class="text-center col-8 bg-light border border-opacity-25 border-light bg-opacity-25 p-4 rounded shadow">
@@ -222,14 +227,9 @@
 									<li class="mb-2">
 										<div class="d-flex justify-content-between align-items-center col-9 bg-white bg-opacity-25 mb-2 rounded shadow-sm mx-auto p-3">
 											<div class="d-flex align-items-center">
-												{% if user.user.is_online %}
-													<img class="rounded-circle me-2 border border-success" src="{{ friend.avatar.url }}" alt="Friend avatar" style="width: 35px; height: 35px;">
-												{% else %}
-													<img class="rounded-circle me-2" src="{{ friend.avatar.url }}" alt="Friend avatar" style="width: 35px; height: 35px;">
-												{% endif %}
+												<img class="rounded-circle me-2 border border-success" src="{{ friend.avatar.url }}" alt="Friend avatar" style="width: 35px; height: 35px;">
 												<div style="max-width: 7ch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
 													{{ friend.user.first_name }}
-													{{ friend.user.stats.won }}
 												</div>
 											</div>
 											<button class="btn buttonfriends btn-sm btn-dark shadow-sm" style="--bs-btn-font-size: .75rem;"
@@ -238,6 +238,45 @@
 											</button>
 										</div>
 									</li>
+									<div class="modal fade" id="friendsProfile" tabindex="-1" aria-labelledby="friendsProfileLabel" aria-hidden="true">
+										<div class="modal-dialog">
+											<div class="modal-content bg-dark-subtle shadow">
+												<div class="modal-header">
+													<h5 class="modal-title" id="friendsProfileLabel">Profile</h5>
+													<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+												</div>
+												<div class="modal-body">
+													{% url 'friend_match' friend_username=friend.user.first_name %}
+													<div>
+														<ul class="list-unstyled">
+															{% if matches|length == 0 %}
+																<p>No matches</p>
+															{% endif %}
+															{% for match in matches %}
+																<li class="d-flex flex-column text-align-center">
+																	{% if match.result == "Win" %}
+																		<p class="mb-1"><span class="bg-primary p-1 rounded-1 text-light shadow-sm px-2">win</span>
+																		vs <span class="bg-white bg-opacity-50 p-1 rounded-1 text-dark shadow-sm px-2">{{ match.opponent_name }}</span>
+																		({{ match.user_score }} - {{ match.opponent_score }})</p>
+																		<p class="ms-3 fw-light text-dark text-opacity-75">played on {{ match.time }}</p>
+								
+																	{% elif match.result == "Loss" %}
+																		<p class="mb-1"><span class="bg-danger p-1 rounded-1 text-light shadow-sm px-2">loss</span>
+																		vs <span class="bg-white bg-opacity-50 p-1 rounded-1 text-dark shadow-sm px-2">{{ match.opponent_name }}</span>
+																		({{ match.user_score }} - {{ match.opponent_score }})</p>
+																		<p class="ms-3 fw-light text-dark text-opacity-75">played on {{ match.time }}</p>
+																	{%endif%}
+																</li>
+															{% endfor %}
+														</ul>
+													</div>
+													<div class="modal-footer">
+														<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
 								{% endfor %}
 							</ul>
 						</div>
@@ -287,15 +326,6 @@
 				</div>
 			</div>
 		</section>
-		<div class="container mt-2" id="div-message">
-			{% if messages %}
-				{% for message in messages %}
-				<div class="alert alert-warning alert-dismissible fade show" role="alert">
-					{{ message }}
-				</div>
-				{% endfor %}
-			{% endif %}
-		</div>
 	</main>
 	{% endif %}
 	{% comment %} MODALE POUR AFFICHER LE SIGN UP {% endcomment %}
@@ -359,57 +389,7 @@
 		</div>
 	</div>
 	{% comment %} MODALE POUR AFFICHER LE PROFILE DU FRIEND {% endcomment %}
-	<div class="modal fade" id="friendsProfile" tabindex="-1" aria-labelledby="friendsProfileLabel" aria-hidden="true">
-		<div class="modal-dialog">
-			<div class="modal-content bg-dark-subtle shadow">
-				<div class="modal-header">
-					<h5 class="modal-title" id="friendsProfileLabel">Profile</h5>
-					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-				</div>
-				<div class="modal-body">
-					{{friend.user.first_name }}
-						{% for user in users %}
-							{% if user.user.first_name == friend.user.first_name %}
-							<div style="height: 130px;" class="overflow-auto">
-								<div class="col-9 bg-white bg-opacity-25 p-3 mb-2 rounded shadow-sm mx-auto" style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#resultsModal">
-									<div class="row align-items-center">
-										<div class="col-5">
-											<div class="d-flex align-items-center">
-												<p class="fw-lighter m-0">won ({{ user.stats.won }})</p>
-											</div>
-										</div>
-										<div class="col-7">
-											<div class="progress" data-bs-toggle="tooltip" title="{{ user.stats.wp }}% of matches won">
-												<div class="progress-bar bg-primary" role="progressbar" style="width: {{ user.stats.wp }}%" aria-valuenow="{{ user.stats.wp }}" aria-valuemin="0" aria-valuemax="100">{{ user.stats.wp }}%</div>
-											</div>
-										</div>
-									</div>
-								</div>
-								<div class="col-9 bg-white bg-opacity-25 p-3 mb-2 rounded shadow-sm mx-auto" style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#resultsModal">
-									<div class="row align-items-center">
-										<div class="col-5" >
-											<div class="d-flex align-items-center">
-												<p class="fw-lighter m-0">lost ({{ user.stats.lost }})</p>
-											</div>
-										</div>
-										<div class="col-7">
-											<div class="progress" data-bs-toggle="tooltip" title="{{ user.stats.lp }}% of matches lost">
-												<div class="progress-bar bg-danger" role="progressbar" style="width: {{ user.stats.lp }}%" aria-valuenow="{{ user.stats.lp }}" aria-valuemin="0" aria-valuemax="100">{{ user.stats.lp }}%</div>
-											</div>
-										</div>
-									</div>
-								</div>
-							</div>
-							{% endif %}
-						{% endfor %}
-						<div class="modal-footer">
-							<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-						</div>
-					</form>
-				</div>
-			</div>
-		</div>
-	</div>
+	
 	{% comment %} MODALE POUR LE JEU LOCAL {% endcomment %}
 	<div class="modal fade" id="localMatchModal" tabindex="-1" aria-labelledby="localMatchModalLabel" aria-hidden="true">
 		<div class="modal-dialog" style="min-width: 700px;">
@@ -420,12 +400,12 @@
 				</div>
 				<div class="modal-body">
 					<div id="formView">
-						<form id="localMatchForm" class="row gy-2 mt-4 d-flex align-items-center justify-content-center">
+						<form id="localMatchForm" class="row my-4 d-flex align-items-center justify-content-center">
 							{% csrf_token %}
 							<div class="col-7">
 								<input type="text" class="form-control" id="local_player2_name" name="local_player2_name" placeholder="Choose an alias for your opponent">
 							</div>
-							<button type="submit" id="startLocalGameBtn" class="btn btn-primary col-2">Start</button>
+							<button type="submit" id="startLocalGameBtn" class="btn btn-primary col-2 shadow-sm">Start</button>
 						</form>
 					</div>
 					<div id="gameView" style="display: none;">
