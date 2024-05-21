@@ -13,9 +13,8 @@ import requests
 import os
 from .forms import RegisterForm, LoginForm, localMatchForm
 from .consumers import Game
+from tempfile import NamedTemporaryFile
 from django.core.files.base import ContentFile
-from django.core.files import File
-from django.core.files.temp import NamedTemporaryFile
 
 def home(request):
 	context = {}
@@ -209,6 +208,13 @@ def friend_profile(request, friend_id):
     else:
         return HttpResponse('<h1>Friend not found</h1>')
 
+def save_image(image_url):
+    response = requests.get(image_url)
+    if response.status_code == 200:
+        return ContentFile(response.content)
+    else:
+        return None
+
 # never_cache est un décorateur qui indique au navigateur de ne pas mettre en cache la reponse
 # à cette view, a chaque fois que la view est appelee, la verification aura lieu.
 @never_cache
@@ -233,23 +239,18 @@ def auth(request):
 		return HttpResponse('<h1>Failed to get user info</h1>')
 	intra_login = response.json()['login']
 	intra_email = response.json()['email']
-	# intra_picture = response.json()['image']['link']
-	# intra_url = response.json()['image']['link']
+	intra_picture = response.json()['image']['link']
+	picture = save_image(intra_picture)
 	user = User.objects.filter(username=intra_login).first()
 	if user is None:
 		user = User.objects.create_user(username=intra_login, first_name=intra_login, email=intra_email)
 		UserProfile.objects.create(user=user)
-	# response_pic = requests.get(intra_url)
-	# img_temp = NamedTemporaryFile(delete=True)
-	# img_temp.write(response_pic.content)
-	# img_temp.flush()
-	# user_profile = UserProfile.objects.get(user=user)
-	# if user_profile.avatar.url != "/media/avatars/default2.png":
-	# 	user_profile.avatar.delete()
-	# intra_url.name = user.username
-	# user_profile.avatar = intra_url
-	# user_profile.save()
-	# user.save()
+		if (picture is not None):
+			user_profile = UserProfile.objects.get(user=user)
+			if user_profile.avatar.url != "/media/avatars/default2.png":
+				user_profile.avatar.delete()
+			picture.name = user.username
+			user_profile.avatar.save('intra_img.jpg', picture, save=True)
 	login(request, user)
 	return redirect('home')
 
