@@ -234,6 +234,7 @@ def auth(request):
 			picture.name = user.username
 			user_profile.avatar.save('intra_img.jpg', picture, save=True)
 	login(request, user)
+	messages.success(request, 'You are now logged in!')
 	return redirect('home')
 
 # *********************************** MATCHS ***********************************
@@ -271,7 +272,7 @@ def sign_in(request):
 				)
 			if user is not None:
 				login(request, user)
-				messages.success(request, 'Connected!')
+				messages.success(request, 'You are now logged in!')
 			else:
 				messages.error(request, 'Invalid username or password')
 	else:
