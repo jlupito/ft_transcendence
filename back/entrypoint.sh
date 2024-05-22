@@ -13,4 +13,4 @@ python manage.py makemigrations pong
 python manage.py migrate
 
 # Start the Django development server
-exec python manage.py runserver_plus --cert-file /code/certs/cert.pem --key-file /code/certs/key.pem 8000
+exec python manage.py runserver_plus --cert-file /code/certs/cert.pem --key-file /code/certs/key.pem --keep-meta-shutdown 0.0.0.0:8000

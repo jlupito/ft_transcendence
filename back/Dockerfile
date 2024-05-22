@@ -8,6 +8,7 @@ WORKDIR /code
 RUN apt-get update && apt-get install -y netcat-openbsd
 RUN apt-get install libpq-dev
 RUN pip install django-extensions
+RUN pip install --upgrade django-extensions
 COPY requirements.txt /code/
 RUN pip install --no-cache-dir -r requirements.txt
 RUN pip install channels==3.0.4

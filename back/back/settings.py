@@ -33,7 +33,6 @@ ALLOWED_HOSTS = ['localhost', '0.0.0.0']
 # on installe ici "channels" pour l'extension Django Channels (gestion communications asynchrones)
 INSTALLED_APPS = [
     'channels',
-
     'django_extensions',
     'django.contrib.admin',
     'django.contrib.auth',
