@@ -16,7 +16,7 @@
 	<div class="container pe-3 col-4" style="position: fixed; top: 8%; right: 0; z-index: 9999;">
 		{% if messages %}
 			{% for message in messages %}
-			<div  id="div-message" class="alert alert-warning bg-dark text-light border border-dark text-center shadow" 
+			<div  id="div-message" class="alert alert-warning bg-dark text-light border border-dark text-center shadow-lg" 
 			role="alert" style="animation: slideIn 0.5s forwards;">
 				{{ message }}
 			</div>
@@ -227,7 +227,7 @@
 									<li class="mb-2">
 										<div class="d-flex justify-content-between align-items-center col-10 bg-white bg-opacity-25 mb-2 rounded shadow-sm mx-auto p-3">
 											<div class="d-flex align-items-center">
-												<img class="rounded-circle me-2 border border-success" src="{{ friend.avatar.url }}" alt="Friend avatar" style="width: 35px; height: 35px;">
+												<img class="rounded-circle me-2 border border-2 border-success" src="{{ friend.avatar.url }}" alt="Friend avatar" style="width: 35px; height: 35px;">
 												<div style="max-width: 7ch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
 													{{ friend.user.first_name }}
 												</div>
@@ -395,11 +395,11 @@
 		<div class="modal-dialog" style="min-width: 700px;">
 			<div class="modal-content bg-dark-subtle shadow">
 				<div class="modal-header">
-					<h5 class="modal-title" id="localMatchModalLabel">Play a local match</h5>
+					<h5 class="modal-title" id="localMatchModalLabel">local match</h5>
 					<button type="button" class="btn-close closeRefresh" data-bs-dismiss="modal" aria-label="Close"></button>
 				</div>
 				<div class="modal-body">
-					<div id="formView">
+					<div id="formViewLocal">
 						<form id="localMatchForm" class="row my-4 d-flex align-items-center justify-content-center">
 							{% csrf_token %}
 							<div class="col-7">
@@ -408,7 +408,7 @@
 							<button type="submit" id="startLocalGameBtn" class="btn btn-primary col-2 shadow-sm">Start</button>
 						</form>
 					</div>
-					<div id="gameView" style="display: none;">
+					<div id="gameViewLocal" style="display: none;">
 						<div class="canvas" width="600" height="600">
 							<canvas id="CanvasLocal" width="600" height="600"></canvas>
 						</div>
@@ -425,43 +425,42 @@
 		<div class="modal-dialog" style="min-width: 700px;">
 			<div class="modal-content bg-dark-subtle shadow">
 				<div class="modal-header">
-					<h5 class="modal-title" id="matchModalLabel">Play a match</h5>
+					<h5 class="modal-title" id="matchModalLabel">Online match</h5>
 					<button type="button" class="btn-close closeRefresh" data-bs-dismiss="modal" aria-label="Close"></button>
 				</div>
-				<div class="modal-body d-flex justify-content-center align-items-center">
-					<!-- <p class="my-auto me-2">Waiting for an opponent</p> -->
-					<!-- <div class="dot"></div> -->
-  					<!-- <div class="dot"></div> -->
-  					<!-- <div class="dot"></div> -->
-					<div class="canvas" width="600" height="600">
-						<canvas id="CanvasOnline" width="600" height="600"></canvas>
-						<script>
-							  var pongScript; // Variable pour stocker la référence du script pong.js
-
-							document.addEventListener('DOMContentLoaded', function() {
-	
-								var canvasModal = document.getElementById('onlineMatchModal'); // Remplacez localmatchModal par l'ID de votre modal contenant la canvas
-
-								canvasModal.addEventListener('show.bs.modal', function () {
-									console.log('ONLINE')
-									// Chargement dynamique de pong.js lorsque la modal s'ouvre
-									pongScript = document.createElement('script');
-									pongScript.src = '../static/scripts/pongonline.js'; // Chemin vers pong.js
-									pongScript.defer = true;
-									// pongScript.data.opponent = "{{ opponent }}";
-									document.body.appendChild(pongScript);
+				<div class="modal-body">
+					<div id="waitViewOnline" class="d-flex justify-content-center align-items-center my-5">
+						<p class="my-auto me-2">Waiting for an opponent</p>
+						<div class="dot"></div>
+						<div class="dot"></div>
+						<div class="dot"></div>
+					</div>
+					<div id="gameViewOnline" style="display: none;">
+						<div class="canvas" width="600" height="600">
+							<canvas id="CanvasOnline" width="600" height="600"></canvas>
+							<script>
+								var pongScript;
+								document.addEventListener('DOMContentLoaded', function() {
+									var canvasModal = document.getElementById('onlineMatchModal');
+									
+									canvasModal.addEventListener('show.bs.modal', function () {
+										console.log('ONLINE');
+										pongScript = document.createElement('script');
+										pongScript.src = '../static/scripts/pongonline.js';
+										pongScript.defer = true;
+										document.body.appendChild(pongScript);
+										has_opponent = false;
+									});
+									canvasModal.addEventListener('hidden.bs.modal', function () {
+										if (pongScript) {
+											document.body.removeChild(pongScript);
+											pongScript = null;
+											// stopPongGame(); 
+										}
+									});
 								});
-
-								canvasModal.addEventListener('hidden.bs.modal', function () {
-								// Suppression du script pong.js lorsque la modal est fermée pour arrêter son exécution
-								if (pongScript) {
-									document.body.removeChild(pongScript);
-									pongScript = null;
-									// stopPongGame(); //Appel de la fonction pour arrêter l'exécution du jeu
-									}
-								});
-							});
-						</script>
+							</script>
+						</div>
 					</div>
 				</div>
 				<div class="modal-footer">

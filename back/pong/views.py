@@ -15,6 +15,9 @@ from .forms import RegisterForm, LoginForm, localMatchForm
 from .consumers import Game
 from tempfile import NamedTemporaryFile
 from django.core.files.base import ContentFile
+# from rest_framework.views import APIView
+# from rest_framework.response import Response
+# from rest_framework import status
 
 def home(request):
 	context = {}
@@ -37,11 +40,20 @@ def home(request):
 		}
 	return render(request, 'page.html', context)
 
+
 @login_required
 def logout_view(request):
 	logout(request)
 	return redirect('home')
 
+# class StatsAPI(APIView):
+#     def get(self, request):
+#         if request.user.is_authenticated:
+#             stats = match_stats(request.user)
+#             return Response(stats, status=status.HTTP_200_OK)
+#         else:
+#             return Response(status=status.HTTP_401_UNAUTHORIZED)
+		
 def match_stats(user):
     matches = Match.objects.filter(player1=user) | Match.objects.filter(player2=user)
     won = 0

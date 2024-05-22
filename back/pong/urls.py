@@ -2,6 +2,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.urls import path
 from . import views
+# from .views import StatsAPI
 
 urlpatterns = [
 	path('', views.home, name='home'),
@@ -16,4 +17,5 @@ urlpatterns = [
     path('sign_in', views.sign_in, name='sign_in'),
 	path('create_local_game', views.create_local_game, name='create_local_game'),
     path('friend_match/<str:friend_username>/', views.friend_match, name='friend_match'),
+    # path('api/stats', StatsAPI.as_view()),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -161,10 +161,12 @@ function draw_objects(){
     ctx.fill();
     ctx.closePath();
     ctx.font = "45px sans-serif"
-    ctx.fillText(p2_score, WIDTH / 4, HEIGHT / 4, 45)
-    ctx.fillText(p1_score, WIDTH * 3 / 4, HEIGHT / 4, 45)
-    ctx.fillText(player1, WIDTH * 3 / 4, HEIGHT / 8, 90)
-    ctx.fillText(player2, WIDTH / 4, HEIGHT / 8, 90)
+    ctx.font = "25px Orbitron"
+    ctx.textAlign = 'center'
+    ctx.fillText(p2_score, WIDTH / 4, HEIGHT / 6, 45)
+    ctx.fillText(p1_score, WIDTH * 3 / 4, HEIGHT / 6, 45)
+    ctx.fillText(player1, WIDTH * 3 / 4, HEIGHT / 10)
+    ctx.fillText(player2, WIDTH / 4, HEIGHT / 10)
 
 }
 
@@ -186,8 +188,10 @@ function draw(){
         ctx.fillStyle = 'black'
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         ctx.fillStyle = 'red';
-        ctx.textAlign = "center"
-        ctx.fillText("Game Over", WIDTH/2, HEIGHT/2)
+        ctx.textAlign = 'center'
+        ctx.textBaseline = "middle"
+        ctx.font = "40px Orbitron"
+        ctx.fillText("Game Over", WIDTH/2, HEIGHT/2 - 20)
         let win_message
         if (p1_score > p2_score){
             win_message = player1 + " won the match"
@@ -195,7 +199,8 @@ function draw(){
         else
             win_message = player2 + " won the match"
         ctx.fillStyle = 'white'
-        ctx.fillText(win_message, WIDTH/2 + 40, HEIGHT/2 +40)
+        ctx.textBaseline = 'center'
+        ctx.fillText(win_message, WIDTH/2, HEIGHT/2 + 20)
     }
 }
 

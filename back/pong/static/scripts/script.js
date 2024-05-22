@@ -1,4 +1,4 @@
-// FONCTION POUR LA BALLE ET LE FOND D ECRAN LOGIN PAGE
+// script pour la balle de la page log in
 
 const ball = document.getElementById('ball');
 let angle = 90;
@@ -49,7 +49,8 @@ function launchBall() {
 
 setInterval(launchBall, 3);
 
-// FONCTION POUR LE CHOIX DES LANGUES
+// script pour garder actif le choix de la langue
+
 const language = document.querySelectorAll('.chooseLanguage');
 language.forEach(item => {
     item.addEventListener('click', () => {
@@ -61,7 +62,8 @@ language.forEach(item => {
     });
 });
 
-// FOCNTION POUR TIMEOUT LES MESSAGES
+// script pour fermer les messages d alerte
+
 function closeAlert(divMsg) {
   var alert = divMsg.parentElement;
   alert.style.animation = 'slideOut 0.5s forwards';
@@ -74,19 +76,7 @@ setTimeout(function() {
   closeAlert(divMsg);
 }, 4000);
 
-
-// FONCTION POUR INIT LES POPOVERS
-document.addEventListener("DOMContentLoaded", function(){
-  var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'))
-  var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
-    return new bootstrap.Popover(popoverTriggerEl, {
-      customClass: 'custom-popover'
-    })
-  })
-});
-
-
-// FONCTION DE GESTION DES MODALES
+// script modal et chargement du jeu local
 
 document.addEventListener('DOMContentLoaded', function() {
   var pongScript;
@@ -94,12 +84,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
   canvasModal.addEventListener('submit', function(event) {
     event.preventDefault();
-    document.querySelector('#formView').style.display = 'none';
+    document.querySelector('#formViewLocal').style.display = 'none';
     pongScript = document.createElement('script');
     pongScript.src = '../static/scripts/ponglocal.js';
     pongScript.defer = true;
     document.body.appendChild(pongScript);
-    document.querySelector('#gameView').style.display = 'block';
+    document.querySelector('#gameViewLocal').style.display = 'block';
   });
   
   canvasModal.addEventListener('hidden.bs.modal', function () {
@@ -107,17 +97,41 @@ document.addEventListener('DOMContentLoaded', function() {
       document.body.removeChild(pongScript);
       pongScript = null;
     }
-    document.querySelector('#formView').style.display = 'block';
-    document.querySelector('#gameView').style.display = 'none';
+    document.querySelector('#formViewLocal').style.display = 'block';
+    document.querySelector('#gameViewLocal').style.display = 'none';
     this.reset()
   });
 
   Array.from(document.getElementsByClassName("closeRefresh")).forEach(function(element) {
     element.addEventListener("click", function() {
-        location.reload(true);
+        location.replace("/");
     });
 });
 });
+
+
+// fetch('http://localhost:8000/api/stats')
+//     .then(response => {
+//         // Vérifier si la requête a réussi
+//         if (!response.ok) {
+//             throw new Error('Network response was not ok');
+//         }
+//         // Convertir la réponse en JSON
+//         return response.json();
+//     })
+//     .then(data => {
+//         // Utiliser les données pour mettre à jour les éléments de votre page
+//         document.querySelector('.won-stats').textContent = `won (${data.won})`;
+//         document.querySelector('.wp-stats').style.width = `${data.wp}%`;
+//         document.querySelector('.wp-stats').textContent = `${data.wp}%`;
+//         document.querySelector('.lost-stats').textContent = `lost (${data.lost})`;
+//         document.querySelector('.lp-stats').style.width = `${data.lp}%`;
+//         document.querySelector('.lp-stats').textContent = `${data.lp}%`;
+//     })
+//     .catch(error => {
+//         // Afficher une erreur si quelque chose se passe mal
+//         console.error('There has been a problem with your fetch operation:', error);
+//     });
 // document.addEventListener('DOMContentLoaded', function() {
 //   function setupLocalMatchModal() {
 //     document.querySelector('#localMatchForm').addEventListener('submit', function(event) {
