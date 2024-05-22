@@ -11,6 +11,7 @@ from .models import Match
 
 games_online = []
 games_local = []
+games_tournament = []
 
 class Game():
     def __init__(self, maxscore, game_type):
@@ -132,6 +133,149 @@ class Game():
             self.p2_down = False
 
 
+class Player:
+    def __init__(self, name):
+        self.name = name
+        self.player_status = 'Waiting'
+        self.game:Game = None
+
+class Tournament():
+    def __init__(self):
+        self.games = []
+        self.players = []
+        self.status = "Waiting"
+        self.is_finished = False
+        self.is_running = True
+        self.timer = 60
+        self.winner = None
+
+    def add_player(self, username):
+        if (self.status == "Waiting"):
+            player
+            for player in self.players:
+                if (player == username):
+                    break
+            if (not player):
+                self.players.append(Player(username))
+
+    def run(self):
+        while (self.is_running):
+            if (self.status == "Waiting"):
+                if (self.timer >= 0):
+                    self.timer -= 1
+                else:
+                    self.status = "Started"
+            if (self.status == "Starting"):
+                self.games = None
+                for player in self.players:
+                    if (player.player_status == "Waiting"):
+                        self.add_player_to_game(player)
+
+                for player in self.players:
+                    if (player.game.is_running == False and player.game.player1 != None and player.game.player2 != None):
+                        player.game.start()
+                        player.player_status = "Playing"
+                    if (player.game.is_running == True):
+                        player.player_status = "Playing"
+                if (len(self.games) > 1):
+                    self.status == "Started"
+                else:
+                    self.status == "Ending"
+            if (self.status == "Started"):
+                player:Player
+                for player in self.players:
+                    if (player.player_status == "Disqualified" or player.player_status == "Qualified"):
+                        continue
+                    if (player.player_status == "Waiting" and (player.game.player1 == None or player.game.player2 == None)):
+                        player.player_status = "Qualified"
+                    if (player.game.has_finished == True and player.game.player1 == player.name):
+                        if (player.game.player1 <= player.game.player2):
+                            player.player_status = "Disqualified"
+                        else:
+                            player.player_status = "Qualified"
+                    elif (player.game.has_finished == True and player.game.player2 == player.name):
+                        if (player.game.player2 <= player.game.player1):
+                            player.player_status = "Disqualified"
+                        else:
+                            player.player_status = "Qualified"
+                for player in self.players:
+                    if (not player.player_status == "Qualified" and not player.player_status == "Disqualified"):
+                        break
+                if (player == None):
+                    self.status = "Starting"
+            if (self.status == "Ending"):
+                for player in self.players:
+                    if (player.player_status == "Waiting" and (player.game.player1 == None or player.game.player2 == None)):
+                        player.player_status = "Winner"
+                    if (player.game.has_finished == True and player.game.player1 == player.name):
+                        if (player.game.player1 <= player.game.player2):
+                            player.player_status = "Disqualified"
+                        else:
+                            player.player_status = "Winner"
+                    elif (player.game.has_finished == True and player.game.player2 == player.name):
+                        if (player.game.player2 <= player.game.player1):
+                            player.player_status = "Disqualified"
+                        else:
+                            player.player_status = "Winner"
+                            self.winner = player.name
+            if (self.winner != None):
+                self.is_running = False
+                self.is_finished = True
+                self.status = "Finished"
+                    
+                
+                
+    def add_player_to_game(self, player: Player):
+        if (player.game == None):
+            game: Game
+            for game in self.games:
+                if (game.player2 == None or game.player2 == player.name):
+                    game.player2 = player.name
+                    player.game = game
+                    break
+        if (game == None and player.game == None):
+            new_game = Game(5, "online")
+            new_game.player1 = player.name
+            self.games.append(new_game)
+
+    def start(self):
+        thread = threading.Thread(target=self.run())
+        thread.start()
+
+    def getupdate(self, username):
+        player:Player
+        for player in self.players:
+            if (player.name == username):
+                return (json.dumps({
+                'type': 'update received',
+                'data': player.game.__dict__
+            }))
+
+    def handle_key_event(self, message, username):
+        player:Player
+        for player in self.players:
+            if (player.name == username):
+                break
+        if (player == None):
+            return
+        if message == 'key_up_pressed':
+            player.game.key_up_pressed(username)
+        elif message == 'key_up_released':
+            player.game.key_up_released(username)
+        elif message == 'key_down_pressed':
+            player.game.key_down_pressed(username)
+        elif message == 'key_down_released':
+            player.game.key_down_released(username)
+        elif message == 'p2key_up_pressed' and player.game.game_type == "local":
+            player.game.p2_up = True
+        elif message == 'p2key_up_released' and player.game.game_type == "local":
+            player.game.p2_up = False
+        elif message == 'p2key_down_pressed' and player.game.game_type == "local":
+            player.game.p2_down = True
+        elif message == 'p2key_down_released' and player.game.game_type == "local":
+            player.game.p2_down = False
+
+
 class BasePongConsumer(WebsocketConsumer):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -242,3 +386,30 @@ class PongLocal(BasePongConsumer):
             self.game.player2 = text_data_json['opponent']
         else:
             super().receive(text_data)
+
+class PongOnlineTournament(BasePongConsumer):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.tournament = None
+    def setup_game(self):
+        user = self.scope['user'].username
+        for tournament in games_tournament:
+            if (not tournament.is_finished and not tournament.has_player(user)):
+                self.tournament = tournament
+                self.tournament.add_player(user)
+                break
+        if (not self.tournament):
+            self.tournament = Tournament()
+            self.tournament.add_player(user)
+            games_tournament.append(self.tournament)
+            self.tournament.start()
+    
+    def receive(self, text_data):
+        text_data_json = json.loads(text_data)
+        message = text_data_json['message']
+        username = self.scope['user'].username
+
+        if message == 'update':
+            self.send(text_data=self.tournament.getupdate(username))
+        elif 'pressed' in message or 'released' in message:
+            self.tournament.handle_key_event(message, username)
