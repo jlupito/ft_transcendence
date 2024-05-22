@@ -44,6 +44,39 @@ class Game():
         self.ball_y_velocity = 0
         self.ball_x_normalspeed = 10
         self.has_finished = False
+        self.is_running = False
+
+    def to_dict(self):
+        return {
+            'game_type': self.game_type,
+            'delay': self.delay,
+            'player1': self.player1,
+            'player2': self.player2,
+            'WIDTH': self.WIDTH,
+            'HEIGHT': self.HEIGHT,
+            'paddle_speed': self.paddle_speed,
+            'paddle_width': self.paddle_width,
+            'paddle_height': self.paddle_height,
+            'p1_x_pos': self.p1_x_pos,
+            'p1_y_pos': self.p1_y_pos,
+            'p2_x_pos': self.p2_x_pos,
+            'p2_y_pos': self.p2_y_pos,
+            'p1_score': self.p1_score,
+            'p2_score': self.p2_score,
+            'maxscore': self.maxscore,
+            'p1_up': self.p1_up,
+            'p1_down': self.p1_down,
+            'p2_up': self.p2_up,
+            'p2_down': self.p2_down,
+            'ball_x_pos': self.ball_x_pos,
+            'ball_y_pos': self.ball_y_pos,
+            'ball_width': self.ball_width,
+            'ball_x_velocity': self.ball_x_velocity,
+            'ball_y_velocity': self.ball_y_velocity,
+            'ball_x_normalspeed': self.ball_x_normalspeed,
+            'has_finished': self.has_finished,
+            'is_running': getattr(self, 'is_running', False)
+        }
 
     def apply_player_movement(self):
         if self.p1_up:
@@ -139,6 +172,13 @@ class Player:
         self.player_status = 'Waiting'
         self.game:Game = None
 
+    def to_dict(self):
+        return {
+            'name': self.name,
+            'player_status': self.player_status,
+            'game': self.game.to_dict() if self.game else None
+        }
+
 class Tournament():
     def __init__(self):
         self.games = []
@@ -146,110 +186,122 @@ class Tournament():
         self.status = "Waiting"
         self.is_finished = False
         self.is_running = True
-        self.timer = 60
+        self.timer = 10
         self.winner = None
 
-    def add_player(self, username):
-        if (self.status == "Waiting"):
-            player
-            for player in self.players:
-                if (player == username):
-                    break
-            if (not player):
-                self.players.append(Player(username))
+    def to_dict(self):
+        return {
+        'games': [game.to_dict() for game in self.games] if self.games else [],
+        'players': [player.to_dict() for player in self.players],
+        'status': self.status,
+        'is_finished': self.is_finished,
+        'is_running': self.is_running,
+        'timer': self.timer,
+        'winner': self.winner
+    }
+
+    def add_player_to_game(self, player):
+        game:Game
+        for game in self.games:
+            if (game.player1 == "" or game.player2 == ""):
+                player.game = game
+                if (player.game.player1 == ""):
+                    player.game.player1 = player.name
+                elif (player.game.player2 == ""):
+                    player.game.player2 = player.name
+                break
+        if player.game == None:
+            player.game = Game(5, "online")
+            player.game.player1 = player.name
+            self.games.append(player.game)
+                
 
     def run(self):
-        while (self.is_running):
-            if (self.status == "Waiting"):
-                if (self.timer >= 0):
+        while self.is_running:
+            if self.status == "Waiting":
+                if self.timer >= 0:
+                    time.sleep(1)
                     self.timer -= 1
                 else:
-                    self.status = "Started"
-            if (self.status == "Starting"):
-                self.games = None
+                    self.status = "Starting"
+            if self.status == "Starting":
                 for player in self.players:
-                    if (player.player_status == "Waiting"):
+                    if player.player_status == "Waiting":
                         self.add_player_to_game(player)
-
                 for player in self.players:
-                    if (player.game.is_running == False and player.game.player1 != None and player.game.player2 != None):
+                    if not player.game.is_running and player.game.player1 and player.game.player2:
                         player.game.start()
                         player.player_status = "Playing"
-                    if (player.game.is_running == True):
+                        print(f"Game started for {player.name} with players {player.game.player1} and {player.game.player2}")
+                    if player.game.is_running:
                         player.player_status = "Playing"
-                if (len(self.games) > 1):
-                    self.status == "Started"
-                else:
-                    self.status == "Ending"
-            if (self.status == "Started"):
-                player:Player
+                self.status = "Started"
+            if self.status == "Started":
                 for player in self.players:
-                    if (player.player_status == "Disqualified" or player.player_status == "Qualified"):
+                    if player.player_status in ["Disqualified", "Qualified"]:
                         continue
-                    if (player.player_status == "Waiting" and (player.game.player1 == None or player.game.player2 == None)):
+                    if player.player_status == "Waiting" and player.game and (player.game.player1 is None or player.game.player2 is None):
                         player.player_status = "Qualified"
-                    if (player.game.has_finished == True and player.game.player1 == player.name):
-                        if (player.game.player1 <= player.game.player2):
+                    if player.game and player.game.has_finished and player.game.player1 == player.name:
+                        if player.game.p1_score <= player.game.p2_score:
                             player.player_status = "Disqualified"
                         else:
                             player.player_status = "Qualified"
-                    elif (player.game.has_finished == True and player.game.player2 == player.name):
-                        if (player.game.player2 <= player.game.player1):
+                    elif player.game and player.game.has_finished and player.game.player2 == player.name:
+                        if player.game.p2_score <= player.game.p1_score:
                             player.player_status = "Disqualified"
                         else:
                             player.player_status = "Qualified"
+                if all(player.player_status in ["Qualified", "Disqualified"] for player in self.players):
+                    self.status = "Ending"
+            if self.status == "Ending":
                 for player in self.players:
-                    if (not player.player_status == "Qualified" and not player.player_status == "Disqualified"):
-                        break
-                if (player == None):
-                    self.status = "Starting"
-            if (self.status == "Ending"):
-                for player in self.players:
-                    if (player.player_status == "Waiting" and (player.game.player1 == None or player.game.player2 == None)):
+                    if player.player_status == "Waiting" and (player.game.player1 is None or player.game.player2 is None):
                         player.player_status = "Winner"
-                    if (player.game.has_finished == True and player.game.player1 == player.name):
-                        if (player.game.player1 <= player.game.player2):
+                    if player.game.has_finished and player.game.player1 == player.name:
+                        if player.game.p1_score <= player.game.p2_score:
                             player.player_status = "Disqualified"
                         else:
                             player.player_status = "Winner"
-                    elif (player.game.has_finished == True and player.game.player2 == player.name):
-                        if (player.game.player2 <= player.game.player1):
+                    elif player.game.has_finished and player.game.player2 == player.name:
+                        if player.game.p2_score <= player.game.p1_score:
                             player.player_status = "Disqualified"
                         else:
                             player.player_status = "Winner"
                             self.winner = player.name
-            if (self.winner != None):
-                self.is_running = False
-                self.is_finished = True
-                self.status = "Finished"
-                    
+                if self.winner:
+                    self.is_running = False
+                    self.is_finished = True
+                    self.status = "Finished"
+
+
+
                 
-                
-    def add_player_to_game(self, player: Player):
-        if (player.game == None):
-            game: Game
-            for game in self.games:
-                if (game.player2 == None or game.player2 == player.name):
-                    game.player2 = player.name
-                    player.game = game
-                    break
-        if (game == None and player.game == None):
-            new_game = Game(5, "online")
-            new_game.player1 = player.name
-            self.games.append(new_game)
+    def add_player(self, username):
+        if self.status == "Waiting":
+            for player in self.players:
+                if player.name == username:
+                    print(f"Player {username} is already in the tournament.")
+                    return
+            new_player = Player(username)
+            self.players.append(new_player)
+            print(f"Added player {username} to the tournament.")
 
     def start(self):
-        thread = threading.Thread(target=self.run())
+        thread = threading.Thread(target=self.run)
         thread.start()
+
+    def has_player(self, username):
+        for player in self.players:
+            if player.name == username:
+                return True
+        return False
 
     def getupdate(self, username):
         player:Player
         for player in self.players:
             if (player.name == username):
-                return (json.dumps({
-                'type': 'update received',
-                'data': player.game.__dict__
-            }))
+                return player.game
 
     def handle_key_event(self, message, username):
         player:Player
@@ -284,7 +336,7 @@ class BasePongConsumer(WebsocketConsumer):
     def connect(self):
         self.accept()
         self.setup_game()
-        if self.game.player1 and self.game.player2:
+        if self.game and self.game.player1 and self.game.player2:
             self.game.start()
         self.send_connection_message()
 
@@ -296,7 +348,6 @@ class BasePongConsumer(WebsocketConsumer):
         self.send(text_data=json.dumps({
             'type': 'connection_established',
             'message': 'you are connected ' + user.username,
-            'data': self.game.__dict__
         }))
 
     def receive(self, text_data):
@@ -391,25 +442,43 @@ class PongOnlineTournament(BasePongConsumer):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.tournament = None
+    
     def setup_game(self):
         user = self.scope['user'].username
+        found_tournament = False
         for tournament in games_tournament:
-            if (not tournament.is_finished and not tournament.has_player(user)):
+            if not tournament.is_finished and not tournament.has_player(user):
                 self.tournament = tournament
                 self.tournament.add_player(user)
+                found_tournament = True
                 break
-        if (not self.tournament):
+
+        if not found_tournament:
             self.tournament = Tournament()
             self.tournament.add_player(user)
             games_tournament.append(self.tournament)
             self.tournament.start()
-    
+
+        # Log the tournament and player info for debugging
+        print(f"User {user} joined tournament {self.tournament}")
+        print(f"Current players: {[player.name for player in self.tournament.players]}")
+
+
+
     def receive(self, text_data):
         text_data_json = json.loads(text_data)
         message = text_data_json['message']
         username = self.scope['user'].username
 
         if message == 'update':
-            self.send(text_data=self.tournament.getupdate(username))
+            tournament_data = {
+                'tournament': self.tournament.to_dict(),
+                'players': [player.to_dict() for player in self.tournament.players],
+                'games': [game.to_dict() for game in self.tournament.games]
+            }
+            self.send(text_data=json.dumps({
+                'type': 'update received',
+                'data': tournament_data
+            }))
         elif 'pressed' in message or 'released' in message:
             self.tournament.handle_key_event(message, username)
