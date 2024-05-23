@@ -91,7 +91,6 @@ document.addEventListener('DOMContentLoaded', function() {
     document.body.appendChild(pongScript);
     document.querySelector('#gameViewLocal').style.display = 'block';
   });
-  
   canvasModal.addEventListener('hidden.bs.modal', function () {
     if (pongScript) {
       document.body.removeChild(pongScript);
@@ -139,7 +138,7 @@ document.addEventListener('DOMContentLoaded', function() {
 //       startLocalGame();
 //       });
 //       function startLocalGame() {
-        
+
 //       document.querySelector('#form-view').style.display = 'none';
 //       document.querySelector('#game-view').style.display = 'block';
 //       var pongScript = document.createElement('script');
