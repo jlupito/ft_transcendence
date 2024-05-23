@@ -9,7 +9,7 @@ do
 done
 
 # Apply migrations
-python manage.py makemigrations pong
+python manage.py makemigrations
 python manage.py migrate
 
 # Start the Django development server
