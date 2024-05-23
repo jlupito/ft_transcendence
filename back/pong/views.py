@@ -1,8 +1,7 @@
 from django.shortcuts import redirect, render
 from django.http import HttpResponse
-from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.models import User
-from .models import UserProfile, Match, Friend, Tournament
+from django.contrib.auth import authenticate, login, logout, get_user_model
+from .models import User, Match, Friend, Tournament
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.cache import never_cache
@@ -19,11 +18,13 @@ from django.core.files.base import ContentFile
 # from rest_framework.response import Response
 # from rest_framework import status
 
+User = get_user_model()
+
 def home(request):
 	context = {}
 	if (request.user.is_authenticated):
-		avatar_url = UserProfile.objects.get(user=request.user).avatar.url
-		users = UserProfile.objects.exclude(user=request.user)
+		avatar_url = User.objects.get(user=request.user).avatar.url
+		users = User.objects.exclude(user=request.user)
 		matches = match_history(request.user)
 		stats = match_stats(request.user)
 		friends = friends_list(request.user)
@@ -119,9 +120,9 @@ def friends_list(user):
 	profiles = []
 	for friend in friends:
 		if friend.sender == user:
-			profiles.append(UserProfile.objects.get(user=friend.receiver))
+			profiles.append(User.objects.get(user=friend.receiver))
 		else:
-			profiles.append(UserProfile.objects.get(user=friend.sender))
+			profiles.append(User.objects.get(user=friend.sender))
 	l = []
 	for profile in profiles:
 		l.append(profile)
@@ -159,7 +160,7 @@ def update_profile(request):
 	user = request.user
 	user.first_name = username
 	if (profile_picture is not None):
-		user_profile = UserProfile.objects.get(user=user)
+		user_profile = User.objects.get(user=user)
 		if user_profile.avatar.url != "/media/avatars/default2.png":
 			user_profile.avatar.delete()
 		profile_picture.name = user.username
@@ -216,7 +217,7 @@ def auth(request):
 	code = request.GET.get('code')
 	uid = os.environ.get('UID')
 	secret = os.environ.get('SECRET')
-	token_url = 'http://api.intra.42.fr/oauth/token'
+	token_url = 'https://api.intra.42.fr/oauth/token'
 	data = {
 		'grant_type': 'authorization_code',
 		'client_id': uid,
@@ -238,9 +239,9 @@ def auth(request):
 	user = User.objects.filter(username=intra_login).first()
 	if user is None:
 		user = User.objects.create_user(username=intra_login, first_name=intra_login, email=intra_email)
-		UserProfile.objects.create(user=user)
+		User.objects.create(user=user)
 		if (picture is not None):
-			user_profile = UserProfile.objects.get(user=user)
+			user_profile = User.objects.get(user=user)
 			if user_profile.avatar.url != "/media/avatars/default2.png":
 				user_profile.avatar.delete()
 			picture.name = user.username
@@ -307,7 +308,7 @@ def register(request):
 				messages.error(request, 'This email is already in use...')
 				return redirect('home')
 			new_user = User.objects.create_user(username=username, password=mdp, email=email, first_name=username)
-			UserProfile.objects.create(user=new_user)
+			User.objects.create(user=new_user)
 			login(request, new_user)
 			messages.success(request, 'Account created successfully!')
 			return redirect('home')

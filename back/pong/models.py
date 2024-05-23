@@ -1,18 +1,25 @@
 from django.db import models
 from django.utils import timezone
-from django.contrib.auth.models import User
+from django.contrib.auth.models import AbstractUser
 from django.core.validators import MinValueValidator, MaxValueValidator
 from datetime import timedelta
 
 # on vient creer un modele UserProfile qui surcharge le modele User préconçu.
 # Il est recommandé de créer ce modele en debut de projet (pour le SQL), meme si
 # on ne surcharge pas ce dernier.
-class UserProfile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    elo = models.IntegerField(default=1000)
-    avatar = models.ImageField(upload_to='avatars/', default='avatars/default2.png')
-    def __str__(self):
-        return self.user.first_name
+
+class User(AbstractUser):
+	elo = models.IntegerField(default=1000)
+	avatar = models.ImageField(upload_to='avatars/', default='avatars/default2.png')
+	def __str__(self):
+		return self.username
+
+#class UserProfile(models.Model):
+#    user = models.OneToOneField(User, on_delete=models.CASCADE)
+#    elo = models.IntegerField(default=1000)
+#    avatar = models.ImageField(upload_to='avatars/', default='avatars/default2.png')
+#    def __str__(self):
+#        return self.user.first_name
 
 class Match(models.Model):
     player1 = models.ForeignKey(User, on_delete=models.CASCADE, related_name='player1')
