@@ -13,6 +13,50 @@
 	<script src="../static/scripts/script.js" defer></script>
 	<script src="../static/scripts/gameSelection.js" defer></script>
 </head>
+<header>
+	<nav class="navbar navbar-expand-md navbar-dark fixed-top" id="mainNav">
+		<div class="container px-2 px-lg-3">
+			<h1 class="navbar-brand" href="#">ft_transcendance</h1>
+			<button class="navbar-toggler navbar-toggler-right" type="button" data-bs-toggle="collapse" data-bs-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+				<span class="navbar-toggler-icon"></span>
+				<i class="fas fa-bars"></i>
+			</button>
+			<div class="collapse navbar-collapse" id="navbarResponsive">
+				<ul class="navbar-nav ms-auto">
+					<li class="nav-item">
+						<div class="nav-link dropdown">
+							<button class="btn bg-transparency text-light dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">About us</button>
+							<ul class="dropdown-menu bg-light bg-opacity-25 shadow">
+								<li><a class="dropdown-item text-light" href="https://profile.intra.42.fr/users/alibourb" target="_blank"><span><img src="../static/images/alibourb.jpg" alt="alibourb photo" class="rounded mx-2" style="height: 30px;"></span>alibourb</a></li>
+								<li><a class="dropdown-item text-light" href="https://profile.intra.42.fr/users/bfiguet" target="_blank"><span><img src="../static/images/bfiguet.jpg" alt="bfiguet photo" class="rounded mx-2" style="height: 30px;"></span>bfiguet</a></li>
+								<li><a class="dropdown-item text-light" href="https://profile.intra.42.fr/users/ekadiri" target="_blank"><span><img src="../static/images/ekadiri.jpg" alt="ekadiri photo" class="rounded mx-2" style="height: 30px;"></span>ekadiri</a></li>
+								<li><a class="dropdown-item text-light" href="https://profile.intra.42.fr/users/jarthaud" target="_blank"><span><img src="../static/images/jarthaud.jpg" alt="jarthaud photo" class="rounded mx-2" style="height: 30px;"></span>jarthaud</a></li>
+								<li><a class="dropdown-item text-light" href="https://profile.intra.42.fr/users/syakovle" target="_blank"><span><img src="../static/images/syakovle.jpg" alt="syakovle photo" class="rounded mx-2" style="height: 30px;"></span>jsyakovle</a></li>
+							</ul>
+						</div>
+					</li>
+					<li class="nav-item">
+						<div class="nav-link dropdown">
+							<button class="btn bg-transparency text-light dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+								Language
+							</button>
+							<ul class="dropdown-menu bg-light bg-opacity-25 shadow">
+								<li><button class="dropdown-item text-light chooseLanguage active" aria-current="true" type="button"><span><img src="../static/images/gb.svg" alt="gb flag" class="rounded-1 mx-2" style="height: 15px;"></span>english</button></li>
+								<li><button class="dropdown-item text-light chooseLanguage" type="button"><span><img src="../static/images/fr.svg" alt="fr flag" class="rounded-1 mx-2" style="height: 15px;"></span>français</button></li>
+								<li><button class="dropdown-item text-light chooseLanguage" type="button"><span><img src="../static/images/es.svg" alt="sp flag" class="rounded-1 mx-2" style="height: 15px;"></span>español</button></li>
+							</ul>
+						</div>
+					</li>
+					<li class="nav-item">
+						<div class="nav-link">
+							<a class="btn bg-transparency text-light" type="button" href="https://en.wikipedia.org/wiki/Pong" target="_blank">Pong?</a>
+						</div>
+					</li>
+				</ul>
+			</div>
+		</div>
+	</nav>
+</header>
 <body>
 	<div class="container pe-3 col-4" style="position: fixed; top: 8%; right: 0; z-index: 9999;">
 		{% if messages %}
@@ -24,54 +68,8 @@
 			{% endfor %}
 		{% endif %}
 	</div>
-	<header>
-		<nav class="navbar navbar-expand-md navbar-dark fixed-top" id="mainNav">
-			<div class="container px-2 px-lg-3">
-				<h1 class="navbar-brand" href="#">ft_transcendance</h1>
-				<button class="navbar-toggler navbar-toggler-right" type="button" data-bs-toggle="collapse" data-bs-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
-					<span class="navbar-toggler-icon"></span>
-					<i class="fas fa-bars"></i>
-				</button>
-				<div class="collapse navbar-collapse" id="navbarResponsive">
-					<ul class="navbar-nav ms-auto">
-						<li class="nav-item">
-							<div class="nav-link dropdown">
-								<button class="btn bg-transparency text-light dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">About us</button>
-								<ul class="dropdown-menu bg-light bg-opacity-25 shadow">
-									<li><a class="dropdown-item text-light" href="https://profile.intra.42.fr/users/alibourb" target="_blank"><span><img src="../static/images/alibourb.jpg" alt="alibourb photo" class="rounded mx-2" style="height: 30px;"></span>alibourb</a></li>
-									<li><a class="dropdown-item text-light" href="https://profile.intra.42.fr/users/bfiguet" target="_blank"><span><img src="../static/images/bfiguet.jpg" alt="bfiguet photo" class="rounded mx-2" style="height: 30px;"></span>bfiguet</a></li>
-									<li><a class="dropdown-item text-light" href="https://profile.intra.42.fr/users/ekadiri" target="_blank"><span><img src="../static/images/ekadiri.jpg" alt="ekadiri photo" class="rounded mx-2" style="height: 30px;"></span>ekadiri</a></li>
-									<li><a class="dropdown-item text-light" href="https://profile.intra.42.fr/users/jarthaud" target="_blank"><span><img src="../static/images/jarthaud.jpg" alt="jarthaud photo" class="rounded mx-2" style="height: 30px;"></span>jarthaud</a></li>
-									<li><a class="dropdown-item text-light" href="https://profile.intra.42.fr/users/syakovle" target="_blank"><span><img src="../static/images/syakovle.jpg" alt="syakovle photo" class="rounded mx-2" style="height: 30px;"></span>jsyakovle</a></li>
-								</ul>
-							</div>
-						</li>
-						<li class="nav-item">
-							<div class="nav-link dropdown">
-								<button class="btn bg-transparency text-light dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-									Language
-								</button>
-								<ul class="dropdown-menu bg-light bg-opacity-25 shadow">
-									<li><button class="dropdown-item text-light chooseLanguage active" aria-current="true" type="button"><span><img src="../static/images/gb.svg" alt="gb flag" class="rounded-1 mx-2" style="height: 15px;"></span>english</button></li>
-									<li><button class="dropdown-item text-light chooseLanguage" type="button"><span><img src="../static/images/fr.svg" alt="fr flag" class="rounded-1 mx-2" style="height: 15px;"></span>français</button></li>
-									<li><button class="dropdown-item text-light chooseLanguage" type="button"><span><img src="../static/images/es.svg" alt="sp flag" class="rounded-1 mx-2" style="height: 15px;"></span>español</button></li>
-								</ul>
-							</div>
-						</li>
-						<li class="nav-item">
-							<div class="nav-link">
-								<a class="btn bg-transparency text-light" type="button" href="https://en.wikipedia.org/wiki/Pong" target="_blank">Pong?</a>
-							</div>
-						</li>
-					</ul>
-				</div>
-			</div>
-		</nav>
-	</header>
-	<main>
 		{% block content %}
 		{% endblock %}
-	</main>	
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 </body>
 </html>
