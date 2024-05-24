@@ -143,13 +143,15 @@
 	<main class="vh-100">
 		<section id="profile" class="mt-5 pt-5 pb-4 container mx-auto" style="max-width : 750px">
 			<div class="bg-light text-center border border-light border-opacity-25 bg-opacity-25 rounded shadow text-light">
-				<div class="col mb-2" style="float:right">
-					<a class="btn btn-lg text-light" role="button" title="logout" href="{% url 'logout' %}">
+				<div class="d-flex justify-content-between col mb-2 ">
+					<div class="me-auto w-100">
+						<h2 class="text-light my-3 ms-5">Welcome {{ request.user.first_name }} !</h2>
+					</div>
+					<a class="btn btn-lg text-light ms-auto" role="button" title="Log out" href="{% url 'logout' %}">
 						<i class="bi-x-square"></i>
 					</a>
 				</div>
 				<div class="col mb-2 ">
-					<h2 class="text-light my-3">Welcome {{ request.user.first_name }} !</h2>
 					<img class="rounded-circle shadow-lg" src="{{ avatar_url }}" alt="User avatar" style="width: 60px; height: 60px;">
 				</div>
 				<div class="col mb-2">
@@ -434,12 +436,12 @@
 					<button type="button" class="btn-close closeRefresh" data-bs-dismiss="modal" aria-label="Close"></button>
 				</div>
 				<div class="modal-body">
-					<!-- <div id="waitViewOnline" class="d-flex justify-content-center align-items-center my-5">
+					<div id="waitViewOnline" class="d-flex justify-content-center align-items-center my-5">
 						<p class="my-auto me-2">Waiting for an opponent</p>
 						<div class="dot"></div>
 						<div class="dot"></div>
 						<div class="dot"></div>
-					</div> -->
+					</div>
 					<div id="gameViewOnline" style="display: block;">
 						<div class="canvas" width="600" height="600">
 							<canvas id="CanvasOnline" width="600" height="600"></canvas>
@@ -447,14 +449,13 @@
 								var pongScript;
 								document.addEventListener('DOMContentLoaded', function() {
 									var canvasModal = document.getElementById('onlineMatchModal');
-									
+
 									canvasModal.addEventListener('show.bs.modal', function () {
 										console.log('ONLINE');
 										pongScript = document.createElement('script');
 										pongScript.src = '../static/scripts/pongonline.js';
 										pongScript.defer = true;
 										document.body.appendChild(pongScript);
-										has_opponent = false;
 									});
 									canvasModal.addEventListener('hidden.bs.modal', function () {
 										if (pongScript) {
@@ -501,9 +502,18 @@
 					<h5 class="modal-title" id="tourModalLabel">Play an online tournament</h5>
 					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 				</div>
-				<div class="modal-body d-flex justify-content-center align-items-center">
-					<div class="canvas" width="600" height="600">
-						<canvas id="CanvasTourOnline" width="600" height="600"></canvas>
+				<div class="modal-body">
+					<div id="waitViewOnline" class="d-flex justify-content-center align-items-center my-5">
+						<p class="my-auto me-2">Waiting for oppents to connect</p>
+						<!-- <div class="dot"></div>
+						<div class="dot"></div>
+						<div class="dot"></div> -->
+						<div class="countdown"></div>
+					</div>
+					<div id="tourPlayView" style="display: none">
+						<div class="canvas" width="600" height="600">
+							<canvas id="CanvasTourOnline" width="600" height="600"></canvas>
+						</div>
 					</div>
 				</div>
 				<div class="modal-footer">
