@@ -8,8 +8,9 @@ from datetime import timedelta
 # Il est recommandé de créer ce modele en debut de projet (pour le SQL), meme si
 # on ne surcharge pas ce dernier.
 
-class User(AbstractUser):
+class UserProfile(AbstractUser):
 	elo = models.IntegerField(default=1000)
+	email = models.EmailField(unique=True)
 	avatar = models.ImageField(upload_to='avatars/', default='avatars/default2.png')
 	def __str__(self):
 		return self.username
@@ -22,17 +23,17 @@ class User(AbstractUser):
 #        return self.user.first_name
 
 class Match(models.Model):
-    player1 = models.ForeignKey(User, on_delete=models.CASCADE, related_name='player1')
-    player2 = models.ForeignKey(User, on_delete=models.CASCADE, related_name='player2')
+    player1 = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='player1')
+    player2 = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='player2')
     player1_score = models.IntegerField(default=0)
     player2_score = models.IntegerField(default=0)
     timestamp = models.DateTimeField(auto_now_add=True)
 
     @classmethod
     def create_match_from_game(cls, game_instance):
-        player1_user=User.objects.get(username=game_instance.player1)
+        player1_user=UserProfile.objects.get(username=game_instance.player1)
         player2_username = game_instance.player2
-        player2_user, created = User.objects.get_or_create(username=player2_username)
+        player2_user, created = UserProfile.objects.get_or_create(username=player2_username)
 
         match = Match.objects.create(
             player1=player1_user,
@@ -52,8 +53,8 @@ class Friend(models.Model):
         ('accepted', 'Accepted'),
         ('rejected', 'Rejected'),
     )
-    sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sender')
-    receiver = models.ForeignKey(User, on_delete=models.CASCADE, related_name='receiver')
+    sender = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='sender')
+    receiver = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='receiver')
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')
 
     def __str__(self):

@@ -1,7 +1,7 @@
 from django.shortcuts import redirect, render
 from django.http import HttpResponse
 from django.contrib.auth import authenticate, login, logout, get_user_model
-from .models import User, Match, Friend, Tournament
+from .models import UserProfile, Match, Friend, Tournament
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.cache import never_cache
@@ -10,7 +10,8 @@ from django.contrib import messages
 from django.core.exceptions import ValidationError
 import requests
 import os
-from .forms import RegisterForm, LoginForm, localMatchForm
+from .forms import RegisterForm, localMatchForm
+from django.contrib.auth.forms import AuthenticationForm
 from .consumers import Game
 from tempfile import NamedTemporaryFile
 from django.core.files.base import ContentFile
@@ -18,28 +19,96 @@ from django.core.files.base import ContentFile
 # from rest_framework.response import Response
 # from rest_framework import status
 
-User = get_user_model()
+#User = get_user_model()
 
 def home(request):
 	context = {}
+	user = request.user
 	if (request.user.is_authenticated):
-		avatar_url = User.objects.get(user=request.user).avatar.url
-		users = User.objects.exclude(user=request.user)
-		matches = match_history(request.user)
-		stats = match_stats(request.user)
-		friends = friends_list(request.user)
-		invites = invites_list(request.user)
-		invitees = invitees_list(request.user)
-		context = {
-			'users': users,
-			'avatar_url': avatar_url,
-			'invites': invites,
-			'friends': friends,
-			'matches': matches,
-			'invitees': invitees,
-			'stats' : stats
-		}
+		context['id'] = user.id
+		context['user'] = user
+		context['username'] = user.username
+		if user.avatar:
+			context['avatar'] = user.avatar.url
+		else:
+			context['avatar'] = "avatars/default2.png"
+		context['users'] = UserProfile.objects.all().exclude(username=user.username)
+		context['matches'] = match_history(user)
+		context['invites'] = invites_list(user)
+		context['friends'] = friends_list(user)
+		context['stats'] = match_stats(user)
+		context['invitees'] = invitees_list(user)
 	return render(request, 'page.html', context)
+
+# *********************************** LOGIN ***********************************
+
+# Utilisation des fonctions is_valide(), authenticate() avec "is not None"
+# fonctions et outils de Python/Django
+def sign_in(request):
+	#loginform = AuthenticationForm()
+	if request.method == 'POST':
+		username = request.POST.get('username')
+		password = request.POST.get('password')
+		user = authenticate(request, username=username, password=password)
+		if user is not None:
+			request.session['user_id'] = user.id
+			login(request, user)
+			messages.success(request, 'You are now logged in!')
+		else:
+			messages.error(request, 'Invalid username or password')
+	#else:
+		#loginform=LoginForm()
+	return redirect('home')
+
+# Lancer la creation d'un compte
+def register(request):
+	#registerform = RegisterForm(request.POST)
+	if request.method == 'POST':
+		#if registerform.is_valid():
+			#username=registerform.cleaned_data['username']
+			username = request.POST.get('username')
+			if UserProfile.objects.filter(username=username).exists():
+				messages.error(request, 'This username is already used!') # Modifier la posiiton du message de front
+				# registerform = RegisterForm() # ne change rien == maintenir le form ?
+				return redirect('home')
+			mdp = request.POST.get('password')
+			email = request.POST.get('email')
+			if UserProfile.objects.filter(email=email).exists():
+				messages.error(request, 'This email is already in use...')
+				return redirect('home')
+			new_user = UserProfile.objects.create_user(username=username, password=mdp, email=email, first_name=username)
+			login(request, new_user)
+			messages.success(request, 'Account created successfully!')
+			#return redirect('home')
+		#else:
+			#messages.error(request, 'Invalid form data')
+	#else:
+		#registerform = RegisterForm()
+	return redirect('home')
+
+def update_profile(request):
+	if request.method == 'GET':
+		return redirect('home')
+	username = request.POST.get('username')
+	profile_picture = request.FILES.get('profile_picture')
+	if (profile_picture is not None):
+		validate = FileExtensionValidator(allowed_extensions=['jpg', 'jpeg', 'png'])
+		try:
+			validate(profile_picture)
+		except ValidationError as e:
+			messages.error(request, 'Invalid file type')
+			return redirect('home')
+	if (UserProfile.objects.filter(username=username).exists() and username != request.user.username):
+		messages.error(request, 'Username already taken')
+		return redirect('home')
+	user = request.user
+	user.username = username
+	if (profile_picture is not None):
+		user.avatar.delete()
+		profile_picture.name = user.username
+		user.avatar = profile_picture
+	user.save()
+	return redirect('home')
 
 
 @login_required
@@ -111,18 +180,19 @@ def match_history(user):
 	return l
 
 def friend_match(request, friend_name):
-    friend_user = User.objects.get(username=friend_name)
+    friend_user = UserProfile.objects.get(username=friend_name)
     fmatches = match_history(friend_user)
     return render(request, 'friend_match', {'matches': fmatches})
 
+#@login_required
 def friends_list(user):
 	friends = Friend.objects.filter(sender=user, status='accepted') | Friend.objects.filter(receiver=user, status='accepted')
 	profiles = []
 	for friend in friends:
 		if friend.sender == user:
-			profiles.append(User.objects.get(user=friend.receiver))
+			profiles.append(friend.receiver)
 		else:
-			profiles.append(User.objects.get(user=friend.sender))
+			profiles.append(friend.sender)
 	l = []
 	for profile in profiles:
 		l.append(profile)
@@ -142,40 +212,13 @@ def invitees_list(user):
         l.append(invitee.receiver.username)
     return l
 
-def update_profile(request):
-	if request.method == 'GET':
-		return redirect('home')
-	username = request.POST.get('username')
-	profile_picture = request.FILES.get('profile_picture')
-	if (profile_picture is not None):
-		validate = FileExtensionValidator(allowed_extensions=['jpg', 'jpeg', 'png'])
-		try:
-			validate(profile_picture)
-		except ValidationError as e:
-			messages.error(request, 'Invalid file type')
-			return redirect('home')
-	if (User.objects.filter(first_name=username).exists() and username != request.user.first_name):
-		messages.error(request, 'Username already taken')
-		return redirect('home')
-	user = request.user
-	user.first_name = username
-	if (profile_picture is not None):
-		user_profile = User.objects.get(user=user)
-		if user_profile.avatar.url != "/media/avatars/default2.png":
-			user_profile.avatar.delete()
-		profile_picture.name = user.username
-		user_profile.avatar = profile_picture
-		user_profile.save()
-	user.save()
-	return redirect('home')
-
 def handle_invite(request):
 	if request.method == 'GET':
 		return redirect('home')
 	sender = request.POST.get('invite')
 	receiver = request.user
 	status = request.POST.get('status')
-	inv = Friend.objects.filter(sender=User.objects.get(username=sender), receiver=receiver).first()
+	inv = Friend.objects.filter(sender=UserProfile.objects.get(username=sender), receiver=receiver).first()
 	inv.status = status
 	inv.save()
 	return redirect('home')
@@ -188,19 +231,19 @@ def send_invite(request):
 	friends_l = friends_list(sender)
 	request.session.set_expiry(4)
 	for friend in friends_l:
-		if friend.user.username == receiver:
+		if friend.username == receiver:
 			messages.error(request, 'User is already your friend')
 			return redirect('home')
-	invite = Friend.objects.filter(sender=sender, receiver=User.objects.get(username=receiver), status='pending')
+	invite = Friend.objects.filter(sender=sender, receiver=UserProfile.objects.get(username=receiver), status='pending')
 	if invite.exists():
 		messages.error(request, 'Invite already sent')
 		return redirect('home')
-	invite = Friend.objects.filter(sender=User.objects.get(username=receiver), receiver=sender, status='pending')
+	invite = Friend.objects.filter(sender=UserProfile.objects.get(username=receiver), receiver=sender, status='pending')
 	if invite.exists():
 		messages.error(request, 'You already have an invite from this user')
 		return redirect('home')
 
-	Friend.objects.create(sender=sender, receiver=User.objects.get(username=receiver), status='pending')
+	Friend.objects.create(sender=sender, receiver=UserProfile.objects.get(username=receiver), status='pending')
 	return redirect('home')
 
 def save_image(image_url):
@@ -236,16 +279,12 @@ def auth(request):
 	intra_email = response.json()['email']
 	intra_picture = response.json()['image']['link']
 	picture = save_image(intra_picture)
-	user = User.objects.filter(username=intra_login).first()
+	user = UserProfile.objects.filter(username=intra_login).first()
 	if user is None:
-		user = User.objects.create_user(username=intra_login, first_name=intra_login, email=intra_email)
-		User.objects.create(user=user)
+		user = UserProfile.objects.create_user(username=intra_login, email=intra_email)
 		if (picture is not None):
-			user_profile = User.objects.get(user=user)
-			if user_profile.avatar.url != "/media/avatars/default2.png":
-				user_profile.avatar.delete()
 			picture.name = user.username
-			user_profile.avatar.save('intra_img.jpg', picture, save=True)
+			user.avatar.save('intra_img.jpg', picture, save=True)
 	login(request, user)
 	messages.success(request, 'You are now logged in!')
 	return redirect('home')
@@ -267,55 +306,6 @@ def create_local_game(request):
 			else:
 				messages.error(request, "Player 2 name cannot be empty.")
 				localform=localMatchForm()
-	return redirect('home')
-
-# *********************************** LOGIN ***********************************
-
-# Utilisation des fonctions is_valide(), authenticate() avec "is not None"
-# fonctions et outils de Python/Django
-def sign_in(request):
-	if request.method == 'POST':
-		loginform = LoginForm(request.POST)
-
-		if loginform.is_valid():
-			# verifier avec le mail ou avec le username ???? Plus complexe avec un mail mais faisable
-			user=authenticate(
-				username=loginform.cleaned_data['username'],
-				password=loginform.cleaned_data['password']
-				)
-			if user is not None:
-				login(request, user)
-				messages.success(request, 'You are now logged in!')
-			else:
-				messages.error(request, 'Invalid username or password')
-	else:
-		loginform=LoginForm()
-	return redirect('home')
-
-# Lancer la creation d'un compte
-def register(request):
-	if request.method == 'POST':
-		registerform = RegisterForm(request.POST)
-		if registerform.is_valid():
-			username=registerform.cleaned_data['username']
-			if User.objects.filter(username=username).exists():
-				messages.error(request, 'This username is already used!') # Modifier la posiiton du message de front
-				# registerform = RegisterForm() # ne change rien == maintenir le form ?
-				return redirect('home')
-			mdp=registerform.cleaned_data['password']
-			email=registerform.cleaned_data['email']
-			if User.objects.filter(email=email).exists():
-				messages.error(request, 'This email is already in use...')
-				return redirect('home')
-			new_user = User.objects.create_user(username=username, password=mdp, email=email, first_name=username)
-			User.objects.create(user=new_user)
-			login(request, new_user)
-			messages.success(request, 'Account created successfully!')
-			return redirect('home')
-		else:
-			messages.error(request, 'Invalid form data')
-	else:
-		registerform = RegisterForm()
 	return redirect('home')
 
 import logging

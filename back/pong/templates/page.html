@@ -144,8 +144,8 @@
 		<section id="profile" class="mt-5 pt-5 pb-4 container mx-auto" style="max-width : 750px">
 			<div class="bg-light text-center border border-light border-opacity-25 bg-opacity-25 rounded shadow text-light">
 				<div class="col mb-2 ">
-					<h2 class="text-light my-3">Welcome {{ user.username }} !</h2>
-					<img class="rounded-circle shadow-lg" src="{{ avatar_url }}" alt="User avatar" style="width: 60px; height: 60px;">
+					<h2 class="text-light my-3">Welcome {{ username }} !</h2>
+					<img class="rounded-circle shadow-lg" src="{{ avatar }}" alt="User avatar" style="width: 60px; height: 60px;">
 				</div>
 				<div class="col mb-2">
 					<a class="btn btn-sm text-light" href="#" data-bs-toggle="modal" data-bs-target="#profileModal">
@@ -219,73 +219,74 @@
 								<h5>Friends<i class="bi bi-people-fill ms-2"></i></h5>
 							</div>
 							<hr class="col-10 mt-0 mb-3 mx-auto">
+							{% if friends|length == 0 %}
+								<p class="ms-5">No friends yet</p>
+							{% else %}
 							<ul class="list-unstyled overflow-auto" style="height: 130px;">
-								{% if friends|length == 0 %}
-									<p class="ms-5">No friends yet</p>
-								{% endif %}
-								{% for friend in friends %}
-									<li class="mb-2">
-										<div class="d-flex justify-content-between align-items-center col-10 bg-white bg-opacity-25 mb-2 rounded shadow-sm mx-auto p-3">
-											<div class="d-flex align-items-center">
-												<img class="rounded-circle me-2 border border-2 border-success" src="{{ friend.avatar.url }}" alt="Friend avatar" style="width: 35px; height: 35px;">
-												<div style="max-width: 7ch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-													{{ friend.user.first_name }}
-												</div>
+							{% for friend in friends %}
+								<li class="mb-2">
+									<div class="d-flex justify-content-between align-items-center col-10 bg-white bg-opacity-25 mb-2 rounded shadow-sm mx-auto p-3">
+										<div class="d-flex align-items-center">
+											<img class="rounded-circle me-2 border border-2 border-success" src="{{ friend.avatar.url }}" alt="Friend avatar" style="width: 35px; height: 35px;">
+											<div style="max-width: 7ch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+												{{ friend.username }}
 											</div>
-											<button class="btn buttonfriends btn-sm btn-dark shadow-sm" style="--bs-btn-font-size: .75rem;"
-											data-bs-toggle="modal" data-bs-target="#friendsProfile">
-											profile
-											</button>
 										</div>
-									</li>
-									<div class="modal fade" id="friendsProfile" tabindex="-1" aria-labelledby="friendsProfileLabel" aria-hidden="true">
-										<div class="modal-dialog">
-											<div class="modal-content bg-dark-subtle shadow">
-												<div class="modal-header">
-													<h5 class="modal-title" id="friendsProfileLabel">Profile</h5>
-													<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+										<button class="btn buttonfriends btn-sm btn-dark shadow-sm" style="--bs-btn-font-size: .75rem;"
+										data-bs-toggle="modal" data-bs-target="#friendsProfile">
+										profile
+										</button>
+									</div>
+								</li>
+								<div class="modal fade" id="friendsProfile" tabindex="-1" aria-labelledby="friendsProfileLabel" aria-hidden="true">
+									<div class="modal-dialog">
+										<div class="modal-content bg-dark-subtle shadow">
+											<div class="modal-header">
+												<h5 class="modal-title" id="friendsProfileLabel">Profile</h5>
+												<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+											</div>
+											<div class="modal-body">
+												{% url 'friend_match' friend_username=friend.username %}
+												<div>
+													<ul class="list-unstyled">
+														{% if matches|length == 0 %}
+															<p>No matches</p>
+														{% endif %}
+														{% for match in matches %}
+															<li class="d-flex flex-column text-align-center">
+																{% if match.result == "Win" %}
+																	<p class="mb-1"><span class="bg-primary p-1 rounded-1 text-light shadow-sm px-2">win</span>
+																	vs <span class="bg-white bg-opacity-50 p-1 rounded-1 text-dark shadow-sm px-2">{{ match.opponent_name }}</span>
+																	({{ match.user_score }} - {{ match.opponent_score }})</p>
+																	<p class="ms-3 fw-light text-dark text-opacity-75">played on {{ match.time }}</p>
+							
+																{% elif match.result == "Loss" %}
+																	<p class="mb-1"><span class="bg-danger p-1 rounded-1 text-light shadow-sm px-2">loss</span>
+																	vs <span class="bg-white bg-opacity-50 p-1 rounded-1 text-dark shadow-sm px-2">{{ match.opponent_name }}</span>
+																	({{ match.user_score }} - {{ match.opponent_score }})</p>
+																	<p class="ms-3 fw-light text-dark text-opacity-75">played on {{ match.time }}</p>
+																{%endif%}
+															</li>
+														{% endfor %}
+													</ul>
 												</div>
-												<div class="modal-body">
-													{% url 'friend_match' friend_username=friend.user.first_name %}
-													<div>
-														<ul class="list-unstyled">
-															{% if matches|length == 0 %}
-																<p>No matches</p>
-															{% endif %}
-															{% for match in matches %}
-																<li class="d-flex flex-column text-align-center">
-																	{% if match.result == "Win" %}
-																		<p class="mb-1"><span class="bg-primary p-1 rounded-1 text-light shadow-sm px-2">win</span>
-																		vs <span class="bg-white bg-opacity-50 p-1 rounded-1 text-dark shadow-sm px-2">{{ match.opponent_name }}</span>
-																		({{ match.user_score }} - {{ match.opponent_score }})</p>
-																		<p class="ms-3 fw-light text-dark text-opacity-75">played on {{ match.time }}</p>
-								
-																	{% elif match.result == "Loss" %}
-																		<p class="mb-1"><span class="bg-danger p-1 rounded-1 text-light shadow-sm px-2">loss</span>
-																		vs <span class="bg-white bg-opacity-50 p-1 rounded-1 text-dark shadow-sm px-2">{{ match.opponent_name }}</span>
-																		({{ match.user_score }} - {{ match.opponent_score }})</p>
-																		<p class="ms-3 fw-light text-dark text-opacity-75">played on {{ match.time }}</p>
-																	{%endif%}
-																</li>
-															{% endfor %}
-														</ul>
-													</div>
-													<div class="modal-footer">
-														<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-													</div>
+												<div class="modal-footer">
+													<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
 												</div>
 											</div>
 										</div>
 									</div>
-								{% endfor %}
+								</div>
+							{% endfor %}
 							</ul>
+							{% endif %}
 						</div>
 						<div class="mb-4">
 							<div class="ms-3 d-flex align-items-center">
 								<h5>Users<i class="bi bi-people ms-2"></i></h5>
 							</div>
 							<hr class="col-10 mt-0 mb-3 mx-auto">
-							<ul class="list-unstyled overflow-auto" style="height: 175px;">
+							<ul class="list-unstyled overflow-auto" >
 								{% for user in users %}
 									{% if user not in friends %}
 									<li>
@@ -293,25 +294,25 @@
 											<div class="d-flex align-items-center">
 												<img class="rounded-circle me-2" src="{{ user.avatar.url }}" alt="" style="width: 35px; height: 35px;">
 												<div style="max-width: 7ch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-													{{ user.user.first_name }}
+													{{ user.username }}
 												</div>
 											</div>
-											{% if user.user.first_name in invites %}
+											{% if user.username in invites %}
 											<form action="handle_invite" method="POST">
 												{% csrf_token %}
-												<input type="hidden" name="invite" value="{{ user.user.first_name }}">
+												<input type="hidden" name="invite" value="{{ user.username }}">
 												<button type="submit" name="status" value="accepted" class="btn buttonvalid px-2 btn-sm btn-primary shadow-sm"
 												style="--bs-btn-font-size: .75rem;"><i class="bi bi-check-square"></i></button>
 												<button type="submit" name="status" value="declined" class="px-2 buttonvalid btn btn-sm btn-danger shadow-sm"
 												style="--bs-btn-font-size: .75rem;"><i class="bi bi-x-square"></i></button>
 											</form>
-											{% elif user.user.first_name in invitees %}
+											{% elif user.username in invitees %}
 											<button class="btn buttonfriends btn-sm btn-primary shadow-sm" disabled
 											style="--bs-btn-font-size: .75rem;">pending</button>
 											{% else %}
 											<form action="send_invite" method="POST">
 												{% csrf_token %}
-												<input type="hidden" name="receiver" value="{{ user.user.first_name }}">
+												<input type="hidden" name="receiver" value="{{ user.username }}">
 												<button class="btn buttonfriends btn-sm btn-primary shadow-sm" type="submit"
 												style="--bs-btn-font-size: .75rem;">add friend</button>
 											</form>
@@ -373,7 +374,7 @@
 						{% csrf_token %}
 						<div class="mb-3">
 							<label for="username" class="form-label">Username</label>
-							<input type="text" class="form-control text-secondary" id="username" name="username" value="{{ request.user.first_name }}">
+							<input type="text" class="form-control text-secondary" id="username" name="username" value="{{ request.user.username }}">
 						</div>
 						<div class="mb-3">
 							<label for="profile_picture" class="form-label">Profile Picture</label>

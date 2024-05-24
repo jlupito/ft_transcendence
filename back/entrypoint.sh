@@ -12,5 +12,9 @@ done
 python manage.py makemigrations
 python manage.py migrate
 
+# Check migrations
+echo "Checking migrations..."
+python manage.py showmigrations
+
 # Start the Django development server
 exec python manage.py runserver_plus --cert-file /code/certs/cert.pem --key-file /code/certs/key.pem --keep-meta-shutdown 0.0.0.0:8000
