@@ -1,5 +1,6 @@
+
 function runsocket(){
-    let url = `ws://${window.location.host}/ws/socket-pong-local/`
+    let url = `wss://${window.location.host}/ws/socket-pong-local/`
 
     const chatSocket = new WebSocket(url);
 

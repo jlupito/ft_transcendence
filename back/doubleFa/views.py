@@ -23,5 +23,5 @@ def verify_view(request):
 				code_obj.save()
 				login(request, user)
 				messages.success(request, 'You are now logged in!')
-		return redirect('home')		
+				return redirect('main')	
 	return render(request, 'doubleFa/verify.html', {'form': form})

@@ -26,6 +26,12 @@ body {
 	position: absolute;
 	box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.5);
 }
+#title
+{
+	text-decoration: none;
+	text-decoration: none;
+}
+
 
 .buttonfriends {
     height: 30px;

@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+{% if not request.user.is_authenticated %}
+<main>
+	{% block login %}
+		{% include "pong/login.html" %}
+	{% endblock login %}	
+</main>
+{% else %}
+	<main class="vh-100">
+		<section id="profile" class="mt-5 pt-5 pb-4 container mx-auto" style="max-width : 750px">
+			<div class="bg-light text-center border border-light border-opacity-25 bg-opacity-25 rounded shadow text-light">
+				<div class="col mb-2 ">
+					<h2 class="text-light my-3">Welcome {{ username }} !</h2>
+					<img class="rounded-circle shadow-lg" src="{{ avatar }}" alt="User avatar" style="width: 60px; height: 60px;">
+				</div>
+				<div class="col mb-2">
+					<a class="btn btn-sm text-light" href="#" data-bs-toggle="modal" data-bs-target="#profileModal">
+						edit profile
+						<i class="bi bi-pencil-fill ms-1"></i>
+					</a>
+				</div>
+			</div>
+		</section>
+		<section id="dashboard" class="container" style="max-width: 750px">
+			<div class="row">
+				<div class="col mb-3 mx-auto">
+					{% block game %}
+						{% include "pong/block_game.html" %}
+					{% endblock game %}					
+				</div>
+				<div class="col mb-3 mx-auto">
+					{% block friends %}
+						{% include "pong/block_friends.html" %}
+					{% endblock friends %}
+				</div>
+			</div>
+		</section>
+	</main>
+{% endif %}
+{% endblock content %}

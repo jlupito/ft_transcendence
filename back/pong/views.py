@@ -21,7 +21,10 @@ from django.core.files.base import ContentFile
 
 #User = get_user_model()
 
-def home(request):
+def main_view(request):
+	return render(request, 'main.html', {})
+
+def home_view(request):
 	context = {}
 	user = request.user
 	if (request.user.is_authenticated):
@@ -38,20 +41,21 @@ def home(request):
 		context['friends'] = friends_list(user)
 		context['stats'] = match_stats(user)
 		context['invitees'] = invitees_list(user)
-	return render(request, 'page.html', context)
+	return render(request, 'pong/home.html', context)
 
 # *********************************** LOGIN ***********************************
 
 # Utilisation des fonctions is_valide(), authenticate() avec "is not None"
 # fonctions et outils de Python/Django
-def sign_in(request):
+def login_view(request):
 	#loginform = AuthenticationForm()
 	if request.method == 'POST':
 		username = request.POST.get('username')
 		password = request.POST.get('password')
 		user = authenticate(request, username=username, password=password)
 		if user is not None:
-			request.session['user_id'] = user.id
+			print(user.username)
+			request.session['id'] = user.id
 			return redirect('verify-view')
 			#login(request, user)
 			#messages.success(request, 'You are now logged in!')
@@ -62,7 +66,7 @@ def sign_in(request):
 	return redirect('home')
 
 # Lancer la creation d'un compte
-def register(request):
+def signup(request):
 	#registerform = RegisterForm(request.POST)
 	if request.method == 'POST':
 		#if registerform.is_valid():
@@ -80,14 +84,14 @@ def register(request):
 			new_user = UserProfile.objects.create_user(username=username, password=mdp, email=email, first_name=username)
 			login(request, new_user)
 			messages.success(request, 'Account created successfully!')
-			#return redirect('home')
+			return redirect('home')
 		#else:
 			#messages.error(request, 'Invalid form data')
 	#else:
 		#registerform = RegisterForm()
 	return redirect('home')
 
-def update_profile(request):
+def edit_profile(request):
 	if request.method == 'GET':
 		return redirect('home')
 	username = request.POST.get('username')

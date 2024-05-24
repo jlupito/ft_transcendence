@@ -1,11 +1,12 @@
-{% extends 'page.html' %}
+{% extends 'base.html' %}
 {% load static %}
 {% block content %}
+<h1>Test</h1>
 <div class="container d-flex align-items-center justify-content-center vh-100">
 	<div class="d-flex align-items-center justify-content-center">
 		<div class="text-center col-8 bg-light border border-opacity-50 border-light bg-opacity-25 p-4 rounded shadow">
 			<h1 class="mx-auto my-0 text-light">-.-.- play Pong .-.-.</h1>
-			<form action="verify_view" method="POST" autocomplete="off" >
+			<form method="post" class="row gy-2 mt-4 d-flex align-items-center justify-content-center">
 				{% csrf_token %}
 				<div class="mb-3">
 					<label for="code" class="form-label">Code</label>
@@ -19,25 +20,5 @@
 		</div>
 	</div>
 </div>
+<div id="ball"></div>
 {% endblock %}
-{% comment %}{% extends 'base.html' %}
-{% load static %}
-{% block content %}{% endcomment %}
-{% comment %}<div class="container d-flex align-items-center justify-content-center vh-100">
-	<div class="d-flex align-items-center justify-content-center">
-		<div class="text-center col-8 bg-light border border-opacity-50 border-light bg-opacity-25 p-4 rounded shadow">
-			<h1 class="mx-auto my-0 text-light">-.-.- play Pong .-.-.</h1>
-			<form method="post" class="row gy-2 mt-4 d-flex align-items-center justify-content-center">
-				{% csrf_token %}
-				{% form form %}
-				<div class="mb-1 col-8">
-					<input type="number" class="form-control" id="email_code" name="email_code" placeholder="email code">
-				</div>
-				<div class="mb-1">
-					<button type="submit" class="btn btn-dark text-light col-8">Sign in</button>
-				</div>
-			</form>
-		</div>
-	</div>
-</div>{% endcomment %}
-{% comment %}{% endblock %}{% endcomment %}
