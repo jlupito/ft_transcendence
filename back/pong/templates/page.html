@@ -23,10 +23,9 @@
 			{% endfor %}
 		{% endif %}
 	</div>
-	{% if not request.user.is_authenticated %}
 	<header>
 		<nav class="navbar navbar-expand-md navbar-dark fixed-top" id="mainNav">
-			<div class="container px-2 px-lg-3">
+			<div class="container d-flex justify-content-between">
 				<h1 class="navbar-brand" href="#">ft_transcendance</h1>
 				<button class="navbar-toggler navbar-toggler-right" type="button" data-bs-toggle="collapse" data-bs-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
 					<span class="navbar-toggler-icon"></span>
@@ -36,8 +35,8 @@
 					<ul class="navbar-nav ms-auto">
 						<li class="nav-item">
 							<div class="nav-link dropdown">
-								<button class="btn bg-transparency text-light dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">About us</button>
-								<ul class="dropdown-menu bg-light bg-opacity-25 shadow">
+								<button class="btn bg-transparency text-light dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">Authors</button>
+								<ul class="dropdown-menu bg-dark shadow">
 									<li><a class="dropdown-item text-light" href="https://profile.intra.42.fr/users/alibourb" target="_blank"><span><img src="../static/images/alibourb.jpg" alt="alibourb photo" class="rounded mx-2" style="height: 30px;"></span>alibourb</a></li>
 									<li><a class="dropdown-item text-light" href="https://profile.intra.42.fr/users/bfiguet" target="_blank"><span><img src="../static/images/bfiguet.jpg" alt="bfiguet photo" class="rounded mx-2" style="height: 30px;"></span>bfiguet</a></li>
 									<li><a class="dropdown-item text-light" href="https://profile.intra.42.fr/users/ekadiri" target="_blank"><span><img src="../static/images/ekadiri.jpg" alt="ekadiri photo" class="rounded mx-2" style="height: 30px;"></span>ekadiri</a></li>
@@ -51,7 +50,7 @@
 								<button class="btn bg-transparency text-light dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
 									Language
 								</button>
-								<ul class="dropdown-menu bg-light bg-opacity-25 shadow">
+								<ul class="dropdown-menu bg-dark shadow">
 									<li><button class="dropdown-item text-light chooseLanguage active" aria-current="true" type="button"><span><img src="../static/images/gb.svg" alt="gb flag" class="rounded-1 mx-2" style="height: 15px;"></span>english</button></li>
 									<li><button class="dropdown-item text-light chooseLanguage" type="button"><span><img src="../static/images/fr.svg" alt="fr flag" class="rounded-1 mx-2" style="height: 15px;"></span>français</button></li>
 									<li><button class="dropdown-item text-light chooseLanguage" type="button"><span><img src="../static/images/es.svg" alt="sp flag" class="rounded-1 mx-2" style="height: 15px;"></span>español</button></li>
@@ -68,6 +67,7 @@
 			</div>
 		</nav>
 	</header>
+	{% if not request.user.is_authenticated %}
 	<main>
 		<div class="container d-flex align-items-center justify-content-center vh-100">
 			<div class="d-flex align-items-center justify-content-center">
@@ -105,10 +105,10 @@
 				</div>
 			</div>
 		</div>
+		<div id="ball"></div>
 	</main>
-	<div id="ball"></div>
 	{% else %}
-	<header>
+	<!-- <header>
 		<nav class="navbar navbar-expand-md navbar-dark fixed-top" id="mainNav">
 			<div class="container px-2 px-lg-3">
 				<h1 class="navbar-brand" href="#">ft_transcendance</h1>
@@ -139,10 +139,15 @@
 				</div>
 			</div>
 		</nav>
-	</header>
+	</header> -->
 	<main class="vh-100">
 		<section id="profile" class="mt-5 pt-5 pb-4 container mx-auto" style="max-width : 750px">
 			<div class="bg-light text-center border border-light border-opacity-25 bg-opacity-25 rounded shadow text-light">
+				<div class="col mb-2" style="float:right">
+					<a class="btn btn-lg text-light" role="button" title="logout" href="{% url 'logout' %}">
+						<i class="bi-x-square"></i>
+					</a>
+				</div>
 				<div class="col mb-2 ">
 					<h2 class="text-light my-3">Welcome {{ request.user.first_name }} !</h2>
 					<img class="rounded-circle shadow-lg" src="{{ avatar_url }}" alt="User avatar" style="width: 60px; height: 60px;">
@@ -429,13 +434,13 @@
 					<button type="button" class="btn-close closeRefresh" data-bs-dismiss="modal" aria-label="Close"></button>
 				</div>
 				<div class="modal-body">
-					<div id="waitViewOnline" class="d-flex justify-content-center align-items-center my-5">
+					<!-- <div id="waitViewOnline" class="d-flex justify-content-center align-items-center my-5">
 						<p class="my-auto me-2">Waiting for an opponent</p>
 						<div class="dot"></div>
 						<div class="dot"></div>
 						<div class="dot"></div>
-					</div>
-					<div id="gameViewOnline" style="display: none;">
+					</div> -->
+					<div id="gameViewOnline" style="display: block;">
 						<div class="canvas" width="600" height="600">
 							<canvas id="CanvasOnline" width="600" height="600"></canvas>
 							<script>
