@@ -52,8 +52,9 @@ def sign_in(request):
 		user = authenticate(request, username=username, password=password)
 		if user is not None:
 			request.session['user_id'] = user.id
-			login(request, user)
-			messages.success(request, 'You are now logged in!')
+			return redirect('verify-view')
+			#login(request, user)
+			#messages.success(request, 'You are now logged in!')
 		else:
 			messages.error(request, 'Invalid username or password')
 	#else:

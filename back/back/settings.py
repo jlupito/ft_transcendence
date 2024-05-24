@@ -34,13 +34,14 @@ ALLOWED_HOSTS = ['localhost', '0.0.0.0', '127.0.0.1']
 INSTALLED_APPS = [
     'channels',
     'django_extensions',
-    'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'pong',
+	'django.contrib.admin',
+	'doubleFa',
 ]
 
 ASGI_APPLICATION = 'back.asgi.application'
