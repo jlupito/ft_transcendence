@@ -1,12 +1,10 @@
-{% extends 'base.html' %}
 {% load static %}
 {% block login %}
-<h1>test2</h1>
 <div class="container d-flex align-items-center justify-content-center vh-100">
 	<div class="d-flex align-items-center justify-content-center">
 		<div class="text-center col-8 bg-light border border-opacity-25 border-light bg-opacity-25 p-4 rounded shadow">
 			<h1 class="mx-auto my-0 text-light">-.-.- play Pong .-.-.</h1>
-			<form method="post" class="row gy-2 mt-4 d-flex align-items-center justify-content-center">
+			<form action="login/" method="post" class="row gy-2 mt-4 d-flex align-items-center justify-content-center">
 				{% csrf_token %}
 				<div class="mb-1 col-8">
 					<input type="username" class="form-control" id="username" name="username" placeholder="Username">
@@ -38,7 +36,7 @@
 		</div>
 	</div>
 </div>
-<div id="ball"></div>
+
 {% comment %} SIGNUP MODAL {% endcomment %}
 <div class="modal fade" id="signupModal" tabindex="-1" aria-labelledby="signupModalLabel" aria-hidden="true">
 	<div class="modal-dialog">
@@ -48,7 +46,7 @@
 				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 			</div>
 			<div class="modal-body">
-				<form method="POST" enctype="multipart/form-data">
+				<form action="signup" method="POST" enctype="multipart/form-data">
 					{% csrf_token %}
 					<div class="mb-3">
 						<label for="username" class="form-label">Username</label>
@@ -71,4 +69,5 @@
 		</div>
 	</div>
 </div>
+<div id="ball"></div>
 {% endblock login %}

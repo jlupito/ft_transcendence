@@ -32,7 +32,7 @@ ALLOWED_HOSTS = ['localhost', '0.0.0.0', '127.0.0.1']
 # Application definition
 # on installe ici "channels" pour l'extension Django Channels (gestion communications asynchrones)
 INSTALLED_APPS = [
-    'channels',
+    
     'django_extensions',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'pong',
 	'django.contrib.admin',
 	'doubleFa',
+	'channels',
 ]
 
 ASGI_APPLICATION = 'back.asgi.application'
@@ -162,3 +163,6 @@ SECURE_SSL_REDIRECT = True
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
 AUTH_USER_MODEL = 'pong.UserProfile'
+
+EMAIL_CODE = os.environ.get('EMAIL_CODE')
+EMAIL_CODE_PASSWORD = os.environ.get('EMAIL_CODE_PASSWORD')

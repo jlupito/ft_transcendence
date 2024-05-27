@@ -3,11 +3,11 @@ from pong.models import UserProfile
 import random
 
 class Code(models.Model):
-	code = models.CharField(max_length=5, blank=True)
+	number = models.CharField(max_length=5, blank=True)
 	user = models.OneToOneField(UserProfile, on_delete=models.CASCADE)
-	
+
 	def __str__(self):
-		return self.code
+		return self.number
 	
 	def save(self, *args, **kwargs):
 		number_list = [x for x in range(10)]

@@ -1,6 +1,6 @@
 from django.shortcuts import redirect, render
 from django.http import HttpResponse
-from django.contrib.auth import authenticate, login, logout, get_user_model
+from django.contrib.auth import authenticate, login, logout
 from .models import UserProfile, Match, Friend, Tournament
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -18,11 +18,6 @@ from django.core.files.base import ContentFile
 # from rest_framework.views import APIView
 # from rest_framework.response import Response
 # from rest_framework import status
-
-#User = get_user_model()
-
-def main_view(request):
-	return render(request, 'main.html', {})
 
 def home_view(request):
 	context = {}
@@ -54,11 +49,8 @@ def login_view(request):
 		password = request.POST.get('password')
 		user = authenticate(request, username=username, password=password)
 		if user is not None:
-			print(user.username)
 			request.session['id'] = user.id
 			return redirect('verify-view')
-			#login(request, user)
-			#messages.success(request, 'You are now logged in!')
 		else:
 			messages.error(request, 'Invalid username or password')
 	#else:
@@ -81,8 +73,10 @@ def signup(request):
 			if UserProfile.objects.filter(email=email).exists():
 				messages.error(request, 'This email is already in use...')
 				return redirect('home')
-			new_user = UserProfile.objects.create_user(username=username, password=mdp, email=email, first_name=username)
+			new_user = UserProfile.objects.create_user(username=username, password=mdp, email=email)
 			login(request, new_user)
+			print(new_user.username)
+			print('LOGIN')
 			messages.success(request, 'Account created successfully!')
 			return redirect('home')
 		#else:

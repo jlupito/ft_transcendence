@@ -2,7 +2,7 @@ from django import forms
 from .models import Code
 
 class CodeForm(forms.ModelForm):
-	code = forms.CharField(label='code', help_text='Enter email verification code')
+	number = forms.CharField(label='code', help_text='Enter email verification code')
 	class Meta:
 		model = Code
-		fields = ('code',)
+		fields = ('number',)

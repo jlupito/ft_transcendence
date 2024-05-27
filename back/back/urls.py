@@ -19,15 +19,14 @@ from django.urls import path
 from doubleFa.views import verify_view
 from django.conf import settings
 from django.conf.urls.static import static
-from pong.views import signup, login_view, logout_view, edit_profile, main_view, home_view, \
+from pong.views import signup, login_view, logout_view, edit_profile, home_view, \
 	auth, handle_invite, send_invite, create_local_game, friend_match
 
 urlpatterns = [
     path('admin/', admin.site.urls),
 	path('verify/', verify_view, name="verify-view"),
 	path('', home_view, name='home'),
-	path('main/', main_view, name='main'),
-	path('update_profile/', edit_profile, name='update_profile'),
+	path('edit_profile/', edit_profile, name='edite_profile'),
 	path('oauth/', auth, name='auth'),
 	path('logout/', logout_view, name='logout'),
     path('accounts/login/', login_view, name='login'),
