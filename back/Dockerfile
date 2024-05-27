@@ -12,6 +12,8 @@ RUN pip install --upgrade django-extensions
 COPY requirements.txt /code/
 RUN pip install --no-cache-dir -r requirements.txt
 RUN pip install channels==3.0.4
+RUN pip install daphne==3.0.2
+RUN pip install -U Twisted[tls,http2]
 
 RUN pip install werkzeug
 # RUN pip install django-extensions
@@ -22,4 +24,5 @@ COPY . /code/
 COPY ./entrypoint.sh /code/entrypoint.sh
 RUN chmod +x /code/entrypoint.sh
 EXPOSE 8000
+EXPOSE 8001
 ENTRYPOINT ["/code/entrypoint.sh"]
