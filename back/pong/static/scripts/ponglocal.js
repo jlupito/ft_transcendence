@@ -1,6 +1,5 @@
 function runsocket(){
     let url = `wss://${window.location.host}/ws/socket-pong-local/`
-
     const chatSocket = new WebSocket(url);
 
     opponent = document.getElementById('local_player2_name')

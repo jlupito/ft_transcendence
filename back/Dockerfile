@@ -12,9 +12,9 @@ RUN pip install --upgrade django-extensions
 COPY requirements.txt /code/
 RUN pip install --no-cache-dir -r requirements.txt
 RUN pip install channels==3.0.4
+RUN pip install daphne==3.0.2
 
 RUN pip install werkzeug
-# RUN pip install django-extensions
 RUN pip install pyOpenSSL
 RUN pip install psycopg2-binary==2.8.6
 
