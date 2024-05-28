@@ -1,46 +1,55 @@
 {% comment %} MODALE POUR LE TOURNAMENT LOCAL {% endcomment %}
-	<div class="modal fade" id="localTournament" tabindex="-1" aria-labelledby="tourModalLabel" aria-hidden="true">
-		<div class="modal-dialog tourModal" >
-			<div class="modal-content bg-dark-subtle shadow">
-				<div class="modal-header">
-					<h5 class="modal-title" id="tourModalLabel">Play a local tournament</h5>
-					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+<div class="modal fade" id="localTournament" tabindex="-1" aria-labelledby="tourModalLabel" aria-hidden="true">
+	<div class="modal-dialog tourModal" >
+		<div class="modal-content bg-dark-subtle shadow">
+			<div class="modal-header">
+				<h5 class="modal-title" id="tourModalLabel">Play a local tournament</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body d-flex justify-content-center align-items-center">
+				<div class="canvas" width="600" height="600">
+					<canvas id="CanvasTourLocal" width="600" height="600"></canvas>
 				</div>
-				<div class="modal-body d-flex justify-content-center align-items-center">
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+			</div>
+		</div>
+	</div>
+</div>
+{% comment %} MODALE POUR LE TOURNAMENT ONLINE {% endcomment %}
+<div class="modal fade" id="onlineTournament" tabindex="-1" aria-labelledby="tourModalLabel" aria-hidden="true">
+	<div class="modal-dialog tourModal" style="min-width: 700px;">
+		<div class="modal-content bg-dark-subtle shadow">
+			<div class="modal-header">
+				<h5 class="modal-title" id="tourModalLabel">Play an online tournament</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+				<div id="formViewOnlineTour">
+					<form id="onlineTourForm" class="row my-4 d-flex align-items-center justify-content-center">
+						{% csrf_token %}
+						<div class="col-7">
+							<input type="text" class="form-control" id="onlineTourName" name="onlineTourName" placeholder="Choose a name for the Tournament">
+						</div>
+						<button type="submit" id="startOnlineTourBtn" class="btn btn-primary col-2 shadow-sm">Start</button>
+					</form>
+				</div>
+				<div id="waitViewOnlineTour" class="d-flex flex-column my-5 align-items-center justify-content-center" style="display: none;">
+					<p class="me-2">Waiting for opponents to connect</p>
+					<div class="bg-dark border rounded col-3 shadow">
+						<h1 class="text-light p-5 mx-auto text-center" id="countdown">60</h1>
+					</div>
+				</div>
+				<div id="playViewOnlineTour" style="display: none">
 					<div class="canvas" width="600" height="600">
-						<canvas id="CanvasTourLocal" width="600" height="600"></canvas>
+						<canvas id="CanvasTourOnline" width="600" height="600"></canvas>
 					</div>
 				</div>
-				<div class="modal-footer">
-					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
 			</div>
 		</div>
 	</div>
-	{% comment %} MODALE POUR LE TOURNAMENT ONLINE {% endcomment %}
-	<div class="modal fade" id="onlineTournament" tabindex="-1" aria-labelledby="tourModalLabel" aria-hidden="true">
-		<div class="modal-dialog tourModal" >
-			<div class="modal-content bg-dark-subtle shadow">
-				<div class="modal-header">
-					<h5 class="modal-title" id="tourModalLabel">Play an online tournament</h5>
-					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-				</div>
-				<div class="modal-body">
-					<div id="waitViewOnline" class="d-flex my-5">
-						<p class="my-auto me-2">Waiting for oppents to connect</p>
-						<div class="bg-dark border rounded col-3">
-							<span class="" id="countdown">60</span>
-						</div>
-					</div>
-					<div id="tourPlayView" style="display: none">
-						<div class="canvas" width="600" height="600">
-							<canvas id="CanvasTourOnline" width="600" height="600"></canvas>
-						</div>
-					</div>
-				</div>
-				<div class="modal-footer">
-					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-				</div>
-			</div>
-		</div>
-	</div>
+</div>
