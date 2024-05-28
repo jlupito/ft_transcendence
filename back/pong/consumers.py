@@ -6,7 +6,9 @@ from django.core.cache import cache
 from channels.generic.websocket import WebsocketConsumer
 import threading
 import time
-from .models import Match
+import websockets
+
+
 
 
 games_online = []
