@@ -22,7 +22,7 @@
 	<div class="modal-dialog tourModal" style="min-width: 700px;">
 		<div class="modal-content bg-dark-subtle shadow">
 			<div class="modal-header">
-				<h5 class="modal-title" id="tourModalLabel">Play an online tournament</h5>
+				<h5 class="modal-title" id="tourModalLabel">Online tournament</h5>
 				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 			</div>
 			<div class="modal-body">
@@ -35,15 +35,27 @@
 						<button type="submit" id="startOnlineTourBtn" class="btn btn-primary col-2 shadow-sm">Start</button>
 					</form>
 				</div>
-				<div id="waitViewOnlineTour" class="d-flex flex-column my-5 align-items-center justify-content-center" style="display: none;">
-					<p class="me-2">Waiting for opponents to connect</p>
-					<div class="bg-dark border rounded col-3 shadow">
-						<h1 class="text-light p-5 mx-auto text-center" id="countdown">60</h1>
+				<div id="waitViewOnlineTour" class="my-5" style="display: none">
+					<div class="my-5 d-flex flex-column align-items-center justify-content-center">
+						<div class="d-flex justify-content-center align-items-center mb-3">
+							<p class="my-auto me-2">Waiting for opponents to connect</p>
+							<div class="dot"></div>
+							<div class="dot"></div>
+							<div class="dot"></div>
+						</div>
+						<div class="bg-dark border rounded col-3 shadow">
+							<h1 class="text-light p-4 mx-auto text-center" id="countdown">10</h1>
+						</div>
 					</div>
 				</div>
 				<div id="playViewOnlineTour" style="display: none">
 					<div class="canvas" width="600" height="600">
 						<canvas id="CanvasTourOnline" width="600" height="600"></canvas>
+					</div>
+				</div>
+				<div id="drawViewOnlineTour" style="display: none">
+					<div class="canvas" width="600" height="600">
+						
 					</div>
 				</div>
 			</div>
