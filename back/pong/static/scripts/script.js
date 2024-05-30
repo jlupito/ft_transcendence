@@ -120,10 +120,6 @@
             event.preventDefault();
             document.querySelector('#formViewOnlineTour').style.display = 'none';
             document.querySelector('#waitViewOnlineTour').style.display = 'block';
-            // pongScript = document.createElement('script');
-            // pongScript.src = '../static/scripts/pongtournamentonline.js';
-            // pongScript.defer = true;
-            // document.body.appendChild(pongScript);
         });
         canvasOnlineTour.addEventListener('hidden.bs.modal', function () {
             if (pongScript) {
@@ -144,9 +140,9 @@
     
 // script pour le chrono de chargement du Tournoi Online
 function startCountdown() {
-    let startCount = 10;
+    let startCount = 2;
     const	stopCount = 0,	
-            duration = 10000,
+            duration = 2000,
             countDownElement = document.getElementById('countdown'),
             intervalTime = duration/Math.abs(startCount - stopCount);
         
@@ -156,6 +152,7 @@ function startCountdown() {
             setTimeout(() => {
                 document.querySelector('#waitViewOnlineTour').style.display = 'none',
                 document.querySelector('#drawViewOnlineTour').style.display = 'block'
+                // AJOUTER LANCEMENT DU SCRIPT ONLINE TOURNAMENT ICI
             }, 1000),
             clearInterval(countDown)
         countDownElement.innerHTML = startCount;

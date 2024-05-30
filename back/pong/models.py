@@ -3,6 +3,7 @@ from django.utils import timezone
 from django.contrib.auth.models import User
 from django.core.validators import MinValueValidator, MaxValueValidator
 from datetime import timedelta
+import math
 
 # on vient creer un modele UserProfile qui surcharge le modele User préconçu.
 # Il est recommandé de créer ce modele en debut de projet (pour le SQL), meme si
@@ -68,31 +69,47 @@ class Friend(models.Model):
 class Tournament(models.Model):
     tourn_name = models.fields.CharField(max_length=30, blank=True)
     nb_players = models.fields.IntegerField(default=0)
-    nb_matches = models.fields.IntegerField(default=0)
     nb_rounds = models.fields.IntegerField(default=0)
-    l_matches = models.JSONField(default=dict)
+    nb_matches_p_rounds = models.JSONField(default=dict)
+    tourn_winner= models.fields.CharField(max_length=30, blank=True)
 
-    def get_default_l_players():
-        return []
-    l_players = models.JSONField(default=get_default_l_players)
+    # @staticmethod
+    # def get_default_l_players():
+    #     return []
+    # l_players = models.JSONField(default=get_default_l_players)
 
-    @classmethod
-    def create_tournament(cls, tourn_instance):
-        player1_user=User.objects.get(username=game_instance.player1)
-        player2_username = game_instance.player2
-        player2_user, created = User.objects.get_or_create(username=player2_username)
+    # def get_default_l_matches_p_round():
+    #     return {}
+    # l_matches = models.JSONField(default=get_default_l_matches_p_round)
 
-        tournament = Tournament.objects.create(
-            player1=player1_user,
-            player2=player2_user,
-            player1_score=game_instance.p1_score,
-            player2_score=game_instance.p2_score
-            )
-        match.save()
-        return match
+    # @classmethod
+    # def create_tournament(cls, tourn_instance):
+    #     def calculate_rounds(nb_players):
+    #         if nb_players < 2:
+    #             return 0
+    #         log2_nb_players = math.log2(nb_players) # calcul log en base 2 de nb de joueurs
+    #         rounds = math.ceil(log2_nb_players) # ceil arrondi au nb sup pour le nb de rounds
+    #         return rounds
+        
+    #     tournament = Tournament.objects.create(
+    #         nb_players=len(tourn_instance.nb_players),
+    #         nb_rounds=calculate_rounds(tourn_instance.nb_players),
+    #     )
+    #     tournament.save()
+    #     return tournament
 
-    def __str__(self):
-        return self.player1.username + ' vs ' + self.player2.username
+    # def add_player_tournament(self, username):
+    #     self.l_players.append(username)
+    #     self.save()
+
+    # def add_match_tournament(self, round, match):
+    #     if round not in self.l_matches:
+    #         self.l_matches[round] = []
+    #     self.l_matches[round].append(match)
+    #     self.save()
+
+    # def __str__(self):
+    #     return self.tourn_name
 
     # start_datetime = models.DateTimeField(default=timezone.now, editable=False)
     # duration_time = models.DurationField(default=timedelta(minutes=4))
