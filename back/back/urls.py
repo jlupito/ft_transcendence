@@ -19,7 +19,8 @@ from django.urls import path, include
 from doubleFa.views import verify_view
 
 urlpatterns = [
-	path('', include('pong.urls')),
+	#path('', include('pong.urls')),
     path('admin/', admin.site.urls),
 	path('verify', verify_view, name="verify-view"),
+	path('api/', include('pong.urls')),
 ]

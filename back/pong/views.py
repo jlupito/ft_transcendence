@@ -13,60 +13,128 @@ import os
 from .forms import localMatchForm
 from .consumers import Game
 from django.core.files.base import ContentFile
-# from rest_framework.views import APIView
-# from rest_framework.response import Response
+
+# *********************************** API && JWT ***********************************
+from rest_framework.views import APIView
+from .serializers import UserSerializer
+from rest_framework.response import Response
+import jwt, datetime
 # from rest_framework import status
 
-def home_view(request):
-	context = {}
-	user = request.user
-	if (request.user.is_authenticated):
-		context['id'] = user.id
-		context['user'] = user
-		context['username'] = user.username
-		context['avatar'] = user.avatar.url
-		#if user.avatar:
-		#	context['avatar'] = user.avatar.url
-		#else:
-		#	context['avatar'] = "avatars/defaultAvatar.png"
-		context['users'] = UserProfile.objects.all().exclude(username=user.username)
-		context['matches'] = match_history(user)
-		context['invites'] = invites_list(user)
-		context['friends'] = friends_list(user)
-		context['stats'] = match_stats(user)
-		context['invitees'] = invitees_list(user)
-	return render(request, 'pong/home.html', context)
+#def home_view(request):
+#	context = {}
+#	user = request.user
+#	if (request.user.is_authenticated):
+#		context['id'] = user.id
+#		context['user'] = user
+#		context['username'] = user.username
+#		context['avatar'] = user.avatar.url
+#		#if user.avatar:
+#		#	context['avatar'] = user.avatar.url
+#		#else:
+#		#	context['avatar'] = "avatars/defaultAvatar.png"
+#		context['users'] = UserProfile.objects.all().exclude(username=user.username)
+#		context['matches'] = match_history(user)
+#		context['invites'] = invites_list(user)
+#		context['friends'] = friends_list(user)
+#		context['stats'] = match_stats(user)
+#		context['invitees'] = invitees_list(user)
+#	return render(request, 'pong/home.html', context)
 
+class home_view(APIView):
+	def get(self, request):
+		jwt_token = request.COOKIES.get('jwt')
+		if not jwt_token:
+			return Response({'message': 'Unauthorized'}, status=401)
+		try:
+			payload = jwt.decode(jwt_token, 'SECRET', algorithms=['HS256'])
+		except jwt.ExpiredSignatureError:
+			return Response({'message': 'Session expired'}, status=401)
+		except jwt.DecodeError:
+			return Response({'message': 'Invalid token'}, status=401)
+		
+		user = UserProfile.objects.filter(id = payload['id']).first()
+		serializer = UserSerializer(user)
+
+		context = {}
+		#user = request.user
+		if (request.user.is_authenticated):
+			context['id'] = user.id
+			context['user'] = user
+			context['username'] = user.username
+			context['avatar'] = user.avatar.url
+			context['users'] = UserProfile.objects.all().exclude(username=user.username)
+			context['matches'] = match_history(user)
+			context['invites'] = invites_list(user)
+			context['friends'] = friends_list(user)
+			context['stats'] = match_stats(user)
+			context['invitees'] = invitees_list(user)
+		return Response(serializer.data, context, jwt_token=jwt_token)
+		#return render(request, 'pong/home.html', context)
+		
 # *********************************** LOGIN ***********************************
 
-def login_view(request):
-	if request.method == 'POST':
-		username = request.POST.get('username')
-		password = request.POST.get('password')
-		user = authenticate(request, username=username, password=password)
-		if user is not None:
-			request.session['id'] = user.id
-			return redirect('verify-view')
-		else:
-			messages.error(request, 'Invalid username or password')
-	return redirect('home')
+#def login_view(request):
+#	if request.method == 'POST':
+#		username = request.POST.get('username')
+#		password = request.POST.get('password')
+#		user = authenticate(request, username=username, password=password)
+#		if user is not None:
+#			request.session['id'] = user.id
+#			return redirect('verify-view')
+#		else:
+#			messages.error(request, 'Invalid username or password')
+#	return redirect('home')
 
-def signup_view(request):
-	if request.method == 'POST':
-			username = request.POST.get('username')
-			if UserProfile.objects.filter(username=username).exists():
-				messages.error(request, 'This username is already used!')
-				return redirect('home')
-			mdp = request.POST.get('password')
-			email = request.POST.get('email')
-			if UserProfile.objects.filter(email=email).exists():
-				messages.error(request, 'This email is already in use...')
-				return redirect('home')
-			new_user = UserProfile.objects.create_user(username=username, password=mdp, email=email)
-			login(request, new_user)
-			messages.success(request, 'Account created successfully!')
-			return redirect('home')
-	return redirect('home')
+#install djnago-cors-headers
+def login_view(APIView):
+	def post(self, request):
+		username = request.data.get('username')
+		password = request.data.get('password')
+		user = UserProfile.objects.filter(username=username).first()
+		if user is None:
+			return Response({'message': 'Invalid username'}, status=400)
+		if not user.check_password(password):
+			return Response({'message': 'Invalid password'}, status=400)
+		payload = {
+			'id': user.id,
+			'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=60),
+			'iat': datetime.datetime.utcnow()
+		}
+		jwt_token = jwt.encode(payload, 'SECRET', algorithm='HS256').decode('utf-8')
+		res = Response()
+		res.set_cookie(key='jwt', value=jwt_token, httponly=True)
+		res.data = {
+			'jwt': jwt_token,
+			'user': UserSerializer(user).data,
+			'message': 'Logged in successfully',
+		}
+		return res
+	
+def signup_view(APIView):
+	def post(self, request):
+		serializer = UserSerializer(data=request.data)
+		serializer.is_valid(raise_exception=True)
+		serializer.save()
+		return Response(serializer.data)
+
+
+#def signup_view(request):
+#	if request.method == 'POST':
+#			username = request.POST.get('username')
+#			if UserProfile.objects.filter(username=username).exists():
+#				messages.error(request, 'This username is already used!')
+#				return redirect('home')
+#			mdp = request.POST.get('password')
+#			email = request.POST.get('email')
+#			if UserProfile.objects.filter(email=email).exists():
+#				messages.error(request, 'This email is already in use...')
+#				return redirect('home')
+#			new_user = UserProfile.objects.create_user(username=username, password=mdp, email=email)
+#			login(request, new_user)
+#			messages.success(request, 'Account created successfully!')
+#			return redirect('home')
+#	return redirect('home')
 
 def edit_profile_view(request):
 	if request.method == 'GET':
@@ -92,11 +160,18 @@ def edit_profile_view(request):
 	user.save()
 	return redirect('home')
 
-
 @login_required
-def logout_view(request):
-	logout(request)
-	return redirect('home')
+def logout_view(APIView):
+	def post(self, request):
+		res = Response()
+		res.delete_cookie('jwt')
+		res.data = {'message': 'Logged out successfully'}
+		return res
+
+#@login_required
+#def logout_view(request):
+#	logout(request)
+#	return redirect('home')
 
 # never_cache est un décorateur qui indique au navigateur de ne pas mettre en cache la reponse
 # à cette view, a chaque fois que la view est appelee, la verification aura lieu.
