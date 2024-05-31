@@ -30,7 +30,7 @@
 						{% csrf_token %}
 						<div class="mb-3">
 							<label for="username" class="form-label">Username</label>
-							<input type="text" class="form-control text-secondary" id="username" name="username" value="{{ request.user.first_name }}">
+							<input type="text" class="form-control text-secondary" id="username" name="username" value="{{ request.user.username }}">
 						</div>
 						<div class="mb-3">
 							<label for="profile_picture" class="form-label">Profile Picture</label>

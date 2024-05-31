@@ -7,7 +7,7 @@ from datetime import timedelta
 class UserProfile(AbstractUser):
 	elo = models.IntegerField(default=1000)
 	email = models.EmailField(unique=True)
-	avatar = models.ImageField(upload_to='avatars/', default='avatars/default2.png')
+	avatar = models.ImageField(upload_to='avatars/', default='avatars/defaultAvatar.png')
 	def __str__(self):
 		return self.username
 

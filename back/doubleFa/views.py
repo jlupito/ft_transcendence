@@ -23,4 +23,4 @@ def verify_view(request):
 				login(request, user)
 				messages.success(request, 'You are now logged in!')
 				return redirect('home')
-	return render(request, 'doubleFa//verify.html', {'form': form})
+	return render(request, 'doubleFa/verify.html', {'form': form})

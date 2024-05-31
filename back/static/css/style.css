@@ -21,8 +21,14 @@ body {
 	position: absolute;
 	box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.5);
 }
-/* Style pour rendre les dropdown menus de la navbar plus lisibles*/
 
+#title
+{
+	text-decoration: none;
+	text-decoration: none;
+}
+
+/* Style pour rendre les dropdown menus de la navbar plus lisibles*/
 .dropdown-menu .dropdown-item:hover {
   color: #000 !important;
   background-color: rgba(255, 255, 255, 0.5) !important;

@@ -24,17 +24,18 @@ def home_view(request):
 		context['id'] = user.id
 		context['user'] = user
 		context['username'] = user.username
-		if user.avatar:
-			context['avatar'] = user.avatar.url
-		else:
-			context['avatar'] = "avatars/default2.png"
+		context['avatar'] = user.avatar.url
+		#if user.avatar:
+		#	context['avatar'] = user.avatar.url
+		#else:
+		#	context['avatar'] = "avatars/defaultAvatar.png"
 		context['users'] = UserProfile.objects.all().exclude(username=user.username)
 		context['matches'] = match_history(user)
 		context['invites'] = invites_list(user)
 		context['friends'] = friends_list(user)
 		context['stats'] = match_stats(user)
 		context['invitees'] = invitees_list(user)
-	return render(request, 'page.html', context)
+	return render(request, 'pong/home.html', context)
 
 # *********************************** LOGIN ***********************************
 
@@ -72,6 +73,11 @@ def edit_profile_view(request):
 		return redirect('home')
 	username = request.POST.get('username')
 	profile_picture = request.FILES.get('profile_picture')
+	if (UserProfile.objects.filter(username=username).exists() and username != request.user.username):
+		messages.error(request, 'Username already taken')
+		return redirect('home')
+	user = request.user
+	user.username = username
 	if (profile_picture is not None):
 		validate = FileExtensionValidator(allowed_extensions=['jpg', 'jpeg', 'png'])
 		try:
@@ -79,13 +85,7 @@ def edit_profile_view(request):
 		except ValidationError as e:
 			messages.error(request, 'Invalid file type')
 			return redirect('home')
-	if (UserProfile.objects.filter(username=username).exists() and username != request.user.username):
-		messages.error(request, 'Username already taken')
-		return redirect('home')
-	user = request.user
-	user.username = username
-	if (profile_picture is not None):
-		if user.avatar.url != "/media/avatars/default2.png":
+		if user.avatar.url != "avatars/defaultAvatar.png":
 			user.avatar.delete()
 		profile_picture.name = user.username
 		user.avatar = profile_picture
@@ -97,6 +97,45 @@ def edit_profile_view(request):
 def logout_view(request):
 	logout(request)
 	return redirect('home')
+
+# never_cache est un décorateur qui indique au navigateur de ne pas mettre en cache la reponse
+# à cette view, a chaque fois que la view est appelee, la verification aura lieu.
+@never_cache
+def auth(request):
+	code = request.GET.get('code')
+	uid = os.environ.get('UID')
+	secret = os.environ.get('SECRET')
+	token_url = 'http://api.intra.42.fr/oauth/token'
+	data = {
+		'grant_type': 'authorization_code',
+		'client_id': uid,
+		'client_secret': secret,
+		'code': code,
+		'redirect_uri': 'https://localhost:8000/oauth',
+	}
+	response = requests.post(token_url, data=data)
+	if (response.status_code != 200):
+		return HttpResponse('<h1>Failed to get access token</h1>')
+	access_token = response.json()['access_token']
+	response = requests.get('https://api.intra.42.fr/v2/me', headers={'Authorization': 'Bearer ' + access_token})
+	if (response.status_code != 200):
+		return HttpResponse('<h1>Failed to get user info</h1>')
+	intra_login = response.json()['login']
+	intra_email = response.json()['email']
+	intra_picture = response.json()['image']['link']
+	picture = save_image(intra_picture)
+	user = UserProfile.objects.filter(username=intra_login).first()
+	if user is None:
+		user = UserProfile.objects.create_user(username=intra_login, email=intra_email)
+		if (picture is not None):
+			if user.avatar != "/media/avatars/default2.png":
+				user.avatar.delete()
+			picture.name = user.username
+			user.avatar.save('intra_img.jpg', picture, save=True)
+	login(request, user)
+	messages.success(request, 'You are now logged in!')
+	return redirect('home')
+
 
 # class StatsAPI(APIView):
 #     def get(self, request):
@@ -233,44 +272,6 @@ def save_image(image_url):
         return ContentFile(response.content)
     else:
         return None
-
-# never_cache est un décorateur qui indique au navigateur de ne pas mettre en cache la reponse
-# à cette view, a chaque fois que la view est appelee, la verification aura lieu.
-@never_cache
-def auth(request):
-	code = request.GET.get('code')
-	uid = os.environ.get('UID')
-	secret = os.environ.get('SECRET')
-	token_url = 'http://api.intra.42.fr/oauth/token'
-	data = {
-		'grant_type': 'authorization_code',
-		'client_id': uid,
-		'client_secret': secret,
-		'code': code,
-		'redirect_uri': 'https://localhost:8000/oauth',
-	}
-	response = requests.post(token_url, data=data)
-	if (response.status_code != 200):
-		return HttpResponse('<h1>Failed to get access token</h1>')
-	access_token = response.json()['access_token']
-	response = requests.get('https://api.intra.42.fr/v2/me', headers={'Authorization': 'Bearer ' + access_token})
-	if (response.status_code != 200):
-		return HttpResponse('<h1>Failed to get user info</h1>')
-	intra_login = response.json()['login']
-	intra_email = response.json()['email']
-	intra_picture = response.json()['image']['link']
-	picture = save_image(intra_picture)
-	user = UserProfile.objects.filter(username=intra_login).first()
-	if user is None:
-		user = UserProfile.objects.create_user(username=intra_login, email=intra_email)
-		if (picture is not None):
-			if user.avatar != "/media/avatars/default2.png":
-				user.avatar.delete()
-			picture.name = user.username
-			user.avatar.save('intra_img.jpg', picture, save=True)
-	login(request, user)
-	messages.success(request, 'You are now logged in!')
-	return redirect('home')
 
 # *********************************** MATCHS ***********************************
 
