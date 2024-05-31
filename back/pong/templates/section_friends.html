@@ -16,7 +16,7 @@
                             <div class="d-flex align-items-center">
                                 <img class="rounded-circle me-2 border border-2 border-success" src="{{ friend.avatar.url }}" alt="Friend avatar" style="width: 35px; height: 35px;">
                                 <div style="max-width: 7ch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                                    {{ friend.user.first_name }}
+                                    {{ friend.username }}
                                 </div>
                             </div>
                             <button class="btn buttonfriends btn-sm btn-dark shadow-sm" style="--bs-btn-font-size: .75rem;"
@@ -33,7 +33,7 @@
                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                 </div>
                                 <div class="modal-body">
-                                    {% url 'friend_match' friend_username=friend.user.first_name %}
+                                    {% url 'friend_match' friend_username=friend.username %}
                                     <div>
                                         <ul class="list-unstyled">
                                             {% if matches|length == 0 %}

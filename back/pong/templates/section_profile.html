@@ -2,17 +2,17 @@
     <div class="bg-light text-center border border-light border-opacity-25 bg-opacity-25 rounded shadow text-light">
         <div class="d-flex justify-content-between col mb-2">
             <div class="me-auto w-100">
-                <h2 class="text-light my-3 ms-5">Welcome {{ request.user.first_name }} !</h2>
+                <h2 class="text-light my-3 ms-5">Welcome {{ username }} !</h2>
             </div>
             <a class="btn btn-lg text-light ms-auto" role="button" title="Log out" href="{% url 'logout' %}">
                 <i class="bi-x-square"></i>
             </a>
         </div>
         <div class="col mb-2 ">
-            <img class="rounded-circle shadow-lg" src="{{ avatar_url }}" alt="User avatar" style="width: 60px; height: 60px;">
+            <img class="rounded-circle shadow-lg" src="{{ avatar }}" alt="User avatar" style="width: 60px; height: 60px;">
         </div>
         <div class="col mb-2">
-            <a class="btn btn-sm text-light" href="#" data-bs-toggle="modal" data-bs-target="#profileModal">
+            <a class="btn btn-sm text-light" data-bs-toggle="modal" data-bs-target="#profileModal">
                 edit profile
                 <i class="bi bi-pencil-fill ms-1"></i>
             </a>
@@ -26,7 +26,7 @@
 					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 				</div>
 				<div class="modal-body">
-					<form action="update_profile" method="POST" enctype="multipart/form-data">
+					<form action="edit_profile/" method="POST" enctype="multipart/form-data">
 						{% csrf_token %}
 						<div class="mb-3">
 							<label for="username" class="form-label">Username</label>

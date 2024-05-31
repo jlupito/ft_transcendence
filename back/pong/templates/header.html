@@ -37,6 +37,13 @@
                             <a class="btn bg-transparency text-light" type="button" href="https://en.wikipedia.org/wiki/Pong" target="_blank">Pong?</a>
                         </div>
                     </li>
+					{% if request.user.is_authenticated %}
+						<li class="nav-item">
+							<div class="nav-link">
+								<a class="pe-0 btn bg-transparency text-light" type="button" href="logout/">Logout</a>
+							</div>
+						</li>
+					{% endif %}
                 </ul>
             </div>
         </div>
