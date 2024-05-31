@@ -75,8 +75,6 @@ def signup(request):
 				return redirect('home')
 			new_user = UserProfile.objects.create_user(username=username, password=mdp, email=email)
 			login(request, new_user)
-			print(new_user.username)
-			print('LOGIN')
 			messages.success(request, 'Account created successfully!')
 			return redirect('home')
 		#else:

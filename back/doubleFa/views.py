@@ -16,18 +16,11 @@ def verify_view(request):
 		if not request.POST:
 			print(code_user)
 			send_email(code_user, user.email)
-			print('EMAIL IS SENDING!!!!')
 		if form.is_valid():
-			print('FORM IS VALID!!!!')
-			code = form.cleaned_data.get('code')
-			print('ICIIIIII')
+			code = form.cleaned_data.get('number')
 			if str(code_obj) == code:
 				code_obj.save()
-				print('LAAAAAAA!!!!')
 				login(request, user)
-				print('LOGIN OK!!!!')
 				messages.success(request, 'You are now logged in!')
-				print('REDIRECT HOME!!!!')
-				return redirect('home')		
-	print('RENDER VERIFY!!!!')
-	return render(request, 'doubleFa/verify.html', {'form': form})
+				return redirect('home')
+	return render(request, 'doubleFa//verify.html', {'form': form})

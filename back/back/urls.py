@@ -24,7 +24,7 @@ from pong.views import signup, login_view, logout_view, edit_profile, home_view,
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-	path('verify/', verify_view, name="verify-view"),
+	path('verify', verify_view, name="verify-view"),
 	path('', home_view, name='home'),
 	path('edit_profile/', edit_profile, name='edite_profile'),
 	path('oauth/', auth, name='auth'),
@@ -39,7 +39,3 @@ urlpatterns = [
     path('friend_match/<str:friend_username>/', friend_match, name='friend_match'),
     # path('api/stats', StatsAPI.as_view()),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-#if settings.DEBUG:
-#	urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
-#	urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-	#urlpatterns += static(settings.IMAGE_URL, document_root=settings.IMAGE_ROOT)
