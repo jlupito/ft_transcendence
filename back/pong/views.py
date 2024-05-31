@@ -10,10 +10,8 @@ from django.contrib import messages
 from django.core.exceptions import ValidationError
 import requests
 import os
-from .forms import RegisterForm, localMatchForm
-from django.contrib.auth.forms import AuthenticationForm
+from .forms import localMatchForm
 from .consumers import Game
-from tempfile import NamedTemporaryFile
 from django.core.files.base import ContentFile
 # from rest_framework.views import APIView
 # from rest_framework.response import Response
@@ -36,14 +34,11 @@ def home_view(request):
 		context['friends'] = friends_list(user)
 		context['stats'] = match_stats(user)
 		context['invitees'] = invitees_list(user)
-	return render(request, 'pong/home.html', context)
+	return render(request, 'page.html', context)
 
 # *********************************** LOGIN ***********************************
 
-# Utilisation des fonctions is_valide(), authenticate() avec "is not None"
-# fonctions et outils de Python/Django
 def login_view(request):
-	#loginform = AuthenticationForm()
 	if request.method == 'POST':
 		username = request.POST.get('username')
 		password = request.POST.get('password')
@@ -53,20 +48,13 @@ def login_view(request):
 			return redirect('verify-view')
 		else:
 			messages.error(request, 'Invalid username or password')
-	#else:
-		#loginform=LoginForm()
 	return redirect('home')
 
-# Lancer la creation d'un compte
-def signup(request):
-	#registerform = RegisterForm(request.POST)
+def signup_view(request):
 	if request.method == 'POST':
-		#if registerform.is_valid():
-			#username=registerform.cleaned_data['username']
 			username = request.POST.get('username')
 			if UserProfile.objects.filter(username=username).exists():
-				messages.error(request, 'This username is already used!') # Modifier la posiiton du message de front
-				# registerform = RegisterForm() # ne change rien == maintenir le form ?
+				messages.error(request, 'This username is already used!')
 				return redirect('home')
 			mdp = request.POST.get('password')
 			email = request.POST.get('email')
@@ -77,13 +65,9 @@ def signup(request):
 			login(request, new_user)
 			messages.success(request, 'Account created successfully!')
 			return redirect('home')
-		#else:
-			#messages.error(request, 'Invalid form data')
-	#else:
-		#registerform = RegisterForm()
 	return redirect('home')
 
-def edit_profile(request):
+def edit_profile_view(request):
 	if request.method == 'GET':
 		return redirect('home')
 	username = request.POST.get('username')
@@ -101,7 +85,8 @@ def edit_profile(request):
 	user = request.user
 	user.username = username
 	if (profile_picture is not None):
-		user.avatar.delete()
+		if user.avatar.url != "/media/avatars/default2.png":
+			user.avatar.delete()
 		profile_picture.name = user.username
 		user.avatar = profile_picture
 	user.save()
@@ -181,7 +166,6 @@ def friend_match(request, friend_name):
     fmatches = match_history(friend_user)
     return render(request, 'friend_match', {'matches': fmatches})
 
-#@login_required
 def friends_list(user):
 	friends = Friend.objects.filter(sender=user, status='accepted') | Friend.objects.filter(receiver=user, status='accepted')
 	profiles = []
@@ -257,7 +241,7 @@ def auth(request):
 	code = request.GET.get('code')
 	uid = os.environ.get('UID')
 	secret = os.environ.get('SECRET')
-	token_url = 'https://api.intra.42.fr/oauth/token'
+	token_url = 'http://api.intra.42.fr/oauth/token'
 	data = {
 		'grant_type': 'authorization_code',
 		'client_id': uid,
@@ -280,6 +264,8 @@ def auth(request):
 	if user is None:
 		user = UserProfile.objects.create_user(username=intra_login, email=intra_email)
 		if (picture is not None):
+			if user.avatar != "/media/avatars/default2.png":
+				user.avatar.delete()
 			picture.name = user.username
 			user.avatar.save('intra_img.jpg', picture, save=True)
 	login(request, user)

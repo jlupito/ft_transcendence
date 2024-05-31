@@ -8,9 +8,9 @@ function attachEvent() {
             </span>Play 1v1 match:
         </div>
         <div class="mb-3 text-center">
-            <button class="btn btn-dark btn-sm shadow-sm text-light col-6 mb-2" data-bs-toggle="modal" data-bs-target="#localMatchModal">local
+            <button class="btn btn-dark btn-sm shadow-sm text-light col-6 mb-2" data-bs-toggle="modal" data-bs-target="#localMatchModal">Local
             </button>
-            <button class="btn btn-primary btn-sm shadow-sm text-light col-6 mb-3" data-bs-toggle="modal" data-bs-target="#onlineMatchModal">online
+            <button class="btn btn-primary btn-sm shadow-sm text-light col-6 mb-3" data-bs-toggle="modal" data-bs-target="#onlineMatchModal">Online
             </button>
         </div>
         `;
@@ -27,9 +27,9 @@ function attachEvent() {
             </span>Play a tournament:
         </div>
         <div class="mb-3 text-center">
-            <button class="btn btn-dark btn-sm shadow-sm text-light col-6 mb-2" data-bs-toggle="modal" data-bs-target="#localTournament">local
+            <button class="btn btn-dark btn-sm shadow-sm text-light col-6 mb-2" data-bs-toggle="modal" data-bs-target="#localTournament">Local
             </button>
-            <button class="btn btn-primary btn-sm shadow-sm text-light col-6 mb-3" data-bs-toggle="modal" data-bs-target="#onlineTournament">online
+            <button class="btn btn-primary btn-sm shadow-sm text-light col-6 mb-3" data-bs-toggle="modal" data-bs-target="#onlineTournament">Online
             </button>
         </div>
         `;

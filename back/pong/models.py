@@ -4,23 +4,12 @@ from django.contrib.auth.models import AbstractUser
 from django.core.validators import MinValueValidator, MaxValueValidator
 from datetime import timedelta
 
-# on vient creer un modele UserProfile qui surcharge le modele User préconçu.
-# Il est recommandé de créer ce modele en debut de projet (pour le SQL), meme si
-# on ne surcharge pas ce dernier.
-
 class UserProfile(AbstractUser):
 	elo = models.IntegerField(default=1000)
 	email = models.EmailField(unique=True)
-	avatar = models.ImageField(upload_to='avatars/', default='images/defaultAvatar.png')
+	avatar = models.ImageField(upload_to='avatars/', default='avatars/default2.png')
 	def __str__(self):
 		return self.username
-
-#class UserProfile(models.Model):
-#    user = models.OneToOneField(User, on_delete=models.CASCADE)
-#    elo = models.IntegerField(default=1000)
-#    avatar = models.ImageField(upload_to='avatars/', default='avatars/default2.png')
-#    def __str__(self):
-#        return self.user.first_name
 
 class Match(models.Model):
     player1 = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='player1')
@@ -74,41 +63,81 @@ class Friend(models.Model):
 # Il ne peut y avoir qu'une seule methode save() dans la classe, tout mettre dedans.
 
 class Tournament(models.Model):
-    tournament_name = models.fields.CharField(max_length=30, blank=True)
-    players_number = models.fields.IntegerField(validators=[MinValueValidator(3), MaxValueValidator(8)])
-    players_info = models.JSONField(default=dict)
+    tourn_name = models.fields.CharField(max_length=30, blank=True)
+    nb_players = models.fields.IntegerField(default=0)
+    nb_rounds = models.fields.IntegerField(default=0)
+    nb_matches_p_rounds = models.JSONField(default=dict)
+    tourn_winner= models.fields.CharField(max_length=30, blank=True)
 
-    start_datetime = models.DateTimeField(default=timezone.now, editable=False)
-    duration_time = models.DurationField(default=timedelta(minutes=4))
-    end_datetime = models.DateTimeField(null=True, blank=True)
+    # @staticmethod
+    # def get_default_l_players():
+    #     return []
+    # l_players = models.JSONField(default=get_default_l_players)
 
-    registration_starttime = models.DateTimeField(default=timezone.now, editable=False)
-    registration_duration = models.DurationField(default=timedelta(minutes=20))
-    registration_deadline = models.DateTimeField(null=True, blank=True)
+    # def get_default_l_matches_p_round():
+    #     return {}
+    # l_matches = models.JSONField(default=get_default_l_matches_p_round)
 
-    @classmethod
-    def generate_default_tournament_name(cls):
-        last_tournament_number = cls.objects.count() + 1
-        return f"Tournament {last_tournament_number}"
-    @classmethod
-    def calculate_default_endtime(cls):
-        duration_time = cls.duration_time
-        default_endtime = cls.start_datetime + duration_time
-        return default_endtime
-    @classmethod
-    def calculate_tournament_registration_time(cls):
-        registration_duration = cls.registration_duration
-        registration_deadline = cls.registration_starttime + registration_duration
-        return registration_deadline
+    # @classmethod
+    # def create_tournament(cls, tourn_instance):
+    #     def calculate_rounds(nb_players):
+    #         if nb_players < 2:
+    #             return 0
+    #         log2_nb_players = math.log2(nb_players) # calcul log en base 2 de nb de joueurs
+    #         rounds = math.ceil(log2_nb_players) # ceil arrondi au nb sup pour le nb de rounds
+    #         return rounds
+        
+    #     tournament = Tournament.objects.create(
+    #         nb_players=len(tourn_instance.nb_players),
+    #         nb_rounds=calculate_rounds(tourn_instance.nb_players),
+    #     )
+    #     tournament.save()
+    #     return tournament
 
-    def save(self, *args, **kwargs):
-        if not self.tournament_name:
-            self.tournament_name = self.generate_default_tournament_name()
-        if not self.end_datetime:
-            self.end_datetime = self.calculate_default_endtime()
-        if not self.end_datetime:
-            self.registration_deadline = self.calculate_tournament_registration_time()
-        super().save(*args, **kwargs)
+    # def add_player_tournament(self, username):
+    #     self.l_players.append(username)
+    #     self.save()
 
-    def __str__(self):
-        return self.tournament_name
+    # def add_match_tournament(self, round, match):
+    #     if round not in self.l_matches:
+    #         self.l_matches[round] = []
+    #     self.l_matches[round].append(match)
+    #     self.save()
+
+    # def __str__(self):
+    #     return self.tourn_name
+
+    # start_datetime = models.DateTimeField(default=timezone.now, editable=False)
+    # duration_time = models.DurationField(default=timedelta(minutes=4))
+    # end_datetime = models.DateTimeField(null=True, blank=True)
+
+    # registration_starttime = models.DateTimeField(default=timezone.now, editable=False)
+    # registration_duration = models.DurationField(default=timedelta(minutes=20))
+    # registration_deadline = models.DateTimeField(null=True, blank=True)
+
+    # @classmethod
+    # def generate_default_tournament_name(cls):
+    #     last_tournament_number = cls.objects.count() + 1
+    #     return f"Tournament {last_tournament_number}"
+    # @classmethod
+    # def calculate_default_endtime(cls):
+    #     duration_time = cls.duration_time
+    #     default_endtime = cls.start_datetime + duration_time
+    #     return default_endtime
+    # @classmethod
+    # def calculate_tournament_registration_time(cls):
+    #     registration_duration = cls.registration_duration
+    #     registration_deadline = cls.registration_starttime + registration_duration
+    #     return registration_deadline
+
+    # def save(self, *args, **kwargs):
+    #     if not self.tournament_name:
+    #         self.tournament_name = self.generate_default_tournament_name()
+    #     if not self.end_datetime:
+    #         self.end_datetime = self.calculate_default_endtime()
+    #     if not self.end_datetime:
+    #         self.registration_deadline = self.calculate_tournament_registration_time()
+    #     super().save(*args, **kwargs)
+
+    # def __str__(self):
+    #     return self.tournament_name
