@@ -32,6 +32,7 @@ ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'nginx']
 # Application definition
 # on installe ici "channels" pour l'extension Django Channels (gestion communications asynchrones)
 INSTALLED_APPS = [
+    'daphne',
     'channels',
     'django_extensions',
     'django.contrib.admin',

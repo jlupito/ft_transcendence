@@ -11,8 +11,8 @@ RUN pip install django-extensions
 RUN pip install --upgrade django-extensions
 COPY requirements.txt /code/
 RUN pip install --no-cache-dir -r requirements.txt
-RUN pip install channels==3.0.4
-RUN pip install daphne==3.0.2
+RUN pip install channels==4.0.0
+RUN pip install daphne==4.0.0
 RUN pip install websockets
 RUN pip install werkzeug
 RUN pip install pyOpenSSL
