@@ -6,7 +6,9 @@ from django.core.cache import cache
 from channels.generic.websocket import WebsocketConsumer
 import threading
 import time
-from .models import Match
+import websockets
+
+
 
 
 games_online = []
@@ -133,9 +135,9 @@ class Game():
     def start(self):
         thread = threading.Thread(target=self.run)
         thread.start()
-        self.send(text_data=json.dumps({
-            'message': 'start'
-        }))
+        # self.send(text_data=json.dumps({
+        #     'message': 'start'
+        # }))
 
     def endgame(self):
         self.is_running = False
