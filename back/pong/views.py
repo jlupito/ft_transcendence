@@ -44,6 +44,7 @@ def home(request):
 @login_required
 def logout_view(request):
 	logout(request)
+	messages.success(request, 'You are logged out!')
 	return redirect('home')
 
 # class StatsAPI(APIView):
@@ -222,7 +223,7 @@ def auth(request):
 		'client_id': uid,
 		'client_secret': secret,
 		'code': code,
-		'redirect_uri': 'https://localhost:8000/oauth',
+		'redirect_uri': 'https://localhost:8001/oauth',
 	}
 	response = requests.post(token_url, data=data)
 	if (response.status_code != 200):

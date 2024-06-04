@@ -7,6 +7,7 @@ from channels.generic.websocket import WebsocketConsumer
 import threading
 import time
 import websockets
+from .models import Match
 
 
 

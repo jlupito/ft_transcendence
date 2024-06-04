@@ -14,7 +14,10 @@
                     <li class="mb-2">
                         <div class="d-flex justify-content-between align-items-center col-10 bg-white bg-opacity-25 mb-2 rounded shadow-sm mx-auto p-3">
                             <div class="d-flex align-items-center">
-                                <img class="rounded-circle me-2 border border-2 border-success" src="{{ friend.avatar.url }}" alt="Friend avatar" style="width: 35px; height: 35px;">
+                                <div class="position-relative">
+                                    <img class="rounded-circle me-2" src="{{ friend.avatar.url }}" alt="Friend avatar" style="width: 35px; height: 35px;">
+                                    <div class="position-absolute top-0 end-1" style="width: 10px; height: 10px; background-color: rgb(46, 206, 86); border-radius: 50%;"></div>
+                                </div>
                                 <div style="max-width: 7ch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
                                     {{ friend.user.first_name }}
                                 </div>
