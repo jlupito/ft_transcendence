@@ -7,7 +7,7 @@ from channels.generic.websocket import WebsocketConsumer
 import threading
 import time
 import websockets
-from .models import Match
+from .models import Match, Tournoi
 
 
 
@@ -215,14 +215,17 @@ class Tournament():
                     player.game.player1 = player.name
                 elif (player.game.player2 == ""):
                     player.game.player2 = player.name
+                # connecter ici avec la BD pour apairer les joueurs 2 par 2
                 break
         if player.game == None:
             player.game = Game(5, "online")
             player.game.player1 = player.name
             self.games.append(player.game)
                 
-
     def run(self):
+        new_tourn = Tournoi.create_tournoi_from_tournament(self)
+        new_tourn.save()
+        round = 1
         while self.is_running:
             if self.status == "Waiting":
                 if self.timer >= 0:
@@ -279,10 +282,7 @@ class Tournament():
                     self.is_running = False
                     self.is_finished = True
                     self.status = "Finished"
-
-
-
-                
+         
     def add_player(self, username):
         if self.status == "Waiting":
             for player in self.players:
