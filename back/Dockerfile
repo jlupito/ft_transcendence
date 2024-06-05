@@ -17,6 +17,8 @@ RUN pip install websockets
 RUN pip install werkzeug
 RUN pip install pyOpenSSL
 RUN pip install psycopg2-binary==2.8.6
+RUN pip install django-request-logging
+
 
 COPY . /code/
 COPY ./entrypoint.sh /code/entrypoint.sh
