@@ -69,15 +69,15 @@ class Friend(models.Model):
 class Tournoi(models.Model):
     tourn_name = models.fields.CharField(max_length=30, blank=True)
     nb_players = models.fields.IntegerField(default=0)
-    nb_matches = models.fields.IntegerField(default=0)
+    # nb_matches = models.fields.IntegerField(default=0)
     nb_rounds = models.fields.IntegerField(default=0)
     l_matches = models.JSONField(default=dict)
     tourn_winner = models.fields.CharField(max_length=30, blank=True)
 
     @staticmethod
-    def get_default_l_players():
-        return []
-    l_players = models.JSONField(default=get_default_l_players)
+    # def get_default_l_players():
+    #     return []
+    # l_players = models.JSONField(default=get_default_l_players)
 
     def get_default_l_matches_p_round():
         return {}
@@ -97,15 +97,12 @@ class Tournoi(models.Model):
         tournament.save()
         return tournament
 
-    def add_matches_in_tournament(cls, tourn_instance, game_instance):
-        self.l_players.append(username)
-        self.save()
-
-    def add_match_tournament(self, round, match):
-        if round not in self.l_matches:
-            self.l_matches[round] = []
-        self.l_matches[round].append(match)
-        self.save()
+    @classmethod
+    def add_matches_in_tournament(cls, round, game_instance):
+        if round not in cls.l_matches:
+            cls.l_matches[round] = []
+        cls.l_matches[round].append(game_instance)
+        cls.save()
 
     def __str__(self):
         return self.tourn_name

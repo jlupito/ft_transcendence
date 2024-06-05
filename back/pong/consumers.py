@@ -206,7 +206,7 @@ class Tournament():
         'winner': self.winner
     }
 
-    def add_player_to_game(self, player):
+    def add_player_to_game(self, player, round, current_tourn):
         game:Game
         for game in self.games:
             if (game.player1 == "" or game.player2 == ""):
@@ -215,7 +215,7 @@ class Tournament():
                     player.game.player1 = player.name
                 elif (player.game.player2 == ""):
                     player.game.player2 = player.name
-                # connecter ici avec la BD pour apairer les joueurs 2 par 2
+                current_tourn.add_matches_in_tournament(self, round, player.game)
                 break
         if player.game == None:
             player.game = Game(5, "online")
@@ -223,8 +223,8 @@ class Tournament():
             self.games.append(player.game)
                 
     def run(self):
-        new_tourn = Tournoi.create_tournoi_from_tournament(self)
-        new_tourn.save()
+        current_tourn = Tournoi.create_tournoi_from_tournament(self)
+        current_tourn.save()
         round = 1
         while self.is_running:
             if self.status == "Waiting":
@@ -236,7 +236,7 @@ class Tournament():
             if self.status == "Starting":
                 for player in self.players:
                     if player.player_status == "Waiting":
-                        self.add_player_to_game(player)
+                        self.add_player_to_game(player, round, current_tourn)
                 for player in self.players:
                     if not player.game.is_running and player.game.player1 and player.game.player2:
                         player.game.start()
@@ -278,6 +278,7 @@ class Tournament():
                         else:
                             player.player_status = "Winner"
                             self.winner = player.name
+                round+=1
                 if self.winner:
                     self.is_running = False
                     self.is_finished = True
