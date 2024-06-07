@@ -12,7 +12,7 @@ from django.core.exceptions import ValidationError
 import requests
 import os
 from .forms import RegisterForm, LoginForm, localMatchForm
-from .consumers import Game
+from .consumers import Game, Tournament
 from tempfile import NamedTemporaryFile
 from django.core.files.base import ContentFile
 # from rest_framework.views import APIView
@@ -29,6 +29,7 @@ def home(request):
 		friends = friends_list(request.user)
 		invites = invites_list(request.user)
 		invitees = invitees_list(request.user)
+		tournament = current_tournament(request.user)
 		context = {
 			'users': users,
 			'avatar_url': avatar_url,
@@ -36,7 +37,8 @@ def home(request):
 			'friends': friends,
 			'matches': matches,
 			'invitees': invitees,
-			'stats' : stats
+			'stats' : stats,
+			'current_tourn' : tournament,
 		}
 	return render(request, 'page.html', context)
 
@@ -78,18 +80,25 @@ def match_stats(user):
         won_perc = round(won / total * 100)
         lost_perc = round(lost / total * 100)
 
-    # tournaments = Tournoi.objects.all()
-    # tourn = 0
-    # for tournament in tournaments:
-    #     if tournament.winner == user.username:
-    #         tourn += 1
+    tournaments = Tournoi.objects.all()
+    tourn = 0
+    for tournament in tournaments:
+        if tournament.tourn_winner == user.username:
+            tourn += 1
     return {
         'won': won,
         'lost': lost,
         'wp': won_perc,
         'lp': lost_perc,
-		# 'tourn': tourn,
+		'tourn': tourn,
     }
+
+def current_tournament(user):
+	tournament = Tournoi.objects.filter(tourn_winner__isnull=True, l_players__contains=user.username).first()
+	if tournament:
+		return tournament
+	else:
+		return None
 
 def match_history(user):
 	matches = Match.objects.filter(player1=user) | Match.objects.filter(player2=user)

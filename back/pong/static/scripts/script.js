@@ -152,6 +152,7 @@ function startCountdown() {
             setTimeout(() => {
                 document.querySelector('#waitViewOnlineTour').style.display = 'none',
                 document.querySelector('#drawViewOnlineTour').style.display = 'block'
+                document.querySelector('#drawViewOnlineTour').style.display = 'block'
                 // AJOUTER LANCEMENT DU SCRIPT ONLINE TOURNAMENT ICI
             }, 1000),
             clearInterval(countDown)

@@ -67,21 +67,13 @@ class Friend(models.Model):
 # Il ne peut y avoir qu'une seule methode save() dans la classe, tout mettre dedans.
 
 class Tournoi(models.Model):
+
     tourn_name = models.fields.CharField(max_length=30, blank=True)
-    nb_players = models.fields.IntegerField(default=0)
-    # nb_matches = models.fields.IntegerField(default=0)
-    nb_rounds = models.fields.IntegerField(default=0)
-    l_matches = models.JSONField(default=dict)
     tourn_winner = models.fields.CharField(max_length=30, blank=True)
-
-    @staticmethod
-    # def get_default_l_players():
-    #     return []
-    # l_players = models.JSONField(default=get_default_l_players)
-
-    def get_default_l_matches_p_round():
-        return {}
-    l_matches = models.JSONField(default=get_default_l_matches_p_round)
+    nb_players = models.fields.IntegerField(default=0)
+    nb_rounds = models.fields.IntegerField(default=0)
+    l_players = models.JSONField(default=list)
+    l_matches = models.JSONField(default=dict)
 
     @classmethod
     def create_tournoi_from_tournament(cls, tourn_instance):
@@ -101,7 +93,12 @@ class Tournoi(models.Model):
     def add_matches_in_tournament(cls, round, game_instance):
         if round not in cls.l_matches:
             cls.l_matches[round] = []
-        cls.l_matches[round].append(game_instance)
+        cls.l_matches[round].append({
+            'player1': game_instance.player1,
+            'player2': game_instance.player2,
+            'p1_score': game_instance.p1_score,
+            'p2_score': game_instance.p2_score
+        })
         cls.save()
 
     def __str__(self):

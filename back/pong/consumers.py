@@ -223,9 +223,10 @@ class Tournament():
             self.games.append(player.game)
                 
     def run(self):
-        current_tourn = Tournoi.create_tournoi_from_tournament(self)
-        current_tourn.save()
         round = 1
+        current_tourn = Tournoi.create_tournoi_from_tournament(self)
+        current_tourn.l_players = [player.name for player in self.players]
+        current_tourn.save()
         while self.is_running:
             if self.status == "Waiting":
                 if self.timer >= 0:
