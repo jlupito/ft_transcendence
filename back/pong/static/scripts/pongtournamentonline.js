@@ -1,19 +1,27 @@
 function runsocket(){
-    let url = `wss://${window.location.host}/ws/socket-pong-tournament-online/`
+    let url = `wss://${window.location.host}/ws/socket-pong-tournament-online/`;
     
     const chatSocket = new WebSocket(url);
     
-    let running = true
+    let running = true;
+
+
+    let latestData;
+    setInterval(() => {
+        if (latestData) {
+            console.log(latestData);
+            latestData = null; // Réinitialiser après l'affichage
+        }
+    }, 1000); 
     
     chatSocket.onmessage = function(e){
         let data = JSON.parse(e.data)
-        console.log(data)
         if (data.type == 'connection_established')
             console.log(data);
         else if (data.type == 'update received')
         {
             
-            console.log("data:", data);
+            latestData = data
             paddle_speed = data.data.paddle_speed
             paddle_width = parseInt(data.data.paddle_width)
             paddle_height = parseInt(data.data.paddle_height)
@@ -173,7 +181,6 @@ function runsocket(){
     function get_update(){
         if (chatSocket.readyState === WebSocket.OPEN){
             chatSocket.send(JSON.stringify({'message': 'update'}));
-            console.log("update received")
         }
     }
     

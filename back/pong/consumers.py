@@ -194,6 +194,7 @@ class Tournament():
         self.is_running = True
         self.timer = 10
         self.winner = None
+        self.id = len(games_tournament)
 
     def to_dict(self):
         return {
@@ -223,15 +224,15 @@ class Tournament():
             self.games.append(player.game)
                 
     def run(self):
-        new_tourn = Tournoi.create_tournoi_from_tournament(self)
-        new_tourn.save()
+        # new_tourn = Tournoi.create_tournoi_from_tournament(self)
+        # new_tourn.save()
         round = 1
         while self.is_running:
             if self.status == "Waiting":
-                if self.timer >= 0:
+                if self.timer >= 0 and len(self.players) > 1:
                     time.sleep(1)
                     self.timer -= 1
-                else:
+                elif self.timer < 0:
                     self.status = "Starting"
             if self.status == "Starting":
                 for player in self.players:
@@ -453,20 +454,26 @@ class PongOnlineTournament(BasePongConsumer):
         user = self.scope['user'].username
         found_tournament = False
         for tournament in games_tournament:
-            if not tournament.is_finished and not tournament.has_player(user):
+            if not tournament.is_finished and tournament.has_player(user):
                 self.tournament = tournament
                 self.tournament.add_player(user)
                 found_tournament = True
                 break
-
+        if not found_tournament:
+            for tournament in games_tournament:
+                if not tournament.is_finished and tournament.status == "Waiting" and len(tournament.players) < 8:
+                    self.tournament = tournament
+                    self.tournament.add_player(user)
+                    found_tournament = True
+                    break
         if not found_tournament:
             self.tournament = Tournament()
-            self.tournament.add_player(user)
             games_tournament.append(self.tournament)
+            self.tournament.add_player(user)
             self.tournament.start()
 
         # Log the tournament and player info for debugging
-        print(f"User {user} joined tournament {self.tournament}")
+        print(f"User {user} joined tournament {self.tournament.id}")
         print(f"Current players: {[player.name for player in self.tournament.players]}")
 
 
