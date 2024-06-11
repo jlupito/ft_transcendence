@@ -39,6 +39,11 @@ function attachEvent() {
             });
     });
 
+    // var canvasModal = document.getElementById('localMatchModal');
+    // canvasModal.addEventListener('hidden.bs.modal', function () {
+    //     document.getElementById('playDiv').innerHTML = initialContent;
+    // });
+
 }
 
 attachEvent();

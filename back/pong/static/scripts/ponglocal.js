@@ -3,7 +3,6 @@ function runsocket(){
     const chatSocket = new WebSocket(url);
 
     opponent = document.getElementById('local_player2_name')
-    console.log("opponent_name: ", opponent.value)
     let running = true
 
     chatSocket.onmessage = function(e){
@@ -11,11 +10,11 @@ function runsocket(){
         if (data.type == 'connection_established')
         {
             console.log("localpong")
-            console.log(data);
+            // console.log(data);
         }
         else if (data.type == 'update received')
         {
-            console.log(data)
+            // console.log(data)
             paddle_speed = data.data.paddle_speed
             paddle_width = parseInt(data.data.paddle_width)
             paddle_height = parseInt(data.data.paddle_height)
@@ -33,7 +32,7 @@ function runsocket(){
             ball_x_normalspeed = parseFloat(data.data.ball_x_normalspeed)
             player1 = data.data.player1
             player2 = opponent.value
-            console.log(data);
+            // console.log(data);
             if (data.data.has_finished === true)
                 running = false
             // console.log('Data:', data)
@@ -178,9 +177,19 @@ function runsocket(){
             chatSocket.send(JSON.stringify({'message': 'update'}));
     }
 
+    function set_opponent(){
+        if (chatSocket.readyState === WebSocket.OPEN) {
+            chatSocket.send(JSON.stringify({
+                'message': 'opponent_name',
+                'value': opponent.value
+            }));
+        }
+    }
+
     function draw(){
         if (running){
             draw_objects()
+            set_opponent()
             get_update()
             requestAnimationFrame(draw);
         }

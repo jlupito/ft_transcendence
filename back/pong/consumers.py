@@ -1,16 +1,33 @@
 import json
-from channels.generic.websocket import WebsocketConsumer
+from channels.generic.websocket import WebsocketConsumer, AsyncWebsocketConsumer
 import channels.layers
 from asgiref.sync import async_to_sync
 from django.core.cache import cache
-from channels.generic.websocket import WebsocketConsumer
 import threading
 import time
 import websockets
 from .models import Match, Tournoi
 
+class StatsConsumer(AsyncWebsocketConsumer):
+    instances = {}
 
+    async def connect(self):
+        self.user = self.scope["user"]
+        self.instances[self.user.id] = self
+        print("connect")
+        await self.accept()
 
+    async def disconnect(self, close_code):
+        print("disconnect")
+        del self.instances[self.user.id]
+
+    async def receive(self, text_data):
+        print("receiving data")
+        pass
+
+    async def send_stats(self, stats):
+        print("Sending stats")
+        await self.send(text_data=json.dumps(stats))
 
 games_online = []
 games_local = []
@@ -146,6 +163,9 @@ class Game():
         print("Final scores: Player 1 =", self.p1_score, ", Player 2 =", self.p2_score)
         new_match = Match.create_match_from_game(self)
         new_match.save()
+        from .views import match_stats
+        match_stats(self.player1)
+        match_stats(self.player2)
 
     def key_up_pressed(self, username):
         if (username == self.player1):
@@ -365,6 +385,10 @@ class BasePongConsumer(WebsocketConsumer):
 
         if message == 'update':
             self.send_update()
+        if message == 'opponent_name':
+            self.game.player2 = text_data_json['value']
+            if self.game.player1 == self.game.player2:
+                self.game.player2 == self.game.player2 + "_2" 
         elif 'pressed' in message or 'released' in message:
             self.handle_key_event(message, username)
 
@@ -398,7 +422,6 @@ class BasePongConsumer(WebsocketConsumer):
             'type': 'update received',
             'data': self.game.__dict__
         }))
-
 
 class PongOnline(BasePongConsumer):
     def setup_game(self):
@@ -438,13 +461,19 @@ class PongLocal(BasePongConsumer):
         else:
             self.game.is_running = True
 
-    def receive(self, text_data):
-        text_data_json = json.loads(text_data)
-        message = text_data_json['message']
-        if message == 'setOpponentAlias':
-            self.game.player2 = text_data_json['opponent']
-        else:
-            super().receive(text_data)
+    # def receive(self, message):
+    #     data = json.loads(message.content['text'])
+    #     if data['message'] == 'opponent_name':
+    #         opponent_name = data['value']
+    #         self.game.player2 = opponent_name
+
+    # def receive(self, text_data):
+    #     text_data_json = json.loads(text_data)
+    #     message = text_data_json['message']
+    #     if message == 'setOpponentAlias':
+    #         self.game.player2 = text_data_json['opponent']
+    #     else:
+    #         super().receive(text_data)
 
 class PongOnlineTournament(BasePongConsumer):
     def __init__(self, *args, **kwargs):

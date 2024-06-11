@@ -4,10 +4,10 @@ from django.contrib.auth.models import User
 from django.core.validators import MinValueValidator, MaxValueValidator
 from datetime import timedelta
 import math
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from asgiref.sync import async_to_sync
 
-# on vient creer un modele UserProfile qui surcharge le modele User préconçu.
-# Il est recommandé de créer ce modele en debut de projet (pour le SQL), meme si
-# on ne surcharge pas ce dernier.
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     elo = models.IntegerField(default=1000)
@@ -39,6 +39,17 @@ class Match(models.Model):
 
     def __str__(self):
         return self.player1.username + ' vs ' + self.player2.username
+    
+@receiver(post_save, sender=Match)
+def update_stats(sender, instance, created, **kwargs):
+    if created:
+        for user in [instance.player1, instance.player2]:
+            from .consumers import StatsConsumer
+            consumer = StatsConsumer.instances.get(user.id)
+            if consumer:
+                from .views import match_stats
+                stats = match_stats(user)  # replace with your function to calculate stats
+                async_to_sync(consumer.send_stats)(stats)
 
 class Friend(models.Model):
     STATUS_CHOICES = (

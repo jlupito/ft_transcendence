@@ -1,5 +1,5 @@
 from django.shortcuts import redirect, render
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from .models import UserProfile, Match, Friend, Tournoi
@@ -12,9 +12,10 @@ from django.core.exceptions import ValidationError
 import requests
 import os
 from .forms import RegisterForm, LoginForm, localMatchForm
-from .consumers import Game, Tournament
+from .consumers import Game, Tournament, StatsConsumer
 from tempfile import NamedTemporaryFile
 from django.core.files.base import ContentFile
+# from asgiref.sync import async_to_sync
 # from rest_framework.views import APIView
 # from rest_framework.response import Response
 # from rest_framework import status
@@ -27,16 +28,12 @@ def home(request):
 		matches = match_history(request.user)
 		stats = match_stats(request.user)
 		friends = friends_list(request.user)
-		invites = invites_list(request.user)
-		invitees = invitees_list(request.user)
 		tournament = current_tournament(request.user)
 		context = {
 			'users': users,
 			'avatar_url': avatar_url,
-			'invites': invites,
 			'friends': friends,
 			'matches': matches,
-			'invitees': invitees,
 			'stats' : stats,
 			'current_tourn' : tournament,
 		}
@@ -49,49 +46,52 @@ def logout_view(request):
 	messages.success(request, 'You are logged out!')
 	return redirect('home')
 
-# class StatsAPI(APIView):
-#     def get(self, request):
-#         if request.user.is_authenticated:
-#             stats = match_stats(request.user)
-#             return Response(stats, status=status.HTTP_200_OK)
-#         else:
-#             return Response(status=status.HTTP_401_UNAUTHORIZED)
-		
-def match_stats(user):
-    matches = Match.objects.filter(player1=user) | Match.objects.filter(player2=user)
-    won = 0
-    lost = 0
-    for match in matches:
-        if match.player1 == user:
-            if match.player1_score > match.player2_score:
-                won += 1
-            else:
-                lost += 1
-        else:
-            if match.player1_score < match.player2_score:
-                won += 1
-            else:
-                lost += 1
-    total = matches.count()
-    if total == 0:
-        won_perc = 0
-        lost_perc = 0
-    else:
-        won_perc = round(won / total * 100)
-        lost_perc = round(lost / total * 100)
+# *********************************** MATCHES HISTORY ***********************************
 
-    tournaments = Tournoi.objects.all()
-    tourn = 0
-    for tournament in tournaments:
-        if tournament.tourn_winner == user.username:
-            tourn += 1
-    return {
+def match_stats_friends(request):
+	username = request.GET.get('username')
+	user = User.objects.get(username=username)
+	stats = match_stats(user)
+	return JsonResponse(stats)
+
+def match_stats(user):
+	user = User.objects.filter(username=user).first()
+	matches = Match.objects.filter(player1=user) | Match.objects.filter(player2=user)
+	won = 0
+	lost = 0
+	for match in matches:
+		if match.player1 == user:
+			if match.player1_score > match.player2_score:
+				won += 1
+			else:
+				lost += 1
+		else:
+			if match.player1_score < match.player2_score:
+				won += 1
+			else:
+				lost += 1
+	total = matches.count()
+	if total == 0:
+		won_perc = 0
+		lost_perc = 0
+	else:
+		won_perc = round(won / total * 100)
+		lost_perc = round(lost / total * 100)
+
+	tournaments = Tournoi.objects.all()
+	tourn = 0
+	for tournament in tournaments:
+		if tournament.tourn_winner == user.username:
+			tourn += 1
+	stats = {
         'won': won,
         'lost': lost,
         'wp': won_perc,
         'lp': lost_perc,
-		'tourn': tourn,
+        'tourn': tourn,
     }
+	
+	return stats
 
 def current_tournament(user):
 	tournament = Tournoi.objects.filter(tourn_winner__isnull=True, l_players__contains=user.username).first()
@@ -126,6 +126,8 @@ def match_history(user):
 		l.append(match_result)
 	return l
 
+# *********************************** FRIENDS ***********************************
+
 def friend_match(request, friend_name):
     friend_user = User.objects.get(username=friend_name)
     fmatches = match_history(friend_user)
@@ -139,52 +141,29 @@ def friends_list(user):
 			profiles.append(UserProfile.objects.get(user=friend.receiver))
 		else:
 			profiles.append(UserProfile.objects.get(user=friend.sender))
-	l = []
+	friends_l = []
 	for profile in profiles:
-		l.append(profile)
-	return l
+		friends_l.append(profile)
 
-def invites_list(user):
 	invites = Friend.objects.filter(receiver=user, status='pending')
-	l = []
+	invites_l = []
 	for invite in invites:
-		l.append(invite.sender.username)
-	return l
+		invites_l.append(invite.sender.username)
+	
+	invitees = Friend.objects.filter(sender=user, status='pending')
+	invitees_l = []
+	for invitee in invitees:
+		invitees_l.append(invitee.receiver.username)
+	
+	friends_all_status = {
+        "friends": friends_l,
+        "invitees": invitees_l,
+        "invites": invites_l,
+		}
 
-def invitees_list(user):
-    invitees = Friend.objects.filter(sender=user, status='pending')
-    l = []
-    for invitee in invitees:
-        l.append(invitee.receiver.username)
-    return l
+	return friends_all_status
 
-def update_profile(request):
-	if request.method == 'GET':
-		return redirect('home')
-	username = request.POST.get('username')
-	profile_picture = request.FILES.get('profile_picture')
-	if (profile_picture is not None):
-		validate = FileExtensionValidator(allowed_extensions=['jpg', 'jpeg', 'png'])
-		try:
-			validate(profile_picture)
-		except ValidationError as e:
-			messages.error(request, 'Invalid file type')
-			return redirect('home')
-	if (User.objects.filter(first_name=username).exists() and username != request.user.first_name):
-		messages.error(request, 'Username already taken')
-		return redirect('home')
-	user = request.user
-	user.first_name = username
-	if (profile_picture is not None):
-		user_profile = UserProfile.objects.get(user=user)
-		if user_profile.avatar.url != "/media/avatars/default2.png":
-			user_profile.avatar.delete()
-		profile_picture.name = user.username
-		user_profile.avatar = profile_picture
-		user_profile.save()
-	user.save()
-	return redirect('home')
-
+@login_required
 def handle_invite(request):
 	if request.method == 'GET':
 		return redirect('home')
@@ -192,8 +171,9 @@ def handle_invite(request):
 	receiver = request.user
 	status = request.POST.get('status')
 	inv = Friend.objects.filter(sender=User.objects.get(username=sender), receiver=receiver).first()
-	inv.status = status
-	inv.save()
+	if inv:
+		inv.status = status
+		inv.save()
 	return redirect('home')
 
 def send_invite(request):
@@ -203,7 +183,7 @@ def send_invite(request):
 	sender = request.user
 	friends_l = friends_list(sender)
 	request.session.set_expiry(4)
-	for friend in friends_l:
+	for friend in friends_l['friends']:
 		if friend.user.username == receiver:
 			messages.error(request, 'User is already your friend')
 			return redirect('home')
@@ -219,15 +199,16 @@ def send_invite(request):
 	Friend.objects.create(sender=sender, receiver=User.objects.get(username=receiver), status='pending')
 	return redirect('home')
 
+
+# *********************************** PROFILE ***********************************
+
 def save_image(image_url):
     response = requests.get(image_url)
     if response.status_code == 200:
         return ContentFile(response.content)
     else:
         return None
-
-# never_cache est un décorateur qui indique au navigateur de ne pas mettre en cache la reponse
-# à cette view, a chaque fois que la view est appelee, la verification aura lieu.
+	
 @never_cache
 def auth(request):
 	code = request.GET.get('code')
@@ -266,24 +247,32 @@ def auth(request):
 	messages.success(request, 'You are now logged in!')
 	return redirect('home')
 
-# *********************************** MATCHS ***********************************
-
-# def create_local_game(request):
-# 	if request.method == 'POST':
-# 		localform = localMatchForm(request.POST)
-
-# 		if localform.is_valid():
-# 			player1 = request.user
-# 			player2 = localform.cleaned_data['local_player2_name']
-
-# 			if player2:
-# 				new_game = Game.objects.create(player1=player1, player2=player2)
-# 				new_game.save()
-# 				return redirect('home')
-# 			else:
-# 				messages.error(request, "Player 2 name cannot be empty.")
-# 				localform=localMatchForm()
-# 	return redirect('home')
+def update_profile(request):
+	if request.method == 'GET':
+		return redirect('home')
+	username = request.POST.get('username')
+	profile_picture = request.FILES.get('profile_picture')
+	if (profile_picture is not None):
+		validate = FileExtensionValidator(allowed_extensions=['jpg', 'jpeg', 'png'])
+		try:
+			validate(profile_picture)
+		except ValidationError as e:
+			messages.error(request, 'Invalid file type')
+			return redirect('home')
+	if (User.objects.filter(first_name=username).exists() and username != request.user.first_name):
+		messages.error(request, 'Username already taken')
+		return redirect('home')
+	user = request.user
+	user.first_name = username
+	if (profile_picture is not None):
+		user_profile = UserProfile.objects.get(user=user)
+		if user_profile.avatar.url != "/media/avatars/default2.png":
+			user_profile.avatar.delete()
+		profile_picture.name = user.username
+		user_profile.avatar = profile_picture
+		user_profile.save()
+	user.save()
+	return redirect('home')
 
 # *********************************** LOGIN ***********************************
 

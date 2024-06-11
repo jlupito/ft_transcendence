@@ -99,13 +99,6 @@
             }
             document.querySelector('#formViewLocal').style.display = 'block';
             document.querySelector('#gameViewLocal').style.display = 'none';
-            this.reset()
-        });
-        
-        Array.from(document.getElementsByClassName("closeRefresh")).forEach(function(element) {
-            element.addEventListener("click", function() {
-                location.replace("/");
-            });
         });
     });
     
@@ -128,13 +121,6 @@
             }
             document.querySelector('#onlineTourForm').style.display = 'block';
             document.querySelector('#gameViewLocal').style.display = 'none';
-            this.reset()
-        });
-        
-        Array.from(document.getElementsByClassName("closeRefresh")).forEach(function(element) {
-            element.addEventListener("click", function() {
-                location.replace("/");
-            });
         });
     });
     
@@ -152,7 +138,7 @@ function startCountdown() {
             setTimeout(() => {
                 document.querySelector('#waitViewOnlineTour').style.display = 'none',
                 document.querySelector('#drawViewOnlineTour').style.display = 'block'
-                document.querySelector('#drawViewOnlineTour').style.display = 'block'
+                document.querySelector('#playViewOnlineTour').style.display = 'block'
                 // AJOUTER LANCEMENT DU SCRIPT ONLINE TOURNAMENT ICI
             }, 1000),
             clearInterval(countDown)
@@ -166,26 +152,54 @@ function startCountdown() {
     );
 }
 
+// script pour updater les stats en temps réel
+let url = `wss://${window.location.host}/ws/stats/`
+var socket = new WebSocket(url);
 
-    // fetch('http://localhost:8000/api/stats')
-    //     .then(response => {
-        //         // Vérifier si la requête a réussi
-        //         if (!response.ok) {
-            //             throw new Error('Network response was not ok');
-            //         }
-            //         // Convertir la réponse en JSON
-            //         return response.json();
-            //     })
-            //     .then(data => {
-                //         // Utiliser les données pour mettre à jour les éléments de votre page
-                //         document.querySelector('.won-stats').textContent = `won (${data.won})`;
-                //         document.querySelector('.wp-stats').style.width = `${data.wp}%`;
-                //         document.querySelector('.wp-stats').textContent = `${data.wp}%`;
-                //         document.querySelector('.lost-stats').textContent = `lost (${data.lost})`;
-                //         document.querySelector('.lp-stats').style.width = `${data.lp}%`;
-                //         document.querySelector('.lp-stats').textContent = `${data.lp}%`;
-//     })
-//     .catch(error => {
-//         // Afficher une erreur si quelque chose se passe mal
-//         console.error('There has been a problem with your fetch operation:', error);
-//     });
+socket.onopen = function(e) {
+  console.log("Connection established stats");
+};
+
+socket.onmessage = function(e) {
+  var stats = JSON.parse(e.data);
+  console.log(stats);
+  console.log("envoie des donnes stats");
+  document.getElementById('won').textContent = "m. won (" + stats.won + ")";
+  document.getElementById('lost').textContent = "m. lost (" + stats.lost + ")";
+  var lost = document.querySelector('.progressLost');
+  lost.style.width = stats.lp + '%';
+  lost.setAttribute('aria-valuenow', stats.lp);
+  lost.textContent = stats.lp + '%';  
+  var won = document.querySelector('.progressWon');
+  won.style.width = stats.wp + '%';
+  won.setAttribute('aria-valuenow', stats.wp);
+  won.textContent = stats.wp + '%';   
+  document.getElementById('tourn').textContent = "tournament(s) won (" + stats.tourn + ")";
+};
+
+socket.onclose = function(e) {
+  console.log("Connection closed stats");
+};
+
+socket.onerror = function(e) {
+  console.log("Error occurred stats");
+};
+
+// script pour reinitialiser les forms des modales apres fermeture
+
+
+document.addEventListener('DOMContentLoaded', function() {
+    var signUpModal = document.getElementById('signupModal');
+    var updateProfileModal = document.getElementById('profileModal');
+    var localMatchModal = document.getElementById('localMatchModal')
+
+    signUpModal.addEventListener('hidden.bs.modal', function (e) {
+        document.getElementById('signupForm').reset();
+    });
+    updateProfileModal.addEventListener('hidden.bs.modal', function (e) {
+        document.getElementById('updateProfileForm').reset();
+    });
+    localMatchModal.addEventListener('hidden.bs.modal', function (e) {
+        document.getElementById('localMatchForm').reset();
+    });
+});
