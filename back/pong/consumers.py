@@ -1,5 +1,5 @@
 import json
-from channels.generic.websocket import WebsocketConsumer
+from channels.generic.websocket import AsyncWebsocketConsumer
 import channels.layers
 from asgiref.sync import async_to_sync
 from django.core.cache import cache
@@ -18,6 +18,7 @@ games_tournament = []
 
 class Game():
     def __init__(self, maxscore, game_type):
+        self.is_started = False
         self.game_type = game_type
         self.delay = 30
         self.WHITE = (255, 255, 255)
@@ -49,7 +50,7 @@ class Game():
         self.has_finished = False
         self.is_running = False
 
-    def to_dict(self):
+    async def to_dict(self):
         return {
             'game_type': self.game_type,
             'delay': self.delay,
@@ -134,8 +135,10 @@ class Game():
             time.sleep(0.025)
 
     def start(self):
-        thread = threading.Thread(target=self.run)
-        thread.start()
+        if (self.is_started is not True):
+            self.is_started = True
+            thread = threading.Thread(target=self.run)
+            thread.start()
         # self.send(text_data=json.dumps({
         #     'message': 'start'
         # }))
@@ -143,29 +146,31 @@ class Game():
     def endgame(self):
         self.is_running = False
         self.has_finished = True
-        print("Final scores: Player 1 =", self.p1_score, ", Player 2 =", self.p2_score)
+        # print("Final scores: Player 1 =", self.p1_score, ", Player 2 =", self.p2_score)
         new_match = Match.create_match_from_game(self)
         new_match.save()
 
-    def key_up_pressed(self, username):
+    async def key_up_pressed(self, username):
         if (username == self.player1):
             self.p1_up = True
         elif (username == self.player2):
             self.p2_up = True
+        
 
-    def key_up_released(self, username):
+    async def key_up_released(self, username):
         if (username == self.player1):
             self.p1_up = False
         elif (username == self.player2):
             self.p2_up = False
     
-    def key_down_pressed(self, username):
+    async def key_down_pressed(self, username):
         if (username == self.player1):
             self.p1_down = True
         elif (username == self.player2):
             self.p2_down = True
+        
 
-    def key_down_released(self, username):
+    async def key_down_released(self, username):
         if (username == self.player1):
             self.p1_down = False
         elif (username == self.player2):
@@ -178,17 +183,18 @@ class Player:
         self.player_status = 'Waiting'
         self.game:Game = None
 
-    def to_dict(self):
+    async def to_dict(self):
         return {
             'name': self.name,
             'player_status': self.player_status,
-            'game': self.game.to_dict() if self.game else None
+            'game': await self.game.to_dict() if self.game else None
         }
 
 class Tournament():
     def __init__(self):
         self.games = []
         self.players = []
+        self.is_started = False
         self.status = "Waiting"
         self.is_finished = False
         self.is_running = True
@@ -196,10 +202,10 @@ class Tournament():
         self.winner = None
         self.id = len(games_tournament)
 
-    def to_dict(self):
+    async def to_dict(self):
         return {
-        'games': [game.to_dict() for game in self.games] if self.games else [],
-        'players': [player.to_dict() for player in self.players],
+        'games': [await game.to_dict() for game in self.games] if self.games else [],
+        'players': [await player.to_dict() for player in self.players],
         'status': self.status,
         'is_finished': self.is_finished,
         'is_running': self.is_running,
@@ -239,11 +245,11 @@ class Tournament():
                     if player.player_status == "Waiting":
                         self.add_player_to_game(player)
                 for player in self.players:
-                    if not player.game.is_running and player.game.player1 and player.game.player2:
+                    if player.game and not player.game.is_running and player.game.player1 and player.game.player2:
                         player.game.start()
                         player.player_status = "Playing"
                         print(f"Game started for {player.name} with players {player.game.player1} and {player.game.player2}")
-                    if player.game.is_running:
+                    if player.game and player.game.is_running:
                         player.player_status = "Playing"
                 self.status = "Started"
             if self.status == "Started":
@@ -283,8 +289,9 @@ class Tournament():
                     self.is_running = False
                     self.is_finished = True
                     self.status = "Finished"
+            time.sleep(0.005)
          
-    def add_player(self, username):
+    async def add_player(self, username):
         if self.status == "Waiting":
             for player in self.players:
                 if player.name == username:
@@ -294,11 +301,14 @@ class Tournament():
             self.players.append(new_player)
             print(f"Added player {username} to the tournament.")
 
-    def start(self):
-        thread = threading.Thread(target=self.run)
-        thread.start()
+    async def start(self):
+        if (self.is_started is not True):
+            self.is_started = True
+            thread = threading.Thread(target=self.run)
+            thread.start()
 
-    def has_player(self, username):
+
+    async def has_player(self, username):
         for player in self.players:
             if player.name == username:
                 return True
@@ -310,21 +320,21 @@ class Tournament():
             if (player.name == username):
                 return player.game
 
-    def handle_key_event(self, message, username):
+    async def handle_key_event(self, message, username):
         player:Player
         for player in self.players:
             if (player.name == username):
                 break
-        if (player == None):
+        if (player == None or player.game == None):
             return
         if message == 'key_up_pressed':
-            player.game.key_up_pressed(username)
+            await player.game.key_up_pressed(username)
         elif message == 'key_up_released':
-            player.game.key_up_released(username)
+            await player.game.key_up_released(username)
         elif message == 'key_down_pressed':
-            player.game.key_down_pressed(username)
+            await player.game.key_down_pressed(username)
         elif message == 'key_down_released':
-            player.game.key_down_released(username)
+            await player.game.key_down_released(username)
         elif message == 'p2key_up_pressed' and player.game.game_type == "local":
             player.game.p2_up = True
         elif message == 'p2key_up_released' and player.game.game_type == "local":
@@ -335,39 +345,39 @@ class Tournament():
             player.game.p2_down = False
 
 
-class BasePongConsumer(WebsocketConsumer):
+class BasePongConsumer(AsyncWebsocketConsumer):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.game = None
 
-    def connect(self):
-        self.accept()
-        self.setup_game()
+    async def connect(self):
+        await self.accept()
+        await self.setup_game()
         if self.game and self.game.player1 and self.game.player2:
             self.game.start()
-        self.send_connection_message()
+        await self.send_connection_message()
 
-    def setup_game(self):
-        pass  # Doit être implémenté par les classes dérivées à leurs créations
+    async def setup_game(self):
+        pass
 
-    def send_connection_message(self):
+    async def send_connection_message(self):
         user = self.scope['user']
-        self.send(text_data=json.dumps({
+        await self.send(text_data=json.dumps({
             'type': 'connection_established',
             'message': 'you are connected ' + user.username,
         }))
 
-    def receive(self, text_data):
+    async def receive(self, text_data):
         text_data_json = json.loads(text_data)
         message = text_data_json['message']
         username = self.scope['user'].username
 
         if message == 'update':
-            self.send_update()
+            await self.send_update()
         elif 'pressed' in message or 'released' in message:
-            self.handle_key_event(message, username)
+            await self.handle_key_event(message, username)
 
-    def handle_key_event(self, message, username):
+    async def handle_key_event(self, message, username):
         if message == 'key_up_pressed':
             self.game.key_up_pressed(username)
         elif message == 'key_up_released':
@@ -384,23 +394,23 @@ class BasePongConsumer(WebsocketConsumer):
             self.game.p2_down = True
         elif message == 'p2key_down_released' and self.game.game_type == "local":
             self.game.p2_down = False
-        self.send_debug_message(message)
+        await self.send_debug_message(message)
 
-    def send_debug_message(self, message):
-        self.send(text_data=json.dumps({
+    async def send_debug_message(self, message):
+        await self.send(text_data=json.dumps({
             'type': 'debug',
             'message': message
         }))
 
-    def send_update(self):
-        self.send(text_data=json.dumps({
+    async def send_update(self):
+        await self.send(text_data=json.dumps({
             'type': 'update received',
             'data': self.game.__dict__
         }))
 
 
 class PongOnline(BasePongConsumer):
-    def setup_game(self):
+    async def setup_game(self):
         user = self.scope['user']
         for game in games_online:
             if not game.has_finished and (game.player1 == user.username or game.player2 == user.username):
@@ -420,7 +430,7 @@ class PongOnline(BasePongConsumer):
 
 
 class PongLocal(BasePongConsumer):
-    def setup_game(self):
+    async def setup_game(self):
         user = self.scope['user']
         user1 = user.username
         user2 = user.username + "_2"
@@ -437,40 +447,40 @@ class PongLocal(BasePongConsumer):
         else:
             self.game.is_running = True
 
-    def receive(self, text_data):
+    async def receive(self, text_data):
         text_data_json = json.loads(text_data)
         message = text_data_json['message']
         if message == 'setOpponentAlias':
             self.game.player2 = text_data_json['opponent']
         else:
-            super().receive(text_data)
+            await super().receive(text_data)
 
 class PongOnlineTournament(BasePongConsumer):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.tournament = None
     
-    def setup_game(self):
+    async def setup_game(self):
         user = self.scope['user'].username
         found_tournament = False
         for tournament in games_tournament:
-            if not tournament.is_finished and tournament.has_player(user):
+            if not tournament.is_finished and await tournament.has_player(user):
                 self.tournament = tournament
-                self.tournament.add_player(user)
+                await self.tournament.add_player(user)
                 found_tournament = True
                 break
         if not found_tournament:
             for tournament in games_tournament:
                 if not tournament.is_finished and tournament.status == "Waiting" and len(tournament.players) < 8:
                     self.tournament = tournament
-                    self.tournament.add_player(user)
+                    await self.tournament.add_player(user)
                     found_tournament = True
                     break
         if not found_tournament:
             self.tournament = Tournament()
             games_tournament.append(self.tournament)
-            self.tournament.add_player(user)
-            self.tournament.start()
+            await self.tournament.add_player(user)
+            await self.tournament.start()
 
         # Log the tournament and player info for debugging
         print(f"User {user} joined tournament {self.tournament.id}")
@@ -478,26 +488,29 @@ class PongOnlineTournament(BasePongConsumer):
 
 
 
-    def receive(self, text_data):
+    async def receive(self, text_data):
         text_data_json = json.loads(text_data)
         message = text_data_json['message']
         username = self.scope['user'].username
-
+        game_data:Game = self.tournament.getupdate(username)
+        if (game_data is not None):
+            self.game = game_data
         if message == 'update':
+            if (game_data is not None):
+                game_data = await game_data.to_dict()
             tournament_data = {
-                'tournament': self.tournament.to_dict(),
-                'players': [player.to_dict() for player in self.tournament.players],
-                'games': [game.to_dict() for game in self.tournament.games]
+                'tournament': await self.tournament.to_dict(),
+                # 'players': [await player.to_dict() for player in self.tournament.players],
+                # 'games': [await game.to_dict() for game in self.tournament.games],
+                'game_data': game_data
             }
-            self.send(text_data=json.dumps({
+            await self.send(text_data=json.dumps({
                 'type': 'update received',
                 'data': tournament_data
             }))
         elif 'pressed' in message or 'released' in message:
-<<<<<<< Updated upstream
-            self.tournament.handle_key_event(message, username)
-=======
-            self.tournament.handle_key_event(message, username)
+            await self.tournament.handle_key_event(message, username)
+                
 
 # ************************* CONSUMER ASYNCHRONE ****************************
 
@@ -534,4 +547,3 @@ class FriendStatusConsumer(AsyncWebsocketConsumer):
             'user_id': event['user_id'],
             'status': event['status']
         }))
->>>>>>> Stashed changes
