@@ -200,6 +200,7 @@ class Tournament():
         self.is_running = True
         self.timer = 10
         self.winner = None
+        self.qualif = None
         self.id = len(games_tournament)
 
     async def to_dict(self):
@@ -210,7 +211,8 @@ class Tournament():
         'is_finished': self.is_finished,
         'is_running': self.is_running,
         'timer': self.timer,
-        'winner': self.winner
+        'winner': self.winner,
+        'qualif': self.qualif
     }
 
     def add_player_to_game(self, player):
@@ -228,67 +230,86 @@ class Tournament():
             player.game = Game(5, "online")
             player.game.player1 = player.name
             self.games.append(player.game)
-                
+
+    def wait(self):
+        if self.timer >= 0 and len(self.players) > 1:
+            time.sleep(1)
+            self.timer -= 1
+        elif self.timer < 0:
+            self.status = "Starting"
+            if (len(self.players) > 4):
+                self.qualif = 3
+            elif len(self.players) > 2:
+                self.qualif = 2
+            else:
+                self.qualif = 1
+
+    def starting(self):
+        for player in self.players:
+            if player.player_status == "Waiting":
+                self.add_player_to_game(player)
+        for player in self.players:
+            if player.game and not player.game.is_running and player.game.player1 and player.game.player2:
+                player.game.start()
+                player.player_status = "Playing"
+                print(f"Game started for {player.name} with players {player.game.player1} and {player.game.player2}")
+            if player.game and player.game.is_running:
+                player.player_status = "Playing"
+        self.status = "Started"
+
+    def started(self):
+        for player in self.players:
+            if player.player_status in ["Disqualified", "Qualified"]:       #parcoure les joueurs, ignore si qualifie/discalifie
+                continue
+            if player.player_status == "Waiting" and player.game and (player.game.player1 is "" or player.game.player2 is ""): # qualifie le joueur s'il est seul
+                player.player_status = "Qualified"
+            if player.game and player.game.has_finished and player.game.player1 == player.name:     # Si la partie est finie, regarde le score et determine un gagnant
+                if player.game.p1_score <= player.game.p2_score:
+                    player.player_status = "Disqualified"
+                else:
+                    player.player_status = "Qualified"
+            elif player.game and player.game.has_finished and player.game.player2 == player.name:   # pareil pour player 2
+                if player.game.p2_score <= player.game.p1_score:
+                    player.player_status = "Disqualified"
+                    player.game = None
+                else:
+                    player.player_status = "Qualified"
+                    player.game = None
+        if all(player.player_status in ["Qualified", "Disqualified"] for player in self.players):    #parcours les joueurs, s'ils sont tous qualif/disqualif, rentre dans les conditions
+            if (self.qualif == 1):       #finale jouee, donne un gagnant pour le tournois
+                self.status = "Ending"
+                for player in self.players:
+                    player.game = None
+                    if (player.player_status == "Qualified"):
+                        self.winner = player.name
+            else:                       #relance une session de parties
+                self.games = []
+                for player in self.players:
+                    player.game = None
+                    if (player.player_status == "Qualified"):
+                        player.player_status = "Waiting"
+                self.status = "Starting"
+                self.qualif -= 1
+                self.timer = 10
+                while (self.timer >= 0):
+                    time.sleep(1)
+                    self.timer -= 1
+
     def run(self):
         # new_tourn = Tournoi.create_tournoi_from_tournament(self)
         # new_tourn.save()
         round = 1
         while self.is_running:
             if self.status == "Waiting":
-                if self.timer >= 0 and len(self.players) > 1:
-                    time.sleep(1)
-                    self.timer -= 1
-                elif self.timer < 0:
-                    self.status = "Starting"
+                self.wait()
             if self.status == "Starting":
-                for player in self.players:
-                    if player.player_status == "Waiting":
-                        self.add_player_to_game(player)
-                for player in self.players:
-                    if player.game and not player.game.is_running and player.game.player1 and player.game.player2:
-                        player.game.start()
-                        player.player_status = "Playing"
-                        print(f"Game started for {player.name} with players {player.game.player1} and {player.game.player2}")
-                    if player.game and player.game.is_running:
-                        player.player_status = "Playing"
-                self.status = "Started"
+                self.starting()
             if self.status == "Started":
-                for player in self.players:
-                    if player.player_status in ["Disqualified", "Qualified"]:
-                        continue
-                    if player.player_status == "Waiting" and player.game and (player.game.player1 is None or player.game.player2 is None):
-                        player.player_status = "Qualified"
-                    if player.game and player.game.has_finished and player.game.player1 == player.name:
-                        if player.game.p1_score <= player.game.p2_score:
-                            player.player_status = "Disqualified"
-                        else:
-                            player.player_status = "Qualified"
-                    elif player.game and player.game.has_finished and player.game.player2 == player.name:
-                        if player.game.p2_score <= player.game.p1_score:
-                            player.player_status = "Disqualified"
-                        else:
-                            player.player_status = "Qualified"
-                if all(player.player_status in ["Qualified", "Disqualified"] for player in self.players):
-                    self.status = "Ending"
+                self.started()
             if self.status == "Ending":
-                for player in self.players:
-                    if player.player_status == "Waiting" and (player.game.player1 is None or player.game.player2 is None):
-                        player.player_status = "Winner"
-                    if player.game.has_finished and player.game.player1 == player.name:
-                        if player.game.p1_score <= player.game.p2_score:
-                            player.player_status = "Disqualified"
-                        else:
-                            player.player_status = "Winner"
-                    elif player.game.has_finished and player.game.player2 == player.name:
-                        if player.game.p2_score <= player.game.p1_score:
-                            player.player_status = "Disqualified"
-                        else:
-                            player.player_status = "Winner"
-                            self.winner = player.name
-                if self.winner:
-                    self.is_running = False
-                    self.is_finished = True
-                    self.status = "Finished"
+                self.is_finished = True
+                self.is_running = False
+                self.status == "Finished"
             time.sleep(0.005)
          
     async def add_player(self, username):

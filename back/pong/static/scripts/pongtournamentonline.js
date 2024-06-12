@@ -1,9 +1,11 @@
+
+let running = true;
+
 function runsocket(){
     let url = `wss://${window.location.host}/ws/socket-pong-tournament-online/`;
     
     const chatSocket = new WebSocket(url);
     
-    let running = true;
 
 
     let data = null
@@ -40,8 +42,7 @@ function runsocket(){
                 ball_x_normalspeed = parseFloat(data.data.game_data.ball_x_normalspeed)
                 player1 = data.data.game_data.player1
                 player2 = data.data.game_data.player2
-                if (data.data.game_data.has_finished === true)
-                    running = false
+                
                 // console.log('Data:', data)
                 // console.log("paddle speed", paddle_speed)
                 // console.log("paddle_width", paddle_width)
@@ -60,6 +61,8 @@ function runsocket(){
                 // console.log("ball_x_normalspeed", ball_x_normalspeed)
                 // console.log("p1ypos", data.data.game_data.p1_y_pos)
             }
+            if (data.data.tournament && data.data.tournament.is_finished == true)
+                running = false
         }   
     }
     
@@ -163,21 +166,41 @@ function runsocket(){
     });
     
     function draw_objects(){
-        ctx.fillStyle = 'black';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        ctx.fillStyle = 'white';
-        ctx.fillRect(p1_x_pos,  p1_y_pos, paddle_width, paddle_height);
-        ctx.fillRect(p2_x_pos,  p2_y_pos, paddle_width, paddle_height);
-        ctx.beginPath();
-        ctx.arc(ball_x_pos, ball_y_pos, ball_width, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.closePath();
-        ctx.font = "45px sans-serif"
-        ctx.fillText(p2_score, WIDTH / 4, HEIGHT / 4, 45)
-        ctx.fillText(p1_score, WIDTH * 3 / 4, HEIGHT / 4, 45)
-        ctx.fillText(player1, WIDTH * 3 / 4, HEIGHT / 8, 90)
-        ctx.fillText(player2, WIDTH / 4, HEIGHT / 8, 90)
-    
+        if (data && data.data && data.data.tournament.status === "Waiting") // debut du tournois demarage
+        {
+            ctx.fillStyle = 'black'
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = 'white';
+            ctx.textAlign = "center"
+            message = "Tournament starts in: " + data.data.tournament.timer
+            ctx.fillText(message, WIDTH/2, HEIGHT/2)
+        }
+        else if (data && data.data && data.data.tournament.timer >= 0) //entre chaque match
+        {
+            ctx.fillStyle = 'black'
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = 'white';
+            ctx.textAlign = "center"
+            message = "Next match starts in: " + data.data.tournament.timer
+            ctx.fillText(message, WIDTH/2, HEIGHT/2)
+        }
+        else    //pendant le match
+        {
+            ctx.fillStyle = 'black';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = 'white';
+            ctx.fillRect(p1_x_pos,  p1_y_pos, paddle_width, paddle_height);
+            ctx.fillRect(p2_x_pos,  p2_y_pos, paddle_width, paddle_height);
+            ctx.beginPath();
+            ctx.arc(ball_x_pos, ball_y_pos, ball_width, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.closePath();
+            ctx.font = "45px sans-serif"
+            ctx.fillText(p2_score, WIDTH / 4, HEIGHT / 4, 45)
+            ctx.fillText(p1_score, WIDTH * 3 / 4, HEIGHT / 4, 45)
+            ctx.fillText(player1, WIDTH * 3 / 4, HEIGHT / 8, 90)
+            ctx.fillText(player2, WIDTH / 4, HEIGHT / 8, 90)
+        }
     }
     
     function get_update(){
@@ -196,19 +219,15 @@ function runsocket(){
             draw_objects()
             requestAnimationFrame(draw);
         }
-        else
+        else //fin du tournois
         {
             ctx.fillStyle = 'black'
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             ctx.fillStyle = 'red';
             ctx.textAlign = "center"
-            ctx.fillText("Game Over", WIDTH/2, HEIGHT/2)
+            ctx.fillText("Tournament finished", WIDTH/2, HEIGHT/2)
             let win_message
-            if (p1_score > p2_score){
-                win_message = player1 + " won the match"
-            }
-            else
-                win_message = player2 + " won the match"
+            win_message = data.data.tournament.winner + " won the tournament"
             ctx.fillStyle = 'white'
             ctx.fillText(win_message, WIDTH/2 + 40, HEIGHT/2 +40)
         }
