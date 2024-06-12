@@ -31,7 +31,6 @@ def home(request):
 			'friends': friends,
 			'matches': matches,
 			'stats' : stats,
-			'matches_all': match_history_all(),
 			'current_tourn' : tournament,
 		}
 	return render(request, 'page.html', context)
@@ -166,17 +165,6 @@ def update_profile(request):
 
 # *********************************** MATCHES HISTORY ***********************************
 
-# def match_history_friends(request):
-# 	username = request.GET.get('username')
-# 	user = User.objects.get(username=username)
-# 	stats = match_history(user)
-# 	return JsonResponse(stats, safe=False)
-
-def match_history_all():
-	matches = Match.objects.all()
-	l = list(matches)
-	return l
-
 def match_stats(user):
 	user = User.objects.filter(username=user).first()
 	matches = Match.objects.filter(player1=user) | Match.objects.filter(player2=user)
@@ -250,11 +238,6 @@ def match_history(user):
 	return l
 
 # *********************************** FRIENDS ***********************************
-
-def friend_match(request, friend_name):
-    friend_user = User.objects.get(username=friend_name)
-    fmatches = match_history(friend_user)
-    return render(request, 'friend_match', {'matches': fmatches})
 
 def friends_list(user):
 	friends = Friend.objects.filter(sender=user, status='accepted') | Friend.objects.filter(receiver=user, status='accepted')

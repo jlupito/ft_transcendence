@@ -16,8 +16,6 @@ urlpatterns = [
 	path('create_account', views.send_invite, name='send_invite'),
 	path('register', views.register, name='register'),
     path('sign_in', views.sign_in, name='sign_in'),
-	# path('create_local_game', views.create_local_game, name='create_local_game'),
-    # path('match_history_friends/', views.match_history_friends, name='match_history_friends'),
     re_path(r'ws/socket-pong-local/', consumers.PongLocal.as_asgi()),
     re_path(r'ws/socket-pong-online/', consumers.PongOnline.as_asgi()),
     re_path(r'ws/socket-pong-tournament-online/', consumers.PongOnlineTournament.as_asgi()),

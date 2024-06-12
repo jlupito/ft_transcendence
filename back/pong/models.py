@@ -10,7 +10,10 @@ from asgiref.sync import async_to_sync
 
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    elo = models.IntegerField(default=1000)
+    # elo = models.IntegerField(default=1000)
+    tourn_won = models.IntegerField(default=0)
+    matches_won = models.IntegerField(default=0)
+    matches_lost = models.IntegerField(default=0)
     avatar = models.ImageField(upload_to='avatars/', default='avatars/default2.png')
     def __str__(self):
         return self.user.first_name
@@ -34,6 +37,18 @@ class Match(models.Model):
             player1_score=game_instance.p1_score,
             player2_score=game_instance.p2_score
             )
+        user1 = UserProfile.objects.get(user=player1_user)
+        user2 = UserProfile.objects.get(user=player2_user)
+        if game_instance.p1_score > game_instance.p2_score:
+                user1.matches_won += 1
+                user2.matches_lost += 1
+        elif game_instance.p1_score < game_instance.p2_score:
+                user1.matches_lost += 1
+                user2.matches_won += 1
+        print("nombre de wins", user1.matches_won)
+        print("nombre de wins", user1.matches_won)
+        user1.save()
+        user2.save()
         match.save()
         return match
 

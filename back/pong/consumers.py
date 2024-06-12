@@ -6,7 +6,8 @@ from django.core.cache import cache
 import threading
 import time
 import websockets
-from .models import Match, Tournoi
+from django.contrib.auth.models import User
+from .models import Match, Tournoi, UserProfile
 
 class StatsConsumer(AsyncWebsocketConsumer):
     instances = {}
@@ -304,6 +305,11 @@ class Tournament():
                     self.is_running = False
                     self.is_finished = True
                     self.status = "Finished"
+                    winner_user=User.objects.get(username=self.winner)
+                    winner_userProfile=UserProfile.objects.get(user=winner_user)
+                    winner_userProfile.tourn_won += 1
+                    winner_userProfile.save()
+
          
     def add_player(self, username):
         if self.status == "Waiting":
@@ -461,19 +467,6 @@ class PongLocal(BasePongConsumer):
         else:
             self.game.is_running = True
 
-    # def receive(self, message):
-    #     data = json.loads(message.content['text'])
-    #     if data['message'] == 'opponent_name':
-    #         opponent_name = data['value']
-    #         self.game.player2 = opponent_name
-
-    # def receive(self, text_data):
-    #     text_data_json = json.loads(text_data)
-    #     message = text_data_json['message']
-    #     if message == 'setOpponentAlias':
-    #         self.game.player2 = text_data_json['opponent']
-    #     else:
-    #         super().receive(text_data)
 
 class PongOnlineTournament(BasePongConsumer):
     def __init__(self, *args, **kwargs):

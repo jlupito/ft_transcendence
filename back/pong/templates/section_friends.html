@@ -22,59 +22,30 @@
                                     {{ friend.user.first_name }}
                                 </div>
                             </div>
-                            <button class="btn buttonfriends btn-sm btn-dark shadow-sm" style="--bs-btn-font-size: .75rem;"
-                            data-bs-toggle="modal" data-bs-target="#friendsProfile">
-                            profile
+                            <button class="btn buttonfriends btn-sm btn-dark shadow-sm" style="--bs-btn-font-size: .75rem;" 
+                                type="button" data-bs-toggle="popover" 
+                                title="{{ friend.user.first_name }} profile" 
+                                data-bs-content="Joined on: {{ friend.user.date_joined }}
+                                <br>
+                                <br>Played a total of ({{ friend.matches_won|add:friend.matches_lost }}) matches:
+                                <br><i class='bi bi-caret-right-fill'></i> won ({{ friend.matches_won }})
+                                <br><i class='bi bi-caret-right-fill'></i> lost ({{ friend.matches_lost }})
+                                <br>
+                                <br><i class='bi bi-trophy-fill'></i> Tournament victories ({{ friend.matches_won }})">
+                                profile
                             </button>
+                            <script>
+                                document.addEventListener("DOMContentLoaded", function(){
+                                    var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'));
+                                    var popoverList = popoverTriggerList.map(function(element){
+                                        return new bootstrap.Popover(element, {
+                                            html: true // Enable HTML in the popover
+                                        });
+                                    });
+                                });
+                            </script>
                         </div>
                     </li>
-                    <div class="modal fade" id="friendsProfile" tabindex="-1" aria-labelledby="friendsProfileLabel" aria-hidden="true">
-                        <div class="modal-dialog friendsProfile">
-                            <div class="modal-content bg-dark-subtle shadow">
-                                <div class="modal-header">
-                                    <h5 class="modal-title" id="friendsProfileLabel">Matches history of {{ friend.user.first_name }}</h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                </div>
-                                <div class="modal-body ms-5 overflow-auto" style="height: 200px;">
-                                    <div>
-                                        <ul class="list-unstyled">
-                                            {% for match in matches_all %}
-                                                <li class="d-flex flex-column text-align-center">
-                                                    {% if friend.user.first_name == match.player1 and match.player1_score > match.player2_score %}
-                                                        <p class="mb-1"><span class="bg-primary p-1 rounded-1 text-light shadow-sm px-2">win</span>
-                                                        vs <span class="bg-white bg-opacity-50 p-1 rounded-1 text-dark shadow-sm px-2">{{ match.player2 }}</span>
-                                                        ({{ match.player1_score }} - {{ match.player2_score }})</p>
-                                                        <p class="ms-3 fw-light text-dark text-opacity-75">played on {{ match.timestamp }}</p>
-                                                    
-                                                    {% elif friend.user.first_name == match.player1 and match.player1_score < match.player2_score %}
-                                                        <p class="mb-1"><span class="bg-primary p-1 rounded-1 text-light shadow-sm px-2">loss</span>
-                                                        vs <span class="bg-white bg-opacity-50 p-1 rounded-1 text-dark shadow-sm px-2">{{ match.player2 }}</span>
-                                                        ({{ match.player1_score }} - {{ match.player2_score }})</p>
-                                                        <p class="ms-3 fw-light text-dark text-opacity-75">played on {{ match.timestamp }}</p>
-
-                                                    {% elif friend.user.first_name == match.player2 and match.player1_score > match.player2_score %}
-                                                        <p class="mb-1"><span class="bg-primary p-1 rounded-1 text-light shadow-sm px-2">loss</span>
-                                                        vs <span class="bg-white bg-opacity-50 p-1 rounded-1 text-dark shadow-sm px-2">{{ match.player1 }}</span>
-                                                        ({{ match.player2_score }} - {{ match.player1_score }})</p>
-                                                        <p class="ms-3 fw-light text-dark text-opacity-75">played on {{ match.timestamp }}</p>
-                                                    
-                                                    {% elif friend.user.first_name == match.player2 and match.player1_score < match.player2_score %}
-                                                        <p class="mb-1"><span class="bg-primary p-1 rounded-1 text-light shadow-sm px-2">win</span>
-                                                        vs <span class="bg-white bg-opacity-50 p-1 rounded-1 text-dark shadow-sm px-2">{{ match.player1 }}</span>
-                                                        ({{ match.player2_score }} - {{ match.player1_score }})</p>
-                                                        <p class="ms-3 fw-light text-dark text-opacity-75">played on {{ match.timestamp }}</p>
-                                                    {%endif%}
-                                                </li>
-                                            {% endfor %}
-                                        </ul>
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
                 {% endfor %}
             </ul>
         </div>
