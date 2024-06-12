@@ -153,6 +153,7 @@ function startCountdown() {
 }
 
 // script pour updater les stats en temps réel
+
 let url = `wss://${window.location.host}/ws/stats/`
 var socket = new WebSocket(url);
 
@@ -185,8 +186,8 @@ socket.onerror = function(e) {
   console.log("Error occurred stats");
 };
 
-// script pour reinitialiser les forms des modales apres fermeture
 
+// script pour reinitialiser les forms des modales apres fermeture
 
 document.addEventListener('DOMContentLoaded', function() {
     var signUpModal = document.getElementById('signupModal');

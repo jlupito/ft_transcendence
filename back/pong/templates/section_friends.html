@@ -29,32 +29,40 @@
                         </div>
                     </li>
                     <div class="modal fade" id="friendsProfile" tabindex="-1" aria-labelledby="friendsProfileLabel" aria-hidden="true">
-                        <div class="modal-dialog">
+                        <div class="modal-dialog friendsProfile">
                             <div class="modal-content bg-dark-subtle shadow">
                                 <div class="modal-header">
-                                    <h5 class="modal-title" id="friendsProfileLabel">Profile</h5>
+                                    <h5 class="modal-title" id="friendsProfileLabel">Matches history of {{ friend.user.first_name }}</h5>
                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                 </div>
-                                <div class="modal-body">
-                                    <!-- <a href="{% url 'match_stats_friends' %}?username={{ friend.user.first_name }}"> -->
+                                <div class="modal-body ms-5 overflow-auto" style="height: 200px;">
                                     <div>
                                         <ul class="list-unstyled">
-                                            {% if matches|length == 0 %}
-                                                <p>No matches</p>
-                                            {% endif %}
-                                            {% for match in matches %}
+                                            {% for match in matches_all %}
                                                 <li class="d-flex flex-column text-align-center">
-                                                    {% if match.result == "Win" %}
+                                                    {% if friend.user.first_name == match.player1 and match.player1_score > match.player2_score %}
                                                         <p class="mb-1"><span class="bg-primary p-1 rounded-1 text-light shadow-sm px-2">win</span>
-                                                        vs <span class="bg-white bg-opacity-50 p-1 rounded-1 text-dark shadow-sm px-2">{{ match.opponent_name }}</span>
-                                                        ({{ match.user_score }} - {{ match.opponent_score }})</p>
-                                                        <p class="ms-3 fw-light text-dark text-opacity-75">played on {{ match.time }}</p>
-                
-                                                    {% elif match.result == "Loss" %}
-                                                        <p class="mb-1"><span class="bg-danger p-1 rounded-1 text-light shadow-sm px-2">loss</span>
-                                                        vs <span class="bg-white bg-opacity-50 p-1 rounded-1 text-dark shadow-sm px-2">{{ match.opponent_name }}</span>
-                                                        ({{ match.user_score }} - {{ match.opponent_score }})</p>
-                                                        <p class="ms-3 fw-light text-dark text-opacity-75">played on {{ match.time }}</p>
+                                                        vs <span class="bg-white bg-opacity-50 p-1 rounded-1 text-dark shadow-sm px-2">{{ match.player2 }}</span>
+                                                        ({{ match.player1_score }} - {{ match.player2_score }})</p>
+                                                        <p class="ms-3 fw-light text-dark text-opacity-75">played on {{ match.timestamp }}</p>
+                                                    
+                                                    {% elif friend.user.first_name == match.player1 and match.player1_score < match.player2_score %}
+                                                        <p class="mb-1"><span class="bg-primary p-1 rounded-1 text-light shadow-sm px-2">loss</span>
+                                                        vs <span class="bg-white bg-opacity-50 p-1 rounded-1 text-dark shadow-sm px-2">{{ match.player2 }}</span>
+                                                        ({{ match.player1_score }} - {{ match.player2_score }})</p>
+                                                        <p class="ms-3 fw-light text-dark text-opacity-75">played on {{ match.timestamp }}</p>
+
+                                                    {% elif friend.user.first_name == match.player2 and match.player1_score > match.player2_score %}
+                                                        <p class="mb-1"><span class="bg-primary p-1 rounded-1 text-light shadow-sm px-2">loss</span>
+                                                        vs <span class="bg-white bg-opacity-50 p-1 rounded-1 text-dark shadow-sm px-2">{{ match.player1 }}</span>
+                                                        ({{ match.player2_score }} - {{ match.player1_score }})</p>
+                                                        <p class="ms-3 fw-light text-dark text-opacity-75">played on {{ match.timestamp }}</p>
+                                                    
+                                                    {% elif friend.user.first_name == match.player2 and match.player1_score < match.player2_score %}
+                                                        <p class="mb-1"><span class="bg-primary p-1 rounded-1 text-light shadow-sm px-2">win</span>
+                                                        vs <span class="bg-white bg-opacity-50 p-1 rounded-1 text-dark shadow-sm px-2">{{ match.player1 }}</span>
+                                                        ({{ match.player2_score }} - {{ match.player1_score }})</p>
+                                                        <p class="ms-3 fw-light text-dark text-opacity-75">played on {{ match.timestamp }}</p>
                                                     {%endif%}
                                                 </li>
                                             {% endfor %}
