@@ -25,13 +25,16 @@
                             <button class="btn buttonfriends btn-sm btn-dark shadow-sm" style="--bs-btn-font-size: .75rem;" 
                                 type="button" data-bs-toggle="popover" 
                                 title="{{ friend.user.first_name }} profile" 
-                                data-bs-content="Joined on: {{ friend.user.date_joined }}
+                                data-placement="top"
+                                data-trigger="focus"
+                                data-bs-custom-class="custom-popover"
+                                data-bs-content="<i class='bi bi-calendar-check-fill'></i> Joined on {{ friend.user.date_joined.date }}.
                                 <br>
-                                <br>Played a total of ({{ friend.matches_won|add:friend.matches_lost }}) matches:
-                                <br><i class='bi bi-caret-right-fill'></i> won ({{ friend.matches_won }})
-                                <br><i class='bi bi-caret-right-fill'></i> lost ({{ friend.matches_lost }})
+                                <br><i class='bi bi-joystick'></i> Played ({{ friend.matches_won|add:friend.matches_lost }}) matches:
+                                <br>   <i class='bi bi-caret-right-fill'></i> won ({{ friend.matches_won }})
+                                <br>   <i class='bi bi-caret-right-fill'></i> lost ({{ friend.matches_lost }})
                                 <br>
-                                <br><i class='bi bi-trophy-fill'></i> Tournament victories ({{ friend.matches_won }})">
+                                <br><i class='bi bi-trophy-fill'></i> Won ({{ friend.matches_won }}) tournament(s)">
                                 profile
                             </button>
                             <script>
@@ -39,7 +42,7 @@
                                     var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'));
                                     var popoverList = popoverTriggerList.map(function(element){
                                         return new bootstrap.Popover(element, {
-                                            html: true // Enable HTML in the popover
+                                            html: true
                                         });
                                     });
                                 });

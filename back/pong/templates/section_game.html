@@ -1,17 +1,31 @@
 <div class="col mb-3 mx-auto">
     <div class="colSize p-3 bg-light border border-light border-opacity-25 bg-opacity-25 rounded shadow text-light">
         <h2 class="mb-4">Game</h2>
-        <div class="mb-4">
-            <div class="ms-3 d-flex align-items-center fw-bold">
+        <div class="mb-3">
+            <!-- <h5 class="ms-3">Play<i class="bi bi-joystick ms-2"></i></h5>
+            <hr class="col-10 mt-0 mb-3 mx-auto"> -->
+            <div id="playDiv" style="height: 140px; display: flex; flex-direction: column; justify-content: center;" class="col-10 bg-white bg-opacity-25 p-1 rounded shadow-sm mx-auto">
+                <!-- <div class="mt-1 mb-2 text-center text-light">
+                    Choose a format:
+                </div> -->
+                <h5 class="ms-3">Play<i class="bi bi-joystick ms-2"></i></h5>
+                <div class="mb-3 text-center">
+                    <button id="playSingle" class="btn btn-dark btn-sm shadow-sm text-light col-8 mb-2">Match</button>
+                    <button id="playTournament" class="btn btn-dark btn-sm shadow-sm text-light col-8">Tournament</button>
+                </div>
+            </div>
+        </div>
+        <div style="height: 100px;">
+            <!-- <div class="ms-3 d-flex align-items-center fw-bold">
                 <h5>Results<i class="bi bi-trophy ms-2"></i></h5>
             </div>
-            <hr class="col-10 mt-0 mb-3 mx-auto">
-            <div style="height: 130px;" class="overflow-auto">
+            <hr class="col-10 mt-0 mb-3 mx-auto"> -->
+            <div style="height: 200px;" class="overflow-auto">
                 <div class="col-10 bg-white bg-opacity-25 p-3 mb-2 rounded shadow-sm mx-auto" style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#winsModal">
                     <div class="row align-items-center">
                         <div class="col-5 pe-0">
                             <div class="d-flex align-items-center">
-                                <p class="fw-lighter m-0" id="won">m. won ({{ stats.won }})</p>
+                                <p class="fw-lighter m-0" id="won">M. won ({{ stats.won }})</p>
                             </div>
                         </div>
                         <div class="col-7 ps-0">
@@ -25,7 +39,7 @@
                     <div class="row align-items-center">
                         <div class="col-5 pe-0" >
                             <div class="d-flex align-items-center">
-                                <p class="fw-lighter m-0" id="lost">m. lost ({{ stats.lost }})</p>
+                                <p class="fw-lighter m-0" id="lost">M. lost ({{ stats.lost }})</p>
                             </div>
                         </div>
                         <div class="col-7 ps-0">
@@ -39,23 +53,10 @@
                     <div class="row align-items-center">
                         <div class="col" >
                             <div class="d-flex align-items-center">
-                                <p class="fw-lighter m-0" id="tourn">tournament(s) won ({{ stats.tourn }}) </p>
+                                <p class="fw-lighter m-0" id="tourn"><i class='bi bi-trophy'></i> Tournament(s) won ({{ stats.tourn }}) </p>
                             </div>
                         </div>
                     </div>
-                </div>
-            </div>
-        </div>
-        <div style="height: 100px;">
-            <h5 class="ms-3">Play<i class="bi bi-joystick ms-2"></i></h5>
-            <hr class="col-10 mt-0 mb-2 mx-auto">
-            <div id="playDiv" style="height: 170px; display: flex; flex-direction: column; justify-content: center;" class="col-10 bg-white bg-opacity-25 p-1 rounded shadow-sm mx-auto mt-3 mb-2">
-                <div class="mt-3 mb-3 text-center text-light">
-                    Choose a format:
-                </div>
-                <div class="mb-3 text-center">
-                    <button id="playSingle" class="btn btn-dark btn-sm shadow-sm text-light col-8 mb-2">Match</button>
-                    <button id="playTournament" class="btn btn-dark btn-sm shadow-sm text-light col-8 mb-3">Tournament</button>
                 </div>
             </div>
         </div>

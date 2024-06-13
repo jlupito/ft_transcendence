@@ -167,21 +167,25 @@ def update_profile(request):
 
 def match_stats(user):
 	user = User.objects.filter(username=user).first()
-	matches = Match.objects.filter(player1=user) | Match.objects.filter(player2=user)
-	won = 0
-	lost = 0
-	for match in matches:
-		if match.player1 == user:
-			if match.player1_score > match.player2_score:
-				won += 1
-			else:
-				lost += 1
-		else:
-			if match.player1_score < match.player2_score:
-				won += 1
-			else:
-				lost += 1
-	total = matches.count()
+	# matches = Match.objects.filter(player1=user) | Match.objects.filter(player2=user)
+	# won = 0
+	# lost = 0
+	# for match in matches:
+	# 	if match.player1 == user:
+	# 		if match.player1_score > match.player2_score:
+	# 			won += 1
+	# 		else:
+	# 			lost += 1
+	# 	else:
+	# 		if match.player1_score < match.player2_score:
+	# 			won += 1
+	# 		else:
+	# 			lost += 1
+	won = user.userprofile.matches_won
+	lost = user.userprofile.matches_lost
+	total = won + lost
+	tourn = user.userprofile.tourn_won
+	# total = matches.count()
 	if total == 0:
 		won_perc = 0
 		lost_perc = 0
@@ -189,11 +193,11 @@ def match_stats(user):
 		won_perc = round(won / total * 100)
 		lost_perc = round(lost / total * 100)
 
-	tournaments = Tournoi.objects.all()
-	tourn = 0
-	for tournament in tournaments:
-		if tournament.tourn_winner == user.username:
-			tourn += 1
+	# tournaments = Tournoi.objects.all()
+	# tourn = 0
+	# for tournament in tournaments:
+	# 	if tournament.tourn_winner == user.username:
+	# 		tourn += 1
 	stats = {
         'won': won,
         'lost': lost,
