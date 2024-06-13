@@ -111,59 +111,59 @@
     
 // script pour la modale du jeu Tournament Online
     
-    document.addEventListener('DOMContentLoaded', function() {
-        var pongScript;
-        var canvasOnlineTour = document.getElementById('onlineTournament');
+    // document.addEventListener('DOMContentLoaded', function() {
+    //     var pongScript;
+    //     var canvasOnlineTour = document.getElementById('onlineTournament');
         
-        canvasOnlineTour.addEventListener('submit', function(event) {
-            startCountdown();
-            event.preventDefault();
-            document.querySelector('#formViewOnlineTour').style.display = 'none';
-            document.querySelector('#waitViewOnlineTour').style.display = 'block';
-        });
-        canvasOnlineTour.addEventListener('hidden.bs.modal', function () {
-            if (pongScript) {
-                document.body.removeChild(pongScript);
-                pongScript = null;
-            }
-            document.querySelector('#onlineTourForm').style.display = 'block';
-            document.querySelector('#gameViewLocal').style.display = 'none';
-            this.reset()
-        });
+    //     // canvasOnlineTour.addEventListener('submit', function(event) {
+    //     //     startCountdown();
+    //     //     event.preventDefault();
+    //     //     document.querySelector('#formViewOnlineTour').style.display = 'none';
+    //     //     document.querySelector('#waitViewOnlineTour').style.display = 'block';
+    //     // });
+    //     canvasOnlineTour.addEventListener('hidden.bs.modal', function () {
+    //         if (pongScript) {
+    //             document.body.removeChild(pongScript);
+    //             pongScript = null;
+    //         }
+    //         document.querySelector('#onlineTourForm').style.display = 'block';
+    //         document.querySelector('#gameViewLocal').style.display = 'none';
+    //         this.reset()
+    //     });
         
-        Array.from(document.getElementsByClassName("closeRefresh")).forEach(function(element) {
-            element.addEventListener("click", function() {
-                location.replace("/");
-            });
-        });
-    });
+    //     Array.from(document.getElementsByClassName("closeRefresh")).forEach(function(element) {
+    //         element.addEventListener("click", function() {
+    //             location.replace("/");
+    //         });
+    //     });
+    // });
     
 // script pour le chrono de chargement du Tournoi Online
-function startCountdown() {
-    let startCount = 2;
-    const	stopCount = 0,	
-            duration = 2000,
-            countDownElement = document.getElementById('countdown'),
-            intervalTime = duration/Math.abs(startCount - stopCount);
+// function startCountdown() {
+//     let startCount = 2;
+//     const	stopCount = 0,	
+//             duration = 2000,
+//             countDownElement = document.getElementById('countdown'),
+//             intervalTime = duration/Math.abs(startCount - stopCount);
         
-    let countDown = setInterval(function(){
-        if(startCount === stopCount)
-            startCount = "Go!",  
-            setTimeout(() => {
-                document.querySelector('#waitViewOnlineTour').style.display = 'none',
-                document.querySelector('#drawViewOnlineTour').style.display = 'block'
-                // AJOUTER LANCEMENT DU SCRIPT ONLINE TOURNAMENT ICI
-            }, 1000),
-            clearInterval(countDown)
-        countDownElement.innerHTML = startCount;
-        if(startCount > stopCount)
-            startCount--
-        else
-            startCount++
-        },
-    intervalTime
-    );
-}
+//     let countDown = setInterval(function(){
+//         if(startCount === stopCount)
+//             startCount = "Go!",  
+//             setTimeout(() => {
+//                 document.querySelector('#waitViewOnlineTour').style.display = 'none',
+//                 document.querySelector('#drawViewOnlineTour').style.display = 'block'
+//                 // AJOUTER LANCEMENT DU SCRIPT ONLINE TOURNAMENT ICI
+//             }, 1000),
+//             clearInterval(countDown)
+//         countDownElement.innerHTML = startCount;
+//         if(startCount > stopCount)
+//             startCount--
+//         else
+//             startCount++
+//         },
+//     intervalTime
+//     );
+// }
 
 
     // fetch('http://localhost:8000/api/stats')

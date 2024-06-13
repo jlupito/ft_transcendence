@@ -103,7 +103,7 @@ function runsocket(){
     let player1 = ""
     let player2 = ""
     
-    const canvas = document.getElementById('CanvasOnline');
+    const canvas = document.getElementById('CanvasTourOnline');
     
     const ctx = canvas.getContext('2d');
     

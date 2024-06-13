@@ -26,7 +26,7 @@
 				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 			</div>
 			<div class="modal-body">
-				<div id="formViewOnlineTour">
+				<!-- <div id="formViewOnlineTour">
 					<form id="onlineTourForm" class="row my-4 d-flex align-items-center justify-content-center">
 						{% csrf_token %}
 						<div class="col-7">
@@ -34,7 +34,7 @@
 						</div>
 						<button type="submit" id="startOnlineTourBtn" class="btn btn-primary col-2 shadow-sm">Start</button>
 					</form>
-				</div>
+				</div> -->
 				<div id="waitViewOnlineTour" class="my-5" style="display: none">
 					<div class="my-5 d-flex flex-column align-items-center justify-content-center">
 						<div class="d-flex justify-content-center align-items-center mb-3">
@@ -48,9 +48,30 @@
 						</div>
 					</div>
 				</div>
-				<div id="playViewOnlineTour" style="display: none">
+				<div id="playViewOnlineTour" style="display: block">
 					<div class="canvas" width="600" height="600">
 						<canvas id="CanvasTourOnline" width="600" height="600"></canvas>
+						<script>
+							var pongScript;
+							document.addEventListener('DOMContentLoaded', function() {
+								var canvasModal = document.getElementById('onlineTournament');
+
+								canvasModal.addEventListener('show.bs.modal', function () {
+									console.log('ONLINE');
+									pongScript = document.createElement('script');
+									pongScript.src = '../static/scripts/pongtournamentonline.js';
+									pongScript.defer = true;
+									document.body.appendChild(pongScript);
+								});
+								canvasModal.addEventListener('hidden.bs.modal', function () {
+									if (pongScript) {
+										document.body.removeChild(pongScript);
+										pongScript = null;
+										// stopPongGame(); 
+									}
+								});
+							});
+						</script>
 					</div>
 				</div>
 				<div id="drawViewOnlineTour" style="display: none">
