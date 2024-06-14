@@ -169,8 +169,8 @@ socket.onmessage = function(e) {
     let userElement = document.getElementById('stats-profile-' + stats.id);
     console.log("user id recuperer par le js:", stats.id);
     if (userElement) {
-        userElement.querySelector('#won').textContent = "m. won (" + stats.won + ")";
-        userElement.querySelector('#lost').textContent = "m. lost (" + stats.lost + ")";
+        userElement.querySelector('#won').textContent = "M. won (" + stats.won + ")";
+        userElement.querySelector('#lost').textContent = "M. lost (" + stats.lost + ")";
         var lost = userElement.querySelector('.progressLost');
         lost.style.width = stats.lp + '%';
         lost.setAttribute('aria-valuenow', stats.lp);
@@ -179,7 +179,7 @@ socket.onmessage = function(e) {
         won.style.width = stats.wp + '%';
         won.setAttribute('aria-valuenow', stats.wp);
         won.textContent = stats.wp + '%';   
-        userElement.querySelector('#tourn').textContent = "tournament(s) won (" + stats.tourn + ")";
+        userElement.querySelector('#tourn').innerHTML = "<i class='bi bi-trophy'></i> Tournament(s) won (" + stats.tourn + ")";
     }
 
     var popoverElement = document.getElementById('profile-' + stats.id);
