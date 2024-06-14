@@ -30,6 +30,11 @@ class StatsConsumer(AsyncWebsocketConsumer):
         print("Sending stats")
         await self.send(text_data=json.dumps(stats))
 
+    @classmethod
+    async def send_stats_to_all(cls, stats):
+        for consumer in cls.instances.values():
+            await consumer.send_stats(stats)
+
 games_online = []
 games_local = []
 games_tournament = []

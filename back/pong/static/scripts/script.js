@@ -158,32 +158,55 @@ let url = `wss://${window.location.host}/ws/stats/`
 var socket = new WebSocket(url);
 
 socket.onopen = function(e) {
-  console.log("Connection established stats");
+    console.log("Connection established stats");
 };
 
 socket.onmessage = function(e) {
-  var stats = JSON.parse(e.data);
-  console.log(stats);
-  console.log("envoie des donnes stats");
-  document.getElementById('won').textContent = "m. won (" + stats.won + ")";
-  document.getElementById('lost').textContent = "m. lost (" + stats.lost + ")";
-  var lost = document.querySelector('.progressLost');
-  lost.style.width = stats.lp + '%';
-  lost.setAttribute('aria-valuenow', stats.lp);
-  lost.textContent = stats.lp + '%';  
-  var won = document.querySelector('.progressWon');
-  won.style.width = stats.wp + '%';
-  won.setAttribute('aria-valuenow', stats.wp);
-  won.textContent = stats.wp + '%';   
-  document.getElementById('tourn').textContent = "tournament(s) won (" + stats.tourn + ")";
+    var stats = JSON.parse(e.data);
+    console.log(stats);
+    console.log("envoie des donnes stats");
+
+    let userElement = document.getElementById('stats-profile-' + stats.id);
+    console.log("user id recuperer par le js:", stats.id);
+    if (userElement) {
+        userElement.querySelector('#won').textContent = "m. won (" + stats.won + ")";
+        userElement.querySelector('#lost').textContent = "m. lost (" + stats.lost + ")";
+        var lost = userElement.querySelector('.progressLost');
+        lost.style.width = stats.lp + '%';
+        lost.setAttribute('aria-valuenow', stats.lp);
+        lost.textContent = stats.lp + '%';  
+        var won = userElement.querySelector('.progressWon');
+        won.style.width = stats.wp + '%';
+        won.setAttribute('aria-valuenow', stats.wp);
+        won.textContent = stats.wp + '%';   
+        userElement.querySelector('#tourn').textContent = "tournament(s) won (" + stats.tourn + ")";
+    }
+
+    var popoverElement = document.getElementById('profile-' + stats.id);
+    var dateJoined = popoverElement.getAttribute('data-date-joined');
+    console.log("id du popover:", popoverElement);
+    console.log("stats dans le popover", stats);
+    var popover = bootstrap.Popover.getInstance(popoverElement); // Get existing popover instance
+    if (popover) {
+        popover.dispose(); // Dispose existing popover
+    }
+    // Create new popover with updated content
+    popover = new bootstrap.Popover(popoverElement, {
+        content: `<i class='bi bi-trophy-fill'></i> Won (${stats.tourn}) tournament(s)
+        <br><i class='bi bi-joystick'></i> Played (${stats.won + stats.lost}) matches:
+        <br>&nbsp;&nbsp;&nbsp;&nbsp;<i class='bi bi-caret-right-fill'></i>won (${stats.won})
+        <br>&nbsp;&nbsp;&nbsp;&nbsp;<i class='bi bi-caret-right-fill'></i>lost (${stats.lost})
+        <br><i class='bi bi-calendar-check-fill'></i> Joined on ${dateJoined}`,
+        html:true
+    });
 };
 
 socket.onclose = function(e) {
-  console.log("Connection closed stats");
+    console.log("Connection closed stats");
 };
 
 socket.onerror = function(e) {
-  console.log("Error occurred stats");
+    console.log("Error occurred stats");
 };
 
 
@@ -204,3 +227,16 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('localMatchForm').reset();
     });
 });
+
+
+// script pour lancer les popovers
+
+document.addEventListener("DOMContentLoaded", function(){
+    var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'));
+    var popoverList = popoverTriggerList.map(function(element){
+        return new bootstrap.Popover(element, {
+            html: true
+        });
+    });
+});
+

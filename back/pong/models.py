@@ -29,7 +29,6 @@ class Match(models.Model):
     def create_match_from_game(cls, game_instance):
         player1_user = User.objects.get(username=game_instance.player1)
         user1 = UserProfile.objects.get(user=player1_user)
-
         player2_username = game_instance.player2
         player2_user, created = User.objects.get_or_create(username=player2_username)
         player2_profiles = UserProfile.objects.filter(user=player2_user)
@@ -37,6 +36,23 @@ class Match(models.Model):
         if player2_profiles.exists():
             user2 = player2_profiles.first()
             
+        if game_instance.p1_score > game_instance.p2_score:
+                user1.matches_won += 1
+                user1.save()
+                print("matches won de user1:", user1.matches_won)
+                if user2 is not None:
+                    user2.matches_lost += 1
+                    user2.save()
+                    print("matches lost de user2:", user2.matches_lost)
+        elif game_instance.p1_score < game_instance.p2_score:
+                user1.matches_lost += 1
+                user1.save()
+                print("matches lost de user1:", user1.matches_lost)
+                if user2 is not None:
+                    user2.matches_won += 1
+                    user2.save()
+                    print("matches won de user2:", user2.matches_won)
+
         match = Match.objects.create(
             player1=player1_user,
             player2=player2_user,
@@ -44,47 +60,9 @@ class Match(models.Model):
             player2_score=game_instance.p2_score
             )
         
-        if game_instance.p1_score > game_instance.p2_score:
-                 user1.matches_won += 1
-                 user1.save()
-                 if user2 is not None:
-                    user2.matches_lost += 1
-                    user2.save()
-        elif game_instance.p1_score < game_instance.p2_score:
-                user1.matches_lost += 1
-                user1.save()
-                if user2 is not None:
-                    user2.matches_won += 1
-                    user2.save()
                     
         match.save()
         return match
-
-        # player1_user = User.objects.get(username=game_instance.player1)
-        # player2_username = game_instance.player2
-        # player2_user, created = User.objects.get_or_create(username=player2_username)
-        # match = Match.objects.create(
-        #     player1=player1_user,
-        #     player2=player2_user,
-        #     player1_score=game_instance.p1_score,
-        #     player2_score=game_instance.p2_score
-        #     )
-        # user1 = UserProfile.objects.get(user=player1_user)
-        # if player2_user:
-        #     user2 = UserProfile.objects.get(user=player2_user)
-        # if game_instance.p1_score > game_instance.p2_score:
-        #          user1.matches_won += 1
-        #          if user2:
-        #             user2.matches_lost += 1
-        # elif game_instance.p1_score < game_instance.p2_score:
-        #         user1.matches_lost += 1
-        #         if user2:
-        #             user2.matches_won += 1
-        # user1.save()
-        # if user2:
-        #     user2.save()
-        # match.save()
-        # return match
 
     def __str__(self):
         return self.player1.username + ' vs ' + self.player2.username
@@ -98,7 +76,7 @@ def update_stats(sender, instance, created, **kwargs):
             if consumer:
                 from .views import match_stats
                 stats = match_stats(user)  # replace with your function to calculate stats
-                async_to_sync(consumer.send_stats)(stats)
+                async_to_sync(consumer.send_stats_to_all)(stats)
 
 class Friend(models.Model):
     STATUS_CHOICES = (

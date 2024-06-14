@@ -43,7 +43,8 @@ body {
 /* Style pour les deux blocs game/friends */
 
 .colSize {
-   	height: 530px;
+   	height: 480px;
+    min-width: 300px;
 }
 
 /* Animation pour les trois points d attente */

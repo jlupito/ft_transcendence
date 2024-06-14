@@ -167,45 +167,31 @@ def update_profile(request):
 
 def match_stats(user):
 	user = User.objects.filter(username=user).first()
-	# matches = Match.objects.filter(player1=user) | Match.objects.filter(player2=user)
-	# won = 0
-	# lost = 0
-	# for match in matches:
-	# 	if match.player1 == user:
-	# 		if match.player1_score > match.player2_score:
-	# 			won += 1
-	# 		else:
-	# 			lost += 1
-	# 	else:
-	# 		if match.player1_score < match.player2_score:
-	# 			won += 1
-	# 		else:
-	# 			lost += 1
-	won = user.userprofile.matches_won
-	lost = user.userprofile.matches_lost
+	profiles = UserProfile.objects.filter(user=user)
+	userProfile = None
+	if profiles.exists():
+		userProfile = profiles.first()
+	else:
+		return None
+	won = userProfile.matches_won
+	lost = userProfile.matches_lost
 	total = won + lost
-	tourn = user.userprofile.tourn_won
-	# total = matches.count()
+	tourn = userProfile.tourn_won
 	if total == 0:
 		won_perc = 0
 		lost_perc = 0
 	else:
 		won_perc = round(won / total * 100)
 		lost_perc = round(lost / total * 100)
-
-	# tournaments = Tournoi.objects.all()
-	# tourn = 0
-	# for tournament in tournaments:
-	# 	if tournament.tourn_winner == user.username:
-	# 		tourn += 1
 	stats = {
-        'won': won,
-        'lost': lost,
-        'wp': won_perc,
-        'lp': lost_perc,
-        'tourn': tourn,
+		'won': won,
+		'lost': lost,
+		'wp': won_perc,
+		'lp': lost_perc,
+		'tourn': tourn,
+		'id': user.id,
+		# 'date_joined': user.date_joined.date,
     }
-	
 	return stats
 
 def current_tournament(user):
@@ -285,6 +271,7 @@ def handle_invite(request):
 		inv.status = status
 		inv.save()
 	return redirect('home')
+
 
 def send_invite(request):
 	if request.method == 'GET':
