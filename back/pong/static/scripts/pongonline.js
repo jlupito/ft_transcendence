@@ -5,12 +5,22 @@ const chatSocket = new WebSocket(url);
 
 let running = true
 
+let data = null
+let latestData = null;
+setInterval(() => {
+    console.log(latestData);
+    console.log(data);
+    latestData = null;
+}, 1000); 
+
+
 chatSocket.onmessage = function(e){
     let data = JSON.parse(e.data)
     if (data.type == 'connection_established')
         console.log(data);
     else if (data.type == 'update received')
     {
+        latestData = data.data
         paddle_speed = data.data.paddle_speed
         paddle_width = parseInt(data.data.paddle_width)
         paddle_height = parseInt(data.data.paddle_height)
@@ -31,23 +41,6 @@ chatSocket.onmessage = function(e){
         console.log(data);
         if (data.data.has_finished === true)
             running = false
-        // console.log('Data:', data)
-        // console.log("paddle speed", paddle_speed)
-        // console.log("paddle_width", paddle_width)
-        // console.log("paddle_height", paddle_height)
-        // console.log("p1_x_pos", p1_x_pos)
-        // console.log("p1_y_pos", p1_y_pos)
-        // console.log("p2_x_pos", p2_x_pos)
-        // console.log("p2_y_pos", p2_y_pos)
-        // console.log("p1_score", p1_score)
-        // console.log("p2_score", p2_score)
-        // console.log("ball_x_pos", ball_x_pos)
-        // console.log("ball_y_pos", ball_y_pos)
-        // console.log("ball_width", ball_width)
-        // console.log("ball_x_velocity", ball_x_velocity)
-        // console.log("ball_y_velocity", ball_y_velocity)
-        // console.log("ball_x_normalspeed", ball_x_normalspeed)
-        // console.log("p1ypos", data.data.p1_y_pos)
     }
 }
 
@@ -173,7 +166,6 @@ function draw_objects(){
 function get_update(){
     if (chatSocket.readyState === WebSocket.OPEN){
         chatSocket.send(JSON.stringify({'message': 'update'}));
-        console.log("update received")
     }
 }
 

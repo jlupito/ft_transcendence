@@ -369,7 +369,7 @@ class Tournament():
 class BasePongConsumer(AsyncWebsocketConsumer):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.game = None
+        self.game:Game = None
 
     async def connect(self):
         await self.accept()
@@ -400,13 +400,13 @@ class BasePongConsumer(AsyncWebsocketConsumer):
 
     async def handle_key_event(self, message, username):
         if message == 'key_up_pressed':
-            self.game.key_up_pressed(username)
+            await self.game.key_up_pressed(username)
         elif message == 'key_up_released':
-            self.game.key_up_released(username)
+            await self.game.key_up_released(username)
         elif message == 'key_down_pressed':
-            self.game.key_down_pressed(username)
+            await self.game.key_down_pressed(username)
         elif message == 'key_down_released':
-            self.game.key_down_released(username)
+            await self.game.key_down_released(username)
         elif message == 'p2key_up_pressed' and self.game.game_type == "local":
             self.game.p2_up = True
         elif message == 'p2key_up_released' and self.game.game_type == "local":

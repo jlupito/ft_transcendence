@@ -18,8 +18,8 @@
 
         const windowWidth = window.innerWidth;
         const windowHeight = window.innerHeight;
-        const ballWidth = ball.offsetWidth;
-        const ballHeight = ball.offsetHeight;
+        const ballWidth = 8;
+        const ballHeight = 8;
 
         if (posX <= 0) {
             speedX *= -1;
@@ -42,8 +42,8 @@
         }
 
         updateBackground(angle);
-        ball.style.left = posX + 'px';
-        ball.style.top = posY + 'px';
+        // ball.style.left = posX + 'px';
+        // ball.style.top = posY + 'px';
 
     }
 

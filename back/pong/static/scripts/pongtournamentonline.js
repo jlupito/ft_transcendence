@@ -42,24 +42,6 @@ function runsocket(){
                 ball_x_normalspeed = parseFloat(data.data.game_data.ball_x_normalspeed)
                 player1 = data.data.game_data.player1
                 player2 = data.data.game_data.player2
-                
-                // console.log('Data:', data)
-                // console.log("paddle speed", paddle_speed)
-                // console.log("paddle_width", paddle_width)
-                // console.log("paddle_height", paddle_height)
-                // console.log("p1_x_pos", p1_x_pos)
-                // console.log("p1_y_pos", p1_y_pos)
-                // console.log("p2_x_pos", p2_x_pos)
-                // console.log("p2_y_pos", p2_y_pos)
-                // console.log("p1_score", p1_score)
-                // console.log("p2_score", p2_score)
-                // console.log("ball_x_pos", ball_x_pos)
-                // console.log("ball_y_pos", ball_y_pos)
-                // console.log("ball_width", ball_width)
-                // console.log("ball_x_velocity", ball_x_velocity)
-                // console.log("ball_y_velocity", ball_y_velocity)
-                // console.log("ball_x_normalspeed", ball_x_normalspeed)
-                // console.log("p1ypos", data.data.game_data.p1_y_pos)
             }
             if (data.data.tournament && data.data.tournament.is_finished == true)
                 running = false
