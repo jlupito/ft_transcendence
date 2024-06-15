@@ -1,12 +1,12 @@
 
 
 function runsocket(){
-    let url = `wss://${window.location.host}/ws/socket-pong-tournament-online/`;
+    let url = `wss://${window.location.host}/ws/socket-pong-tournament-local/`;
     
     const chatSocket = new WebSocket(url);
     
-    let running = true;
 
+    let running = true;
 
     let data = null
     let latestData = null;
@@ -85,7 +85,7 @@ function runsocket(){
     let player1 = ""
     let player2 = ""
     
-    const canvas = document.getElementById('CanvasTourOnline');
+    const canvas = document.getElementById('CanvasTourLocal');
     
     const ctx = canvas.getContext('2d');
     
@@ -113,16 +113,24 @@ function runsocket(){
                 if (chatSocket.readyState === WebSocket.OPEN)
                     chatSocket.send(JSON.stringify({'message': 'p2key_down_pressed'}));
                 break;
-            // case 'space':
-            //     if (chatSocket.readyState === WebSocket.OPEN)
-            //         chatSocket.send(JSON.stringify({'message': 'replay'}));
-            //     break;
+            case 'ArrowRight':
+                if (chatSocket.readyState === WebSocket.OPEN)
+                    chatSocket.send(JSON.stringify({'message': 'key_right_pressed'}));
+                break;
+            case 'ArrowLeft':
+                if (chatSocket.readyState === WebSocket.OPEN)
+                    chatSocket.send(JSON.stringify({'message': 'key_left_pressed'}));
+                break;
+            case 'Enter':
+                if (chatSocket.readyState === WebSocket.OPEN)
+                    chatSocket.send(JSON.stringify({'message': 'key_enter_pressed'}));
+                    break;
         }
     });
     
     document.addEventListener('keyup', function(event) {
         const key = event.key;
-    
+        console.log(key)
         switch(key) {
             case 'z':
                 if (chatSocket.readyState === WebSocket.OPEN)
@@ -144,28 +152,61 @@ function runsocket(){
                 if (chatSocket.readyState === WebSocket.OPEN)
                     chatSocket.send(JSON.stringify({'message': 'p2key_down_released'}));
                 break;
+            case 'ArrowRight':
+                if (chatSocket.readyState === WebSocket.OPEN)
+                    chatSocket.send(JSON.stringify({'message': 'key_right_released'}));
+                break;
+            case 'ArrowLeft':
+                if (chatSocket.readyState === WebSocket.OPEN)
+                    chatSocket.send(JSON.stringify({'message': 'key_left_released'}));
+                break;
+            case 'Enter':
+                if (chatSocket.readyState === WebSocket.OPEN)
+                    chatSocket.send(JSON.stringify({'message': 'key_enter_released'}));
+                break;
         }
+        if (chatSocket.readyState === WebSocket.OPEN)
+            chatSocket.send(JSON.stringify({'message': 'key_pressed', 'key': key}));
     });
     
     function draw_objects(){
-        if (data && data.data && data.data.tournament.status === "Waiting") // debut du tournois demarage
+        if (data && data.data && data.data.tournament.status === "SelectSize") // debut du tournois demarage
         {
             ctx.fillStyle = 'black'
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             ctx.fillStyle = 'white';
             ctx.textAlign = "center"
-            message = "Tournament starts in: " + data.data.tournament.timer
+            message = "select tournament size: "
             ctx.fillText(message, WIDTH/2, HEIGHT/2)
+            message = "< " + data.data.tournament.maxplayer + " >"
+            ctx.fillText(message, WIDTH/2, HEIGHT/2 + 40)
         }
-        else if (data && data.data && data.data.tournament.timer >= 0) //entre chaque match
+        else if (data && data.data && data.data.tournament.status === "SelectPlayerNames") // debut du tournois demarage
         {
             ctx.fillStyle = 'black'
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             ctx.fillStyle = 'white';
             ctx.textAlign = "center"
-            message = "Next match starts in: " + data.data.tournament.timer
+            message = "select player name: "
             ctx.fillText(message, WIDTH/2, HEIGHT/2)
+            message = data.data.tournament.playername + "_"
+            ctx.fillText(message, WIDTH/2, HEIGHT/2 + 40)
         }
+        else if (data && data.data && data.data.tournament.status === "New_match") // debut du tournois demarage
+        {
+            ctx.fillStyle = 'black'
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = 'white';
+            ctx.textAlign = "center"
+            // console.log(data)
+            message = "Next match starts in: " + data.data.tournament.timer 
+            ctx.fillText(message, WIDTH/2, HEIGHT/2)
+            message = data.data.tournament.games[0].player1
+            ctx.fillText(message, WIDTH/4, HEIGHT/2 + 50)
+            message = data.data.tournament.games[0].player2
+            ctx.fillText(message, (WIDTH/4) * 3, HEIGHT/2 + 50)
+        }
+        
         else    //pendant le match
         {
             ctx.fillStyle = 'black';

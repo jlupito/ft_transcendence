@@ -9,6 +9,27 @@
 			<div class="modal-body d-flex justify-content-center align-items-center">
 				<div class="canvas" width="600" height="600">
 					<canvas id="CanvasTourLocal" width="600" height="600"></canvas>
+					<script>
+						var pongScript;
+						document.addEventListener('DOMContentLoaded', function() {
+							var canvasModal = document.getElementById('localTournament');
+
+							canvasModal.addEventListener('show.bs.modal', function () {
+								console.log('ONLINE');
+								pongScript = document.createElement('script');
+								pongScript.src = '../static/scripts/pongtournamentlocal.js';
+								pongScript.defer = true;
+								document.body.appendChild(pongScript);
+							});
+							canvasModal.addEventListener('hidden.bs.modal', function () {
+								if (pongScript) {
+									document.body.removeChild(pongScript);
+									pongScript = null;
+									// stopPongGame(); 
+								}
+							});
+						});
+					</script>
 				</div>
 			</div>
 			<div class="modal-footer">

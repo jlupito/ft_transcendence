@@ -5,17 +5,21 @@ function runsocket(){
     opponent = document.getElementById('local_player2_name')
     console.log("opponent_name: ", opponent.value)
     let running = true
-
+    let data = null
+    let latestData = null;
+    setInterval(() => {
+        console.log(latestData);
+        latestData = null;
+    }, 1000); 
+    
+    
     chatSocket.onmessage = function(e){
-        let data = JSON.parse(e.data)
+        data = JSON.parse(e.data)
         if (data.type == 'connection_established')
-        {
-            console.log("localpong")
             console.log(data);
-        }
         else if (data.type == 'update received')
         {
-            console.log(data)
+            latestData = data.data
             paddle_speed = data.data.paddle_speed
             paddle_width = parseInt(data.data.paddle_width)
             paddle_height = parseInt(data.data.paddle_height)
@@ -33,7 +37,6 @@ function runsocket(){
             ball_x_normalspeed = parseFloat(data.data.ball_x_normalspeed)
             player1 = data.data.player1
             player2 = opponent.value
-            console.log(data);
             if (data.data.has_finished === true)
                 running = false
             // console.log('Data:', data)
