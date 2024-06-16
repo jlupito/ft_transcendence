@@ -23,27 +23,16 @@ def home(request):
 	context = {}
 	user = request.user
 	if (request.user.is_authenticated):
-		id = user.id
-		username = user.username
-		avatar_url = user.avatar.url
-		users = UserProfile.objects.all().exclude(username=user.username)
-		matches = match_history(user)
-		stats = match_stats(user)
-		friends = friends_list(user)
-		invites = invites_list(user)
-		invitees = invitees_list(user)
-		context = {
-			'id': id,
-			'user': user,
-			'username': username,
-			'users': users,
-			'avatar_url': avatar_url,
-			'invites': invites,
-			'friends': friends,
-			'matches': matches,
-			'invitees': invitees,
-			'stats' : stats
-		}
+		context['id'] = user.id
+		context['user'] = user
+		context['username'] = user.username
+		context['avatar'] = user.avatar.url
+		context['users'] = UserProfile.objects.all().exclude(username=user.username)
+		context['matches'] = match_history(user)
+		context['invites'] = invites_list(user)
+		context['friends'] = friends_list(user)
+		context['stats'] = match_stats(user)
+		context['invitees'] = invitees_list(user)
 	return render(request, 'page.html', context)
 
 
@@ -64,8 +53,6 @@ def sign_in(request):
 			if user is not None:
 				request.session['id'] = user.id
 				return redirect('verify-view')
-				login(request, user)
-				messages.success(request, 'You are now logged in!')
 			else:
 				messages.error(request, 'Invalid username or password')
 	else:
@@ -251,9 +238,9 @@ def friends_list(user):
 	profiles = []
 	for friend in friends:
 		if friend.sender == user:
-			profiles.append(UserProfile.objects.get(user=friend.receiver))
+			profiles.append(friend.receiver)
 		else:
-			profiles.append(UserProfile.objects.get(user=friend.sender))
+			profiles.append(friend.sender)
 	l = []
 	for profile in profiles:
 		l.append(profile)
@@ -292,7 +279,7 @@ def send_invite(request):
 	friends_l = friends_list(sender)
 	request.session.set_expiry(4)
 	for friend in friends_l:
-		if friend.user.username == receiver:
+		if friend.username == receiver:
 			messages.error(request, 'User is already your friend')
 			return redirect('home')
 	invite = Friend.objects.filter(sender=sender, receiver=UserProfile.objects.get(username=receiver), status='pending')
