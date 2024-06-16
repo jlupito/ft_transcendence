@@ -263,7 +263,7 @@ class TournamentOnline():
         for player in self.players:
             if player.player_status in ["Disqualified", "Qualified"]:       #parcoure les joueurs, ignore si qualifie/discalifie
                 continue
-            if player.player_status == "Waiting" and player.game and (player.game.player1 is "" or player.game.player2 is ""): # qualifie le joueur s'il est seul
+            if player.player_status == "Waiting" and player.game and (player.game.player1 == "" or player.game.player2 == ""): # qualifie le joueur s'il est seul
                 player.player_status = "Qualified"
             if player.game and player.game.has_finished and player.game.player1 == player.name:     # Si la partie est finie, regarde le score et determine un gagnant
                 if player.game.p1_score <= player.game.p2_score:

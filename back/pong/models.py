@@ -1,32 +1,33 @@
 from django.db import models
 from django.utils import timezone
-from django.contrib.auth.models import User
+from django.contrib.auth.models import AbstractUser
 from django.core.validators import MinValueValidator, MaxValueValidator
 from datetime import timedelta
+import random
 import math
 
 # on vient creer un modele UserProfile qui surcharge le modele User préconçu.
 # Il est recommandé de créer ce modele en debut de projet (pour le SQL), meme si
 # on ne surcharge pas ce dernier.
-class UserProfile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+class UserProfile(AbstractUser):
     elo = models.IntegerField(default=1000)
+    email = models.EmailField(unique=True)
     avatar = models.ImageField(upload_to='avatars/', default='avatars/default2.png')
     def __str__(self):
-        return self.user.first_name
+        return self.username
 
 class Match(models.Model):
-    player1 = models.ForeignKey(User, on_delete=models.CASCADE, related_name='player1')
-    player2 = models.ForeignKey(User, on_delete=models.CASCADE, related_name='player2')
+    player1 = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='player1')
+    player2 = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='player2')
     player1_score = models.IntegerField(default=0)
     player2_score = models.IntegerField(default=0)
     timestamp = models.DateTimeField(auto_now_add=True)
 
     @classmethod
     def create_match_from_game(cls, game_instance):
-        player1_user=User.objects.get(username=game_instance.player1)
+        player1_user=UserProfile.objects.get(username=game_instance.player1)
         player2_username = game_instance.player2
-        player2_user, created = User.objects.get_or_create(username=player2_username)
+        player2_user, created = UserProfile.objects.get_or_create(username=player2_username)
 
         match = Match.objects.create(
             player1=player1_user,
@@ -46,8 +47,8 @@ class Friend(models.Model):
         ('accepted', 'Accepted'),
         ('rejected', 'Rejected'),
     )
-    sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sender')
-    receiver = models.ForeignKey(User, on_delete=models.CASCADE, related_name='receiver')
+    sender = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='sender')
+    receiver = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='receiver')
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')
 
     def __str__(self):
@@ -77,7 +78,8 @@ class Tournoi(models.Model):
     @staticmethod
     def get_default_l_players():
         return []
-    l_players = models.JSONField(default=get_default_l_players)
+    l_players = models.JSONField(default=dict)
+    #l_players = models.JSONField(default=get_default_l_players)
 
     def get_default_l_matches_p_round():
         return {}
@@ -97,9 +99,9 @@ class Tournoi(models.Model):
         tournament.save()
         return tournament
 
-    def add_matches_in_tournament(cls, tourn_instance, game_instance):
-        self.l_players.append(username)
-        self.save()
+    #def add_matches_in_tournament(cls, tourn_instance, game_instance):
+    #    self.l_players.append(username)
+    #    self.save()
 
     def add_match_tournament(self, round, match):
         if round not in self.l_matches:

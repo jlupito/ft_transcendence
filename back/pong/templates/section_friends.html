@@ -19,7 +19,7 @@
                                     <div class="position-absolute top-0 end-1" style="width: 10px; height: 10px; background-color: rgb(46, 206, 86); border-radius: 50%;"></div>
                                 </div>
                                 <div style="max-width: 7ch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                                    {{ friend.user.first_name }}
+                                    {{ friend.username }}
                                 </div>
                             </div>
                             <button class="btn buttonfriends btn-sm btn-dark shadow-sm" style="--bs-btn-font-size: .75rem;"
@@ -36,7 +36,7 @@
                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                 </div>
                                 <div class="modal-body">
-                                    {% url 'friend_match' friend_username=friend.user.first_name %}
+                                    {% url 'friend_match' friend_username=friend.username %}
                                     <div>
                                         <ul class="list-unstyled">
                                             {% if matches|length == 0 %}

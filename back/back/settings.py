@@ -35,13 +35,14 @@ INSTALLED_APPS = [
     'daphne',
     'channels',
     'django_extensions',
-    'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'pong',
+	'django.contrib.admin',
+	'doubleFa',
 ]
 
 ASGI_APPLICATION = 'back.asgi.application'
@@ -155,6 +156,11 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+AUTH_USER_MODEL = 'pong.UserProfile'
+
+EMAIL_CODE = os.environ.get('EMAIL_CODE')
+EMAIL_CODE_PASSWORD = os.environ.get('EMAIL_CODE_PASSWORD')
 
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True

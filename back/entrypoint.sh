@@ -9,6 +9,7 @@ do
 done
 
 # Apply migrations
+python manage.py makemigrations doubleFapy
 python manage.py makemigrations pong
 python manage.py migrate
 

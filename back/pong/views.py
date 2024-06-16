@@ -1,7 +1,6 @@
 from django.shortcuts import redirect, render
 from django.http import HttpResponse
 from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.models import User
 from .models import UserProfile, Match, Friend, Tournoi
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -15,21 +14,28 @@ from .forms import RegisterForm, LoginForm, localMatchForm
 from .consumers import Game
 from tempfile import NamedTemporaryFile
 from django.core.files.base import ContentFile
+from back.send_email import send_email
 # from rest_framework.views import APIView
 # from rest_framework.response import Response
 # from rest_framework import status
 
 def home(request):
 	context = {}
+	user = request.user
 	if (request.user.is_authenticated):
-		avatar_url = UserProfile.objects.get(user=request.user).avatar.url
-		users = UserProfile.objects.exclude(user=request.user)
-		matches = match_history(request.user)
-		stats = match_stats(request.user)
-		friends = friends_list(request.user)
-		invites = invites_list(request.user)
-		invitees = invitees_list(request.user)
+		id = user.id
+		username = user.username
+		avatar_url = user.avatar.url
+		users = UserProfile.objects.all().exclude(username=user.username)
+		matches = match_history(user)
+		stats = match_stats(user)
+		friends = friends_list(user)
+		invites = invites_list(user)
+		invitees = invitees_list(user)
 		context = {
+			'id': id,
+			'user': user,
+			'username': username,
 			'users': users,
 			'avatar_url': avatar_url,
 			'invites': invites,
@@ -41,10 +47,128 @@ def home(request):
 	return render(request, 'page.html', context)
 
 
+# *********************************** LOGIN ***********************************
+
+# Utilisation des fonctions is_valide(), authenticate() avec "is not None"
+# fonctions et outils de Python/Django
+def sign_in(request):
+	if request.method == 'POST':
+		loginform = LoginForm(request.POST)
+
+		if loginform.is_valid():
+			# verifier avec le mail ou avec le username ???? Plus complexe avec un mail mais faisable
+			user=authenticate(
+				username=loginform.cleaned_data['username'],
+				password=loginform.cleaned_data['password']
+				)
+			if user is not None:
+				request.session['id'] = user.id
+				return redirect('verify-view')
+				login(request, user)
+				messages.success(request, 'You are now logged in!')
+			else:
+				messages.error(request, 'Invalid username or password')
+	else:
+		loginform=LoginForm()
+	return redirect('home')
+
+# Lancer la creation d'un compte
+def register(request):
+	if request.method == 'POST':
+		registerform = RegisterForm(request.POST)
+		if registerform.is_valid():
+			username=registerform.cleaned_data['username']
+			if UserProfile.objects.filter(username=username).exists():
+				messages.error(request, 'This username is already used!')
+				return redirect('home')
+			mdp=registerform.cleaned_data['password']
+			email=registerform.cleaned_data['email']
+			if UserProfile.objects.filter(email=email).exists():
+				messages.error(request, 'This email is already in use...')
+				return redirect('home')
+			new_user = UserProfile.objects.create_user(username=username, password=mdp, email=email)
+			login(request, new_user)
+			messages.success(request, 'Account created successfully!')
+			return redirect('home')
+		else:
+			messages.error(request, 'Invalid form data')
+	else:
+		registerform = RegisterForm()
+	return redirect('home')
+
+def update_profile(request):
+	if request.method == 'GET':
+		return redirect('home')
+	username = request.POST.get('username')
+	profile_picture = request.FILES.get('profile_picture')
+	if (UserProfile.objects.filter(username=username).exists() and username != request.user.username):
+		messages.error(request, 'Username already taken')
+		return redirect('home')
+	user = request.user
+	user.username = username
+	if (profile_picture is not None):
+		validate = FileExtensionValidator(allowed_extensions=['jpg', 'jpeg', 'png'])
+		try:
+			validate(profile_picture)
+		except ValidationError as e:
+			messages.error(request, 'Invalid file type')
+			return redirect('home')
+		if user.avatar.url != "/media/avatars/default2.png":
+			user.avatar.delete()
+		profile_picture.name = user.username
+		user.avatar = profile_picture
+	user.save()
+	return redirect('home')
+
 @login_required
 def logout_view(request):
 	logout(request)
 	messages.success(request, 'You are logged out!')
+	return redirect('home')
+
+def save_image(image_url):
+    response = requests.get(image_url)
+    if response.status_code == 200:
+        return ContentFile(response.content)
+    else:
+        return None
+
+# never_cache est un décorateur qui indique au navigateur de ne pas mettre en cache la reponse
+# à cette view, a chaque fois que la view est appelee, la verification aura lieu.
+@never_cache
+def auth(request):
+	code = request.GET.get('code')
+	uid = os.environ.get('UID')
+	secret = os.environ.get('SECRET')
+	token_url = 'http://api.intra.42.fr/oauth/token'
+	data = {
+		'grant_type': 'authorization_code',
+		'client_id': uid,
+		'client_secret': secret,
+		'code': code,
+		'redirect_uri': 'https://localhost:8001/oauth',
+	}
+	response = requests.post(token_url, data=data)
+	if (response.status_code != 200):
+		return HttpResponse('<h1>Failed to get access token</h1>')
+	access_token = response.json()['access_token']
+	response = requests.get('https://api.intra.42.fr/v2/me', headers={'Authorization': 'Bearer ' + access_token})
+	if (response.status_code != 200):
+		return HttpResponse('<h1>Failed to get user info</h1>')
+	intra_login = response.json()['login']
+	intra_email = response.json()['email']
+	intra_picture = response.json()['image']['link']
+	picture = save_image(intra_picture)
+	user = UserProfile.objects.filter(username=intra_login).first()
+	if user is None:
+		user = UserProfile.objects.create_user(username=intra_login, email=intra_email)
+		if (picture is not None):
+			if user.avatar.url != "/media/avatars/default2.png":
+				user.avatar.delete()
+			picture.name = user.username
+			user.avatar.save('intra_img.jpg', picture, save=True)
+	login(request, user)
+	messages.success(request, 'You are now logged in!')
 	return redirect('home')
 
 # class StatsAPI(APIView):
@@ -118,7 +242,7 @@ def match_history(user):
 	return l
 
 def friend_match(request, friend_name):
-    friend_user = User.objects.get(username=friend_name)
+    friend_user = UserProfile.objects.get(username=friend_name)
     fmatches = match_history(friend_user)
     return render(request, 'friend_match', {'matches': fmatches})
 
@@ -149,40 +273,13 @@ def invitees_list(user):
         l.append(invitee.receiver.username)
     return l
 
-def update_profile(request):
-	if request.method == 'GET':
-		return redirect('home')
-	username = request.POST.get('username')
-	profile_picture = request.FILES.get('profile_picture')
-	if (profile_picture is not None):
-		validate = FileExtensionValidator(allowed_extensions=['jpg', 'jpeg', 'png'])
-		try:
-			validate(profile_picture)
-		except ValidationError as e:
-			messages.error(request, 'Invalid file type')
-			return redirect('home')
-	if (User.objects.filter(first_name=username).exists() and username != request.user.first_name):
-		messages.error(request, 'Username already taken')
-		return redirect('home')
-	user = request.user
-	user.first_name = username
-	if (profile_picture is not None):
-		user_profile = UserProfile.objects.get(user=user)
-		if user_profile.avatar.url != "/media/avatars/default2.png":
-			user_profile.avatar.delete()
-		profile_picture.name = user.username
-		user_profile.avatar = profile_picture
-		user_profile.save()
-	user.save()
-	return redirect('home')
-
 def handle_invite(request):
 	if request.method == 'GET':
 		return redirect('home')
 	sender = request.POST.get('invite')
 	receiver = request.user
 	status = request.POST.get('status')
-	inv = Friend.objects.filter(sender=User.objects.get(username=sender), receiver=receiver).first()
+	inv = Friend.objects.filter(sender=UserProfile.objects.get(username=sender), receiver=receiver).first()
 	inv.status = status
 	inv.save()
 	return redirect('home')
@@ -198,63 +295,16 @@ def send_invite(request):
 		if friend.user.username == receiver:
 			messages.error(request, 'User is already your friend')
 			return redirect('home')
-	invite = Friend.objects.filter(sender=sender, receiver=User.objects.get(username=receiver), status='pending')
+	invite = Friend.objects.filter(sender=sender, receiver=UserProfile.objects.get(username=receiver), status='pending')
 	if invite.exists():
 		messages.error(request, 'Invite already sent')
 		return redirect('home')
-	invite = Friend.objects.filter(sender=User.objects.get(username=receiver), receiver=sender, status='pending')
+	invite = Friend.objects.filter(sender=UserProfile.objects.get(username=receiver), receiver=sender, status='pending')
 	if invite.exists():
 		messages.error(request, 'You already have an invite from this user')
 		return redirect('home')
 
-	Friend.objects.create(sender=sender, receiver=User.objects.get(username=receiver), status='pending')
-	return redirect('home')
-
-def save_image(image_url):
-    response = requests.get(image_url)
-    if response.status_code == 200:
-        return ContentFile(response.content)
-    else:
-        return None
-
-# never_cache est un décorateur qui indique au navigateur de ne pas mettre en cache la reponse
-# à cette view, a chaque fois que la view est appelee, la verification aura lieu.
-@never_cache
-def auth(request):
-	code = request.GET.get('code')
-	uid = os.environ.get('UID')
-	secret = os.environ.get('SECRET')
-	token_url = 'http://api.intra.42.fr/oauth/token'
-	data = {
-		'grant_type': 'authorization_code',
-		'client_id': uid,
-		'client_secret': secret,
-		'code': code,
-		'redirect_uri': 'https://localhost:8001/oauth',
-	}
-	response = requests.post(token_url, data=data)
-	if (response.status_code != 200):
-		return HttpResponse('<h1>Failed to get access token</h1>')
-	access_token = response.json()['access_token']
-	response = requests.get('https://api.intra.42.fr/v2/me', headers={'Authorization': 'Bearer ' + access_token})
-	if (response.status_code != 200):
-		return HttpResponse('<h1>Failed to get user info</h1>')
-	intra_login = response.json()['login']
-	intra_email = response.json()['email']
-	intra_picture = response.json()['image']['link']
-	picture = save_image(intra_picture)
-	user = User.objects.filter(username=intra_login).first()
-	if user is None:
-		user = User.objects.create_user(username=intra_login, first_name=intra_login, email=intra_email)
-		UserProfile.objects.create(user=user)
-		if (picture is not None):
-			user_profile = UserProfile.objects.get(user=user)
-			if user_profile.avatar.url != "/media/avatars/default2.png":
-				user_profile.avatar.delete()
-			picture.name = user.username
-			user_profile.avatar.save('intra_img.jpg', picture, save=True)
-	login(request, user)
-	messages.success(request, 'You are now logged in!')
+	Friend.objects.create(sender=sender, receiver=UserProfile.objects.get(username=receiver), status='pending')
 	return redirect('home')
 
 # *********************************** MATCHS ***********************************
@@ -275,55 +325,6 @@ def auth(request):
 # 				messages.error(request, "Player 2 name cannot be empty.")
 # 				localform=localMatchForm()
 # 	return redirect('home')
-
-# *********************************** LOGIN ***********************************
-
-# Utilisation des fonctions is_valide(), authenticate() avec "is not None"
-# fonctions et outils de Python/Django
-def sign_in(request):
-	if request.method == 'POST':
-		loginform = LoginForm(request.POST)
-
-		if loginform.is_valid():
-			# verifier avec le mail ou avec le username ???? Plus complexe avec un mail mais faisable
-			user=authenticate(
-				username=loginform.cleaned_data['username'],
-				password=loginform.cleaned_data['password']
-				)
-			if user is not None:
-				login(request, user)
-				messages.success(request, 'You are now logged in!')
-			else:
-				messages.error(request, 'Invalid username or password')
-	else:
-		loginform=LoginForm()
-	return redirect('home')
-
-# Lancer la creation d'un compte
-def register(request):
-	if request.method == 'POST':
-		registerform = RegisterForm(request.POST)
-		if registerform.is_valid():
-			username=registerform.cleaned_data['username']
-			if User.objects.filter(username=username).exists():
-				messages.error(request, 'This username is already used!') # Modifier la posiiton du message de front
-				# registerform = RegisterForm() # ne change rien == maintenir le form ?
-				return redirect('home')
-			mdp=registerform.cleaned_data['password']
-			email=registerform.cleaned_data['email']
-			if User.objects.filter(email=email).exists():
-				messages.error(request, 'This email is already in use...')
-				return redirect('home')
-			new_user = User.objects.create_user(username=username, password=mdp, email=email, first_name=username)
-			UserProfile.objects.create(user=new_user)
-			login(request, new_user)
-			messages.success(request, 'Account created successfully!')
-			return redirect('home')
-		else:
-			messages.error(request, 'Invalid form data')
-	else:
-		registerform = RegisterForm()
-	return redirect('home')
 
 import logging
 

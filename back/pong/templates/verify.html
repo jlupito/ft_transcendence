@@ -1,0 +1,20 @@
+{% include 'header.html' %}
+<main>
+	<div class="container d-flex align-items-center justify-content-center vh-100">
+	<div class="d-flex align-items-center justify-content-center">
+		<div class="text-center col-8 bg-light border border-opacity-25 border-light bg-opacity-25 p-4 rounded shadow">
+			<h1 class="mx-auto my-0 text-light">Verify</h1>
+			<form action="verify" method="post" class="row gy-2 mt-4 d-flex align-items-center justify-content-center" autocomplete="off">
+				{% csrf_token %}
+				<div class="mb-1 col-8">
+					<input type="number" class="form-control" id="number" name="number" placeholder="email code">
+				</div>
+				<div class="mb-1">
+					<button type="submit" class="btn btn-dark text-light col-8">Verify</button>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+<div id="ball"></div>
+</main>
