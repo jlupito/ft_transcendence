@@ -99,13 +99,6 @@
             }
             document.querySelector('#formViewLocal').style.display = 'block';
             document.querySelector('#gameViewLocal').style.display = 'none';
-            this.reset()
-        });
-        
-        Array.from(document.getElementsByClassName("closeRefresh")).forEach(function(element) {
-            element.addEventListener("click", function() {
-                location.replace("/");
-            });
         });
     });
     
@@ -115,12 +108,12 @@
     //     var pongScript;
     //     var canvasOnlineTour = document.getElementById('onlineTournament');
         
-    //     // canvasOnlineTour.addEventListener('submit', function(event) {
-    //     //     startCountdown();
-    //     //     event.preventDefault();
-    //     //     document.querySelector('#formViewOnlineTour').style.display = 'none';
-    //     //     document.querySelector('#waitViewOnlineTour').style.display = 'block';
-    //     // });
+    //     canvasOnlineTour.addEventListener('submit', function(event) {
+    //         startCountdown();
+    //         event.preventDefault();
+    //         document.querySelector('#formViewOnlineTour').style.display = 'none';
+    //         document.querySelector('#waitViewOnlineTour').style.display = 'block';
+    //     });
     //     canvasOnlineTour.addEventListener('hidden.bs.modal', function () {
     //         if (pongScript) {
     //             document.body.removeChild(pongScript);
@@ -128,13 +121,6 @@
     //         }
     //         document.querySelector('#onlineTourForm').style.display = 'block';
     //         document.querySelector('#gameViewLocal').style.display = 'none';
-    //         this.reset()
-    //     });
-        
-    //     Array.from(document.getElementsByClassName("closeRefresh")).forEach(function(element) {
-    //         element.addEventListener("click", function() {
-    //             location.replace("/");
-    //         });
     //     });
     // });
     
@@ -165,26 +151,122 @@
 //     );
 // }
 
+// script pour updater les stats en temps réel dans le dashboard 
+//+ les popovers 
+//+ les modales match history
 
-    // fetch('http://localhost:8000/api/stats')
-    //     .then(response => {
-        //         // Vérifier si la requête a réussi
-        //         if (!response.ok) {
-            //             throw new Error('Network response was not ok');
-            //         }
-            //         // Convertir la réponse en JSON
-            //         return response.json();
-            //     })
-            //     .then(data => {
-                //         // Utiliser les données pour mettre à jour les éléments de votre page
-                //         document.querySelector('.won-stats').textContent = `won (${data.won})`;
-                //         document.querySelector('.wp-stats').style.width = `${data.wp}%`;
-                //         document.querySelector('.wp-stats').textContent = `${data.wp}%`;
-                //         document.querySelector('.lost-stats').textContent = `lost (${data.lost})`;
-                //         document.querySelector('.lp-stats').style.width = `${data.lp}%`;
-                //         document.querySelector('.lp-stats').textContent = `${data.lp}%`;
-//     })
-//     .catch(error => {
-//         // Afficher une erreur si quelque chose se passe mal
-//         console.error('There has been a problem with your fetch operation:', error);
-//     });
+let url = `wss://${window.location.host}/ws/stats/`
+var socket = new WebSocket(url);
+
+socket.onopen = function(e) {
+    console.log("Connection established stats");
+};
+
+socket.onmessage = function(e) {
+    var stats = JSON.parse(e.data);
+    // console.log(stats);
+    // console.log("envoie des donnes stats");
+
+    var statsElement = document.getElementById('stats-profile-' + stats.id);
+    // console.log("user id recuperer par le js:", stats.id);
+    if (statsElement) {
+        statsElement.querySelector('#won').textContent = "M. won (" + stats.won + ")";
+        statsElement.querySelector('#lost').textContent = "M. lost (" + stats.lost + ")";
+        var lost = statsElement.querySelector('.progressLost');
+        lost.style.width = stats.lp + '%';
+        lost.setAttribute('aria-valuenow', stats.lp);
+        lost.textContent = stats.lp + '%';  
+        var won = statsElement.querySelector('.progressWon');
+        won.style.width = stats.wp + '%';
+        won.setAttribute('aria-valuenow', stats.wp);
+        won.textContent = stats.wp + '%';   
+        statsElement.querySelector('#tourn').innerHTML = "<i class='bi bi-trophy'></i> Tournament(s) won (" + stats.tourn + ")";
+    }
+
+    var lossesList = document.getElementById('losses-history-' + stats.id);
+    var winsList = document.getElementById('wins-history-' + stats.id);
+    var lastMatch = stats.matches[stats.matches.length - 1]; 
+    if (lastMatch.result === 'Loss') {
+        // console.log("match dans le js:", lastMatch);
+        var lossesElement = document.createElement('li');
+        lossesElement.innerHTML = `
+            <p class="mb-1">
+                <span class="bg-danger p-1 rounded-1 text-light shadow-sm px-2">loss</span>
+                vs <span class="bg-white bg-opacity-50 p-1 rounded-1 text-dark shadow-sm px-2">${lastMatch.opponent_name}</span>
+                (${lastMatch.user_score} - ${lastMatch.opponent_score})
+            </p>
+            <p class="ms-3 fw-light text-dark text-opacity-75">played on ${lastMatch.time}</p>
+        `;
+        lossesList.appendChild(lossesElement);
+    }
+    else if (lastMatch.result === 'Win') {
+        // console.log("match dans le js:", lastMatch);
+        var winsElement = document.createElement('li');
+        winsElement.innerHTML = `
+            <p class="mb-1">
+                <span class="bg-primary p-1 rounded-1 text-light shadow-sm px-2">win</span>
+                vs <span class="bg-white bg-opacity-50 p-1 rounded-1 text-dark shadow-sm px-2">${lastMatch.opponent_name}</span>
+                (${lastMatch.user_score} - ${lastMatch.opponent_score})
+            </p>
+            <p class="ms-3 fw-light text-dark text-opacity-75">played on ${lastMatch.time}</p>
+        `;
+        winsList.appendChild(winsElement);
+    }
+
+    var popoverElement = document.getElementById('profile-' + stats.id);
+    var dateJoined = popoverElement.getAttribute('data-date-joined');
+    console.log("id du popover:", popoverElement);
+    console.log("stats dans le popover", stats);
+    var popover = bootstrap.Popover.getInstance(popoverElement);
+    if (popover) {
+        popover.dispose();
+    }
+    popover = new bootstrap.Popover(popoverElement, {
+        content: `<i class='bi bi-trophy-fill'></i> Won (${stats.tourn}) tournament(s)
+        <br><i class='bi bi-joystick'></i> Played (${stats.won + stats.lost}) matches:
+        <br>&nbsp;&nbsp;&nbsp;&nbsp;<i class='bi bi-caret-right-fill'></i>won (${stats.won})
+        <br>&nbsp;&nbsp;&nbsp;&nbsp;<i class='bi bi-caret-right-fill'></i>lost (${stats.lost})
+        <br><i class='bi bi-calendar-check-fill'></i> Joined on ${dateJoined}`,
+        html:true
+    });
+};
+
+socket.onclose = function(e) {
+    console.log("Connection closed stats");
+};
+
+socket.onerror = function(e) {
+    console.log("Error occurred stats");
+};
+
+
+// script pour reinitialiser les forms des modales apres fermeture
+
+document.addEventListener('DOMContentLoaded', function() {
+    var signUpModal = document.getElementById('signupModal');
+    var updateProfileModal = document.getElementById('profileModal');
+    var localMatchModal = document.getElementById('localMatchModal')
+
+    signUpModal.addEventListener('hidden.bs.modal', function (e) {
+        document.getElementById('signupForm').reset();
+    });
+    updateProfileModal.addEventListener('hidden.bs.modal', function (e) {
+        document.getElementById('updateProfileForm').reset();
+    });
+    localMatchModal.addEventListener('hidden.bs.modal', function (e) {
+        document.getElementById('localMatchForm').reset();
+    });
+});
+
+
+// script pour lancer les popovers
+
+document.addEventListener("DOMContentLoaded", function(){
+    var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'));
+    var popoverList = popoverTriggerList.map(function(element){
+        return new bootstrap.Popover(element, {
+            html: true
+        });
+    });
+});
+

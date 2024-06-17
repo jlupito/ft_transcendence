@@ -3,7 +3,6 @@ function runsocket(){
     const chatSocket = new WebSocket(url);
 
     opponent = document.getElementById('local_player2_name')
-    console.log("opponent_name: ", opponent.value)
     let running = true
     let data = null
     let latestData = null;
@@ -181,9 +180,19 @@ function runsocket(){
             chatSocket.send(JSON.stringify({'message': 'update'}));
     }
 
+    function set_opponent(){
+        if (chatSocket.readyState === WebSocket.OPEN) {
+            chatSocket.send(JSON.stringify({
+                'message': 'opponent_name',
+                'value': opponent.value
+            }));
+        }
+    }
+
     function draw(){
         if (running){
             draw_objects()
+            set_opponent()
             get_update()
             requestAnimationFrame(draw);
         }

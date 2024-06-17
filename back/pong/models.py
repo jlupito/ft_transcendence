@@ -1,17 +1,26 @@
 from django.db import models
 from django.utils import timezone
-from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import AbstractUser, User
 from django.core.validators import MinValueValidator, MaxValueValidator
 from datetime import timedelta
 import random
 import math
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from asgiref.sync import async_to_sync
 
 # on vient creer un modele UserProfile qui surcharge le modele User préconçu.
 # Il est recommandé de créer ce modele en debut de projet (pour le SQL), meme si
 # on ne surcharge pas ce dernier.
-class UserProfile(AbstractUser):
-    elo = models.IntegerField(default=1000)
+# class UserProfile(AbstractUser):
+class UserProfile(models.Model):
+    # elo = models.IntegerField(default=1000)
     email = models.EmailField(unique=True)
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    # elo = models.IntegerField(default=1000)
+    tourn_won = models.IntegerField(default=0)
+    matches_won = models.IntegerField(default=0)
+    matches_lost = models.IntegerField(default=0)
     avatar = models.ImageField(upload_to='avatars/', default='avatars/default2.png')
     def __str__(self):
         return self.username
@@ -25,9 +34,31 @@ class Match(models.Model):
 
     @classmethod
     def create_match_from_game(cls, game_instance):
-        player1_user=UserProfile.objects.get(username=game_instance.player1)
+        player1_user = User.objects.get(username=game_instance.player1)
+        user1 = UserProfile.objects.get(user=player1_user)
         player2_username = game_instance.player2
-        player2_user, created = UserProfile.objects.get_or_create(username=player2_username)
+        player2_user, created = User.objects.get_or_create(username=player2_username)
+        player2_profiles = UserProfile.objects.filter(user=player2_user)
+        user2 = None
+        if player2_profiles.exists():
+            user2 = player2_profiles.first()
+            
+        if game_instance.p1_score > game_instance.p2_score:
+                user1.matches_won += 1
+                user1.save()
+                print("matches won de user1:", user1.matches_won)
+                if user2 is not None:
+                    user2.matches_lost += 1
+                    user2.save()
+                    print("matches lost de user2:", user2.matches_lost)
+        elif game_instance.p1_score < game_instance.p2_score:
+                user1.matches_lost += 1
+                user1.save()
+                print("matches lost de user1:", user1.matches_lost)
+                if user2 is not None:
+                    user2.matches_won += 1
+                    user2.save()
+                    print("matches won de user2:", user2.matches_won)
 
         match = Match.objects.create(
             player1=player1_user,
@@ -35,11 +66,24 @@ class Match(models.Model):
             player1_score=game_instance.p1_score,
             player2_score=game_instance.p2_score
             )
+        
+                    
         match.save()
         return match
 
     def __str__(self):
         return self.player1.username + ' vs ' + self.player2.username
+    
+@receiver(post_save, sender=Match)
+def update_stats(sender, instance, created, **kwargs):
+    if created:
+        for user in [instance.player1, instance.player2]:
+            from .consumers import StatsConsumer
+            consumer = StatsConsumer.instances.get(user.id)
+            if consumer:
+                from .views import match_stats
+                stats = match_stats(user)  # replace with your function to calculate stats
+                async_to_sync(consumer.send_stats_to_all)(stats)
 
 class Friend(models.Model):
     STATUS_CHOICES = (
@@ -68,22 +112,13 @@ class Friend(models.Model):
 # Il ne peut y avoir qu'une seule methode save() dans la classe, tout mettre dedans.
 
 class Tournoi(models.Model):
+
     tourn_name = models.fields.CharField(max_length=30, blank=True)
-    nb_players = models.fields.IntegerField(default=0)
-    nb_matches = models.fields.IntegerField(default=0)
-    nb_rounds = models.fields.IntegerField(default=0)
-    l_matches = models.JSONField(default=dict)
     tourn_winner = models.fields.CharField(max_length=30, blank=True)
-
-    @staticmethod
-    def get_default_l_players():
-        return []
-    l_players = models.JSONField(default=dict)
-    #l_players = models.JSONField(default=get_default_l_players)
-
-    def get_default_l_matches_p_round():
-        return {}
-    l_matches = models.JSONField(default=get_default_l_matches_p_round)
+    nb_players = models.fields.IntegerField(default=0)
+    nb_rounds = models.fields.IntegerField(default=0)
+    l_players = models.JSONField(default=list)
+    l_matches = models.JSONField(default=dict)
 
     @classmethod
     def create_tournoi_from_tournament(cls, tourn_instance):
@@ -99,15 +134,17 @@ class Tournoi(models.Model):
         tournament.save()
         return tournament
 
-    #def add_matches_in_tournament(cls, tourn_instance, game_instance):
-    #    self.l_players.append(username)
-    #    self.save()
-
-    def add_match_tournament(self, round, match):
-        if round not in self.l_matches:
-            self.l_matches[round] = []
-        self.l_matches[round].append(match)
-        self.save()
+    @classmethod
+    def add_matches_in_tournament(cls, round, game_instance):
+        if round not in cls.l_matches:
+            cls.l_matches[round] = []
+        cls.l_matches[round].append({
+            'player1': game_instance.player1,
+            'player2': game_instance.player2,
+            'p1_score': game_instance.p1_score,
+            'p2_score': game_instance.p2_score
+        })
+        cls.save()
 
     def __str__(self):
         return self.tourn_name

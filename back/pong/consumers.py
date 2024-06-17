@@ -1,16 +1,39 @@
 import json
-from channels.generic.websocket import AsyncWebsocketConsumer
+from channels.generic.websocket import WebsocketConsumer, AsyncWebsocketConsumer
 import channels.layers
 from asgiref.sync import async_to_sync
 from django.core.cache import cache
-from channels.generic.websocket import WebsocketConsumer
 import threading
 import time
 import websockets
-from .models import Match, Tournoi
+from django.contrib.auth.models import User
+from .models import Match, Tournoi, UserProfile
 
+class StatsConsumer(AsyncWebsocketConsumer):
+    instances = {}
 
+    async def connect(self):
+        self.user = self.scope["user"]
+        self.instances[self.user.id] = self
+        print("connect")
+        await self.accept()
 
+    async def disconnect(self, close_code):
+        print("disconnect")
+        del self.instances[self.user.id]
+
+    async def receive(self, text_data):
+        print("receiving data")
+        pass
+
+    async def send_stats(self, stats):
+        print("Sending stats")
+        await self.send(text_data=json.dumps(stats))
+
+    @classmethod
+    async def send_stats_to_all(cls, stats):
+        for consumer in cls.instances.values():
+            await consumer.send_stats(stats)
 
 games_online = []
 games_local = []
@@ -147,10 +170,12 @@ class Game():
     def endgame(self):
         self.is_running = False
         self.has_finished = True
-        # print("Final scores: Player 1 =", self.p1_score, ", Player 2 =", self.p2_score)
-        
-        # new_match = Match.create_match_from_game(self) y'a des erreurs avec ponglocaltournament
-        # new_match.save()
+        print("Final scores: Player 1 =", self.p1_score, ", Player 2 =", self.p2_score)
+        new_match = Match.create_match_from_game(self)
+        new_match.save()
+        from .views import match_stats
+        match_stats(self.player1)
+        match_stats(self.player2)
 
     async def key_up_pressed(self, username):
         if (username == self.player1):
@@ -217,7 +242,7 @@ class TournamentOnline():
         'qualif': self.qualif
     }
 
-    def add_player_to_game(self, player):
+    def add_player_to_game(self, player, round, current_tourn):
         game:Game
         for game in self.games:
             if (game.player1 == "" or game.player2 == ""):
@@ -226,7 +251,7 @@ class TournamentOnline():
                     player.game.player1 = player.name
                 elif (player.game.player2 == ""):
                     player.game.player2 = player.name
-                # connecter ici avec la BD pour apairer les joueurs 2 par 2
+                current_tourn.add_matches_in_tournament(self, round, player.game)
                 break
         if player.game == None:
             player.game = Game(5, "online")
@@ -298,14 +323,25 @@ class TournamentOnline():
                     self.timer -= 1
 
     def run(self):
-        # new_tourn = Tournoi.create_tournoi_from_tournament(self)
-        # new_tourn.save()
         round = 1
+        current_tourn = Tournoi.create_tournoi_from_tournament(self)
+        current_tourn.l_players = [player.name for player in self.players]
+        current_tourn.save()
         while self.is_running:
             if self.status == "Waiting":
                 self.wait()
             if self.status == "Starting":
-                self.starting()
+                for player in self.players:
+                    if player.player_status == "Waiting":
+                        self.add_player_to_game(player, round, current_tourn)
+                for player in self.players:
+                    if not player.game.is_running and player.game.player1 and player.game.player2:
+                        player.game.start()
+                        player.player_status = "Playing"
+                        print(f"Game started for {player.name} with players {player.game.player1} and {player.game.player2}")
+                    if player.game.is_running:
+                        player.player_status = "Playing"
+                self.status = "Started"
             if self.status == "Started":
                 self.started()
             if self.status == "Ending":
@@ -313,6 +349,30 @@ class TournamentOnline():
                 self.is_running = False
                 self.status == "Finished"
             time.sleep(0.005)
+                # for player in self.players:
+                #     if player.player_status == "Waiting" and (player.game.player1 is None or player.game.player2 is None):
+                #         player.player_status = "Winner"
+                #     if player.game.has_finished and player.game.player1 == player.name:
+                #         if player.game.p1_score <= player.game.p2_score:
+                #             player.player_status = "Disqualified"
+                #         else:
+                #             player.player_status = "Winner"
+                #     elif player.game.has_finished and player.game.player2 == player.name:
+                #         if player.game.p2_score <= player.game.p1_score:
+                #             player.player_status = "Disqualified"
+                #         else:
+                #             player.player_status = "Winner"
+                #             self.winner = player.name
+                # round+=1
+                # if self.winner:
+                #     self.is_running = False
+                #     self.is_finished = True
+                #     self.status = "Finished"
+                #     winner_user=User.objects.get(username=self.winner)
+                #     winner_userProfile=UserProfile.objects.get(user=winner_user)
+                #     winner_userProfile.tourn_won += 1
+                #     winner_userProfile.save()
+
          
     async def add_player(self, username):
         if self.status == "Waiting":
@@ -396,7 +456,11 @@ class BasePongConsumer(AsyncWebsocketConsumer):
         username = self.scope['user'].username
 
         if message == 'update':
-            await self.send_update()
+            self.send_update()
+        if message == 'opponent_name':
+            self.game.player2 = text_data_json['value']
+            if self.game.player1 == self.game.player2:
+                self.game.player2 == self.game.player2 + "_2" 
         elif 'pressed' in message or 'released' in message:
             await self.handle_key_event(message, username)
 
@@ -430,7 +494,6 @@ class BasePongConsumer(AsyncWebsocketConsumer):
             'type': 'update received',
             'data': self.game.__dict__
         }))
-
 
 class PongOnline(BasePongConsumer):
     async def setup_game(self):
@@ -470,13 +533,6 @@ class PongLocal(BasePongConsumer):
         else:
             self.game.is_running = True
 
-    async def receive(self, text_data):
-        text_data_json = json.loads(text_data)
-        message = text_data_json['message']
-        if message == 'setOpponentAlias':
-            self.game.player2 = text_data_json['opponent']
-        else:
-            await super().receive(text_data)
 
 class PongOnlineTournament(BasePongConsumer):
     def __init__(self, *args, **kwargs):

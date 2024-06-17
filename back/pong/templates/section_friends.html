@@ -1,16 +1,9 @@
 <div class="col mb-3 mx-auto">
     <div class="colSize p-3 bg-light border border-light border-opacity-25 bg-opacity-25 rounded shadow text-light">
-        <h2 class="mb-4">Friends</h2>
-        <div class="mb-4">
-            <div class="ms-3 mt-3 d-flex align-items-center">
-                <h5>Friends<i class="bi bi-people-fill ms-2"></i></h5>
-            </div>
-            <hr class="col-10 mt-0 mb-3 mx-auto">
-            <ul class="list-unstyled overflow-auto" style="height: 130px;">
-                {% if friends|length == 0 %}
-                    <p class="ms-5">No friends yet</p>
-                {% endif %}
-                {% for friend in friends %}
+        <h3 class="mb-4 ms-2">Users<i class="bi bi-people-fill ms-2"></i></h3>
+        <div class="mb-3 overflow-auto">
+            <ul class="list-unstyled">
+                {% for friend in friends.friends %}
                     <li class="mb-2">
                         <div class="d-flex justify-content-between align-items-center col-10 bg-white bg-opacity-25 mb-2 rounded shadow-sm mx-auto p-3">
                             <div class="d-flex align-items-center">
@@ -22,62 +15,31 @@
                                     {{ friend.username }}
                                 </div>
                             </div>
-                            <button class="btn buttonfriends btn-sm btn-dark shadow-sm" style="--bs-btn-font-size: .75rem;"
-                            data-bs-toggle="modal" data-bs-target="#friendsProfile">
-                            profile
+                            <button class="btn buttonfriends btn-sm btn-dark shadow-sm" style="--bs-btn-font-size: .75rem;" 
+                                id="profile-{{ friend.user.id }}"
+                                type="button" data-bs-toggle="popover" 
+                                title="{{ friend.user.first_name }} profile" 
+                                data-placement="top"
+                                data-trigger="focus"
+                                data-date-joined="{{ friend.user.date_joined.date }}"
+                                data-bs-custom-class="custom-popover"
+                                data-bs-content="
+                                <i class='bi bi-trophy-fill'></i> Won ({{ friend.matches_won }}) tournament(s)
+                                <br><i class='bi bi-joystick'></i> Played ({{ friend.matches_won|add:friend.matches_lost }}) matches:
+                                <br>&nbsp;&nbsp;&nbsp;&nbsp;<i class='bi bi-caret-right-fill'></i>won ({{ friend.matches_won }})
+                                <br>&nbsp;&nbsp;&nbsp;&nbsp;<i class='bi bi-caret-right-fill'></i>lost ({{ friend.matches_lost }})
+                                <br><i class='bi bi-calendar-check-fill'></i> Joined on {{ friend.user.date_joined.date }}
+                                ">
+                                profile
                             </button>
                         </div>
                     </li>
-                    <div class="modal fade" id="friendsProfile" tabindex="-1" aria-labelledby="friendsProfileLabel" aria-hidden="true">
-                        <div class="modal-dialog">
-                            <div class="modal-content bg-dark-subtle shadow">
-                                <div class="modal-header">
-                                    <h5 class="modal-title" id="friendsProfileLabel">Profile</h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                </div>
-                                <div class="modal-body">
-                                    {% url 'friend_match' friend_username=friend.username %}
-                                    <div>
-                                        <ul class="list-unstyled">
-                                            {% if matches|length == 0 %}
-                                                <p>No matches</p>
-                                            {% endif %}
-                                            {% for match in matches %}
-                                                <li class="d-flex flex-column text-align-center">
-                                                    {% if match.result == "Win" %}
-                                                        <p class="mb-1"><span class="bg-primary p-1 rounded-1 text-light shadow-sm px-2">win</span>
-                                                        vs <span class="bg-white bg-opacity-50 p-1 rounded-1 text-dark shadow-sm px-2">{{ match.opponent_name }}</span>
-                                                        ({{ match.user_score }} - {{ match.opponent_score }})</p>
-                                                        <p class="ms-3 fw-light text-dark text-opacity-75">played on {{ match.time }}</p>
-                
-                                                    {% elif match.result == "Loss" %}
-                                                        <p class="mb-1"><span class="bg-danger p-1 rounded-1 text-light shadow-sm px-2">loss</span>
-                                                        vs <span class="bg-white bg-opacity-50 p-1 rounded-1 text-dark shadow-sm px-2">{{ match.opponent_name }}</span>
-                                                        ({{ match.user_score }} - {{ match.opponent_score }})</p>
-                                                        <p class="ms-3 fw-light text-dark text-opacity-75">played on {{ match.time }}</p>
-                                                    {%endif%}
-                                                </li>
-                                            {% endfor %}
-                                        </ul>
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
                 {% endfor %}
             </ul>
-        </div>
-        <div class="mb-4">
-            <div class="ms-3 d-flex align-items-center">
-                <h5>Users<i class="bi bi-people ms-2"></i></h5>
-            </div>
             <hr class="col-10 mt-0 mb-3 mx-auto">
-            <ul class="list-unstyled overflow-auto" style="height: 175px;">
+            <ul class="list-unstyled">
                 {% for user in users %}
-                    {% if user not in friends %}
+                    {% if user not in friends.friends %}
                     <li>
                         <div class="d-flex justify-content-between align-items-center col-10 bg-white bg-opacity-25 p-3 mb-2 rounded shadow-sm mx-auto">
                             <div class="d-flex align-items-center">
@@ -86,7 +48,7 @@
                                     {{ user.username }}
                                 </div>
                             </div>
-                            {% if user.username in invites %}
+                            {% if user.user.first_name in friends.invites %}
                             <form action="handle_invite" method="POST">
                                 {% csrf_token %}
                                 <input type="hidden" name="invite" value="{{ user.username }}">
@@ -95,7 +57,7 @@
                                 <button type="submit" name="status" value="declined" class="px-2 buttonvalid btn btn-sm btn-danger shadow-sm"
                                 style="--bs-btn-font-size: .75rem;"><i class="bi bi-x-square"></i></button>
                             </form>
-                            {% elif user.username in invitees %}
+                            {% elif user.user.first_name in friends.invitees %}
                             <button class="btn buttonfriends btn-sm btn-primary shadow-sm" disabled
                             style="--bs-btn-font-size: .75rem;">pending</button>
                             {% else %}

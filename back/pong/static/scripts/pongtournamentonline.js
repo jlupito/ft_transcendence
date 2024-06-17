@@ -211,7 +211,8 @@ function runsocket(){
             let win_message
             win_message = data.data.tournament.winner + " won the tournament"
             ctx.fillStyle = 'white'
-            ctx.fillText(win_message, WIDTH/2 + 40, HEIGHT/2 +40)
+            ctx.textBaseline = 'center'
+            ctx.fillText(win_message, WIDTH/2, HEIGHT/2 + 20)
         }
     }
     

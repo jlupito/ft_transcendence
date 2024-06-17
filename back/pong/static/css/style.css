@@ -43,7 +43,8 @@ body {
 /* Style pour les deux blocs game/friends */
 
 .colSize {
-   	height: 530px;
+   	height: 480px;
+    min-width: 300px;
 }
 
 /* Animation pour les trois points d attente */
@@ -78,19 +79,32 @@ body {
   
   /* Style pour les popovers */
 
-  .custom-popover {
-	max-width: 200px;
-	border-color:#0d6efd;
+
+  /* .custom-popover {
+    --bs-popover-max-width: 200px;
+    --bs-popover-border-color: var(--bd-violet-bg) !important;
+    --bs-popover-header-bg: var(--bd-violet-bg) !important;
+    --bs-popover-header-color: var(--bs-white) !important;
+    --bs-popover-body-padding-x: 1rem;
+    --bs-popover-body-padding-y: .5rem;
+  } */
+  
+
+  .popover {
+	max-width: 300px;
+	border-color: rgb(219, 213, 213);;
 	font-family: 'Orbitron', sans-serif;
-	background-color: white;
+	background-color: rgb(219, 213, 213);
   }
   
-  .custom-popover .arrow::after {
-	border-color: #0d6efd;
+  .popover .arrow::after {
+	border-color: rgb(219, 213, 213);
+  background-color: rgb(219, 213, 213);
   }
   
-  .custom-popover .popover-header {
-	background: #0d6efd;
+  .popover .popover-header {
+	background: #000000;
+  border-color: rgb(0, 0, 0);;
 	color: white;
   }
 
