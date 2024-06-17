@@ -23,13 +23,13 @@ def home(request):
 		users = UserProfile.objects.exclude(user=request.user)
 		stats = match_stats(request.user)
 		friends = friends_list(request.user)
-		tournament = current_tournament(request.user)
+		# tournament = current_tournament(request.user)
 		context = {
 			'users': users,
 			'avatar_url': avatar_url,
 			'friends': friends,
 			'stats' : stats,
-			'current_tourn' : tournament,
+			# 'current_tourn' : tournament,
 		}
 	return render(request, 'page.html', context)
 
@@ -272,7 +272,7 @@ def handle_invite(request):
 		inv.save()
 	return redirect('home')
 
-
+@login_required
 def send_invite(request):
 	if request.method == 'GET':
 		return redirect('home')
