@@ -12,11 +12,11 @@ from asgiref.sync import async_to_sync
 # on vient creer un modele UserProfile qui surcharge le modele User préconçu.
 # Il est recommandé de créer ce modele en debut de projet (pour le SQL), meme si
 # on ne surcharge pas ce dernier.
-# class UserProfile(AbstractUser):
-class UserProfile(models.Model):
+class UserProfile(AbstractUser):
+# class UserProfile(models.Model):
     # elo = models.IntegerField(default=1000)
     email = models.EmailField(unique=True)
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    # user = models.OneToOneField(User, on_delete=models.CASCADE)
     # elo = models.IntegerField(default=1000)
     tourn_won = models.IntegerField(default=0)
     matches_won = models.IntegerField(default=0)
