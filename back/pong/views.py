@@ -11,7 +11,7 @@ from django.core.exceptions import ValidationError
 import requests
 import os
 from .forms import RegisterForm, LoginForm, localMatchForm
-from .consumers import Game, Tournament, StatsConsumer
+from .consumers import Game, StatsConsumer
 from tempfile import NamedTemporaryFile
 from django.core.files.base import ContentFile
 from back.send_email import send_email
@@ -148,17 +148,18 @@ def register(request):
 		registerform = RegisterForm(request.POST)
 		if registerform.is_valid():
 			username=registerform.cleaned_data['username']
-			if User.objects.filter(username=username).exists():
+			if UserProfile.objects.filter(username=username).exists():
 				messages.error(request, 'This username is already used!') # Modifier la posiiton du message de front
 				# registerform = RegisterForm() # ne change rien == maintenir le form ?
 				return redirect('home')
 			mdp=registerform.cleaned_data['password']
 			email=registerform.cleaned_data['email']
-			if User.objects.filter(email=email).exists():
+			if UserProfile.objects.filter(email=email).exists():
 				messages.error(request, 'This email is already in use...')
 				return redirect('home')
-			new_user = User.objects.create_user(username=username, password=mdp, email=email, first_name=username)
-			UserProfile.objects.create(user=new_user)
+			# new_user = UserProfile.objects.create_user(username=username, password=mdp, email=email, first_name=username)
+			# UserProfile.objects.create(user=new_user)
+			new_user = UserProfile.objects.create(username=username, password=mdp, email=email, first_name=username)
 			login(request, new_user)
 			messages.success(request, 'Account created successfully!')
 			return redirect('home')
@@ -201,12 +202,12 @@ def auth(request):
 	intra_email = response.json()['email']
 	intra_picture = response.json()['image']['link']
 	picture = save_image(intra_picture)
-	user = User.objects.filter(username=intra_login).first()
+	user = UserProfile.objects.filter(username=intra_login).first()
 	if user is None:
-		user = User.objects.create_user(username=intra_login, first_name=intra_login, email=intra_email)
-		UserProfile.objects.create(user=user)
+		# user = Userprofile.objects.create_user(username=intra_login, first_name=intra_login, email=intra_email)
+		UserProfile.objects.create(username=intra_login, first_name=intra_login, email=intra_email)
 		if (picture is not None):
-			user_profile = UserProfile.objects.get(user=user)
+			user_profile = UserProfile.objects.get(username=user)
 			if user_profile.avatar.url != "/media/avatars/default2.png":
 				user_profile.avatar.delete()
 			picture.name = user.username
@@ -227,7 +228,7 @@ def update_profile(request):
 		except ValidationError as e:
 			messages.error(request, 'Invalid file type')
 			return redirect('home')
-	if (User.objects.filter(first_name=username).exists() and username != request.user.first_name):
+	if (UserProfile.objects.filter(first_name=username).exists() and username != request.user.first_name):
 		messages.error(request, 'Username already taken')
 		return redirect('home')
 	user = request.user
@@ -272,8 +273,8 @@ def match_history(user):
 	return l
 
 def match_stats(user):
-	user = User.objects.filter(username=user).first()
-	profiles = UserProfile.objects.filter(user=user)
+	# user = User.objects.filter(username=user).first()
+	profiles = UserProfile.objects.filter(username=user)
 	userProfile = None
 	if profiles.exists():
 		userProfile = profiles.first()
@@ -348,7 +349,7 @@ def handle_invite(request):
 	sender = request.POST.get('invite')
 	receiver = request.user
 	status = request.POST.get('status')
-	inv = Friend.objects.filter(sender=User.objects.get(username=sender), receiver=receiver).first()
+	inv = Friend.objects.filter(sender=UserProfile.objects.get(username=sender), receiver=receiver).first()
 	if inv:
 		inv.status = status
 		inv.save()
@@ -366,16 +367,16 @@ def send_invite(request):
 		if friend.user.username == receiver:
 			messages.error(request, 'User is already your friend')
 			return redirect('home')
-	invite = Friend.objects.filter(sender=sender, receiver=User.objects.get(username=receiver), status='pending')
+	invite = Friend.objects.filter(sender=sender, receiver=UserProfile.objects.get(username=receiver), status='pending')
 	if invite.exists():
 		messages.error(request, 'Invite already sent')
 		return redirect('home')
-	invite = Friend.objects.filter(sender=User.objects.get(username=receiver), receiver=sender, status='pending')
+	invite = Friend.objects.filter(sender=UserProfile.objects.get(username=receiver), receiver=sender, status='pending')
 	if invite.exists():
 		messages.error(request, 'You already have an invite from this user')
 		return redirect('home')
 
-	Friend.objects.create(sender=sender, receiver=User.objects.get(username=receiver), status='pending')
+	Friend.objects.create(sender=sender, receiver=UserProfile.objects.get(username=receiver), status='pending')
 	return redirect('home')
 
 

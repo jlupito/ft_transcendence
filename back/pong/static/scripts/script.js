@@ -1,53 +1,52 @@
 // script pour la balle de la page log in
 
-    const ball = document.getElementById('ball');
-    let angle = 90;
-    let speedX = 2;
-    let speedY = 2;
-    let posX = window.innerWidth / 2;
-    let posY = window.innerWidth / 2;
+    // const ball = document.getElementById('ball');
+    // let angle = 90;
+    // let speedX = 2;
+    // let speedY = 2;
+    // let posX = window.innerWidth / 2;
+    // let posY = window.innerWidth / 2;
 
-    function updateBackground() {
-        // document.body.style.background = `linear-gradient(${angle}deg, #ff006a, #00ffdd)`;
-        document.body.style.background = `linear-gradient(${angle}deg, #e4712e, #1490e2)`;
-    }
+    // function updateBackground() {
+    //     // document.body.style.background = `linear-gradient(${angle}deg, #ff006a, #00ffdd)`;
+    //     document.body.style.background = `linear-gradient(${angle}deg, #e4712e, #1490e2)`;
+    // }
 
-    function launchBall() {
-        posX += speedX;
-        posY += speedY;
+    // function launchBall() {
+    //     posX += speedX;
+    //     posY += speedY;
 
-        const windowWidth = window.innerWidth;
-        const windowHeight = window.innerHeight;
-        const ballWidth = 8;
-        const ballHeight = 8;
+    //     const windowWidth = window.innerWidth;
+    //     const windowHeight = window.innerHeight;
+    //     const ballWidth = 8;
+    //     const ballHeight = 8;
+    //     if (posX <= 0) {
+    //         speedX *= -1;
+    //         angle = 90;
+    //     }
 
-        if (posX <= 0) {
-            speedX *= -1;
-            angle = 90;
-        }
+    //     if (posX + ballWidth >= windowWidth) {
+    //         speedX *= -1;
+    //         angle = 270;
+    //     }
 
-        if (posX + ballWidth >= windowWidth) {
-            speedX *= -1;
-            angle = 270;
-        }
+    //     if (posY <= 0) {
+    //         speedY *= -1;
+    //         angle = 180;
+    //     }
 
-        if (posY <= 0) {
-            speedY *= -1;
-            angle = 180;
-        }
+    //     if (posY + ballHeight >= windowHeight) {
+    //         speedY *= -1;
+    //         angle = 0;
+    //     }
 
-        if (posY + ballHeight >= windowHeight) {
-            speedY *= -1;
-            angle = 0;
-        }
+    //     updateBackground(angle);
+    //     // ball.style.left = posX + 'px';
+    //     // ball.style.top = posY + 'px';
 
-        updateBackground(angle);
-        // ball.style.left = posX + 'px';
-        // ball.style.top = posY + 'px';
+    // }
 
-    }
-
-    setInterval(launchBall, 3);
+    // setInterval(launchBall, 3);
 
 // script pour garder actif le choix de la langue
 
