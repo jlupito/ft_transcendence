@@ -34,31 +34,32 @@ class Match(models.Model):
 
     @classmethod
     def create_match_from_game(cls, game_instance):
-        player1_user = User.objects.get(username=game_instance.player1)
-        user1 = UserProfile.objects.get(user=player1_user)
-        player2_username = game_instance.player2
-        player2_user, created = User.objects.get_or_create(username=player2_username)
-        player2_profiles = UserProfile.objects.filter(user=player2_user)
-        user2 = None
+        # player1_user = User.objects.get(username=game_instance.player1)
+        # user1 = UserProfile.objects.get(user=player1_user)
+        player1_user = UserProfile.objects.get(username=game_instance.player1)
+        # player2_username = game_instance.player2
+        # player2_user, created = User.objects.get_or_create(username=player2_username)
+        player2_profiles = UserProfile.objects.filter(username=game_instance.player1)
+        player2_user = None
         if player2_profiles.exists():
-            user2 = player2_profiles.first()
+            player2_user = player2_profiles.first()
             
         if game_instance.p1_score > game_instance.p2_score:
-                user1.matches_won += 1
-                user1.save()
-                print("matches won de user1:", user1.matches_won)
-                if user2 is not None:
-                    user2.matches_lost += 1
-                    user2.save()
-                    print("matches lost de user2:", user2.matches_lost)
+                player1_user.matches_won += 1
+                player1_user.save()
+                print("matches won de player1_user:", player1_user.matches_won)
+                if player2_user is not None:
+                    player2_user.matches_lost += 1
+                    player2_user.save()
+                    print("matches lost de player2_user:", player2_user.matches_lost)
         elif game_instance.p1_score < game_instance.p2_score:
-                user1.matches_lost += 1
-                user1.save()
-                print("matches lost de user1:", user1.matches_lost)
-                if user2 is not None:
-                    user2.matches_won += 1
-                    user2.save()
-                    print("matches won de user2:", user2.matches_won)
+                player1_user.matches_lost += 1
+                player1_user.save()
+                print("matches lost de player1_user:", player1_user.matches_lost)
+                if player2_user is not None:
+                    player2_user.matches_won += 1
+                    player2_user.save()
+                    print("matches won de player2_user:", player2_user.matches_won)
 
         match = Match.objects.create(
             player1=player1_user,

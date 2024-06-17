@@ -48,7 +48,7 @@
                                     {{ user.username }}
                                 </div>
                             </div>
-                            {% if user.user.first_name in friends.invites %}
+                            {% if user.username in friends.invites %}
                             <form action="handle_invite" method="POST">
                                 {% csrf_token %}
                                 <input type="hidden" name="invite" value="{{ user.username }}">
@@ -57,7 +57,7 @@
                                 <button type="submit" name="status" value="declined" class="px-2 buttonvalid btn btn-sm btn-danger shadow-sm"
                                 style="--bs-btn-font-size: .75rem;"><i class="bi bi-x-square"></i></button>
                             </form>
-                            {% elif user.user.first_name in friends.invitees %}
+                            {% elif user.username in friends.invitees %}
                             <button class="btn buttonfriends btn-sm btn-primary shadow-sm" disabled
                             style="--bs-btn-font-size: .75rem;">pending</button>
                             {% else %}

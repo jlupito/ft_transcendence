@@ -134,8 +134,8 @@ def sign_in(request):
 				password=loginform.cleaned_data['password']
 				)
 			if user is not None:
-				login(request, user)
-				messages.success(request, 'You are now logged in!')
+				request.session['id'] = user.id
+				return redirect('verify-view')
 			else:
 				messages.error(request, 'Invalid username or password')
 	else:
@@ -205,9 +205,9 @@ def auth(request):
 	user = UserProfile.objects.filter(username=intra_login).first()
 	if user is None:
 		# user = Userprofile.objects.create_user(username=intra_login, first_name=intra_login, email=intra_email)
-		UserProfile.objects.create(username=intra_login, first_name=intra_login, email=intra_email)
+		user = UserProfile.objects.create(username=intra_login, first_name=intra_login, email=intra_email)
 		if (picture is not None):
-			user_profile = UserProfile.objects.get(username=user)
+			user_profile = UserProfile.objects.get(username=user.username)
 			if user_profile.avatar.url != "/media/avatars/default2.png":
 				user_profile.avatar.delete()
 			picture.name = user.username

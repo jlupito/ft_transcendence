@@ -331,17 +331,18 @@ class TournamentOnline():
             if self.status == "Waiting":
                 self.wait()
             if self.status == "Starting":
-                for player in self.players:
-                    if player.player_status == "Waiting":
-                        self.add_player_to_game(player, round, current_tourn)
-                for player in self.players:
-                    if not player.game.is_running and player.game.player1 and player.game.player2:
-                        player.game.start()
-                        player.player_status = "Playing"
-                        print(f"Game started for {player.name} with players {player.game.player1} and {player.game.player2}")
-                    if player.game.is_running:
-                        player.player_status = "Playing"
-                self.status = "Started"
+                self.starting()
+                # for player in self.players:
+                #     if player.player_status == "Waiting":
+                #         self.add_player_to_game(player, round, current_tourn)
+                # for player in self.players:
+                #     if not player.game.is_running and player.game.player1 and player.game.player2:
+                #         player.game.start()
+                #         player.player_status = "Playing"
+                #         print(f"Game started for {player.name} with players {player.game.player1} and {player.game.player2}")
+                #     if player.game.is_running:
+                #         player.player_status = "Playing"
+                # self.status = "Started"
             if self.status == "Started":
                 self.started()
             if self.status == "Ending":
@@ -532,6 +533,14 @@ class PongLocal(BasePongConsumer):
             games_local.append(self.game)
         else:
             self.game.is_running = True
+
+    async def receive(self, text_data):
+        text_data_json = json.loads(text_data)
+        message = text_data_json['message']
+        if message == 'setOpponentAlias':
+            self.game.player2 = text_data_json['opponent']
+        else:
+            await super().receive(text_data)
 
 
 class PongOnlineTournament(BasePongConsumer):
