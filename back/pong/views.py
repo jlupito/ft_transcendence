@@ -21,7 +21,6 @@ def home(request):
 	if (request.user.is_authenticated):
 		avatar_url = UserProfile.objects.get(user=request.user).avatar.url
 		users = UserProfile.objects.exclude(user=request.user)
-		matches = match_history(request.user)
 		stats = match_stats(request.user)
 		friends = friends_list(request.user)
 		tournament = current_tournament(request.user)
@@ -29,7 +28,6 @@ def home(request):
 			'users': users,
 			'avatar_url': avatar_url,
 			'friends': friends,
-			'matches': matches,
 			'stats' : stats,
 			'current_tourn' : tournament,
 		}
@@ -165,42 +163,6 @@ def update_profile(request):
 
 # *********************************** MATCHES HISTORY ***********************************
 
-def match_stats(user):
-	user = User.objects.filter(username=user).first()
-	profiles = UserProfile.objects.filter(user=user)
-	userProfile = None
-	if profiles.exists():
-		userProfile = profiles.first()
-	else:
-		return None
-	won = userProfile.matches_won
-	lost = userProfile.matches_lost
-	total = won + lost
-	tourn = userProfile.tourn_won
-	if total == 0:
-		won_perc = 0
-		lost_perc = 0
-	else:
-		won_perc = round(won / total * 100)
-		lost_perc = round(lost / total * 100)
-	stats = {
-		'won': won,
-		'lost': lost,
-		'wp': won_perc,
-		'lp': lost_perc,
-		'tourn': tourn,
-		'id': user.id,
-		# 'date_joined': user.date_joined.date,
-    }
-	return stats
-
-def current_tournament(user):
-	tournament = Tournoi.objects.filter(tourn_winner__isnull=True, l_players__contains=user.username).first()
-	if tournament:
-		return tournament
-	else:
-		return None
-
 def match_history(user):
 	matches = Match.objects.filter(player1=user) | Match.objects.filter(player2=user)
 	l = []
@@ -226,6 +188,44 @@ def match_history(user):
 			match_result["result"] = "Loss"
 		l.append(match_result)
 	return l
+
+def match_stats(user):
+	user = User.objects.filter(username=user).first()
+	profiles = UserProfile.objects.filter(user=user)
+	userProfile = None
+	if profiles.exists():
+		userProfile = profiles.first()
+	else:
+		return None
+	won = userProfile.matches_won
+	lost = userProfile.matches_lost
+	total = won + lost
+	tourn = userProfile.tourn_won
+	if total == 0:
+		won_perc = 0
+		lost_perc = 0
+	else:
+		won_perc = round(won / total * 100)
+		lost_perc = round(lost / total * 100)
+	matches_hist = match_history(user)
+	stats = {
+		'won': won,
+		'lost': lost,
+		'wp': won_perc,
+		'lp': lost_perc,
+		'tourn': tourn,
+		'id': user.id,
+		'matches': matches_hist,
+    }
+	return stats
+
+# def current_tournament(user):
+# 	tournament = Tournoi.objects.filter(tourn_winner__isnull=True, l_players__contains=user.username).first()
+# 	if tournament:
+# 		return tournament
+# 	else:
+# 		return None
+
 
 # *********************************** FRIENDS ***********************************
 

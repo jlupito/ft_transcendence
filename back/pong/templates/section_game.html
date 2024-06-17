@@ -63,9 +63,9 @@
             </div>
             <div class="modal-body ms-5 overflow-auto" style="height: 200px;">
                 <div>
-                    <ul class="list-unstyled">
-                        {% for match in matches %}
-                            <li class="d-flex flex-column text-align-center">
+                    <ul id="losses-history-{{ user.id }}" class="list-unstyled d-flex flex-column text-align-center">
+                        <!-- {% for match in stats.matches %}
+                            <li>
                                 {% if match.result == "Loss" %}
                                     <p class="mb-1"><span class="bg-danger p-1 rounded-1 text-light shadow-sm px-2">loss</span>
                                     vs <span class="bg-white bg-opacity-50 p-1 rounded-1 text-dark shadow-sm px-2">{{ match.opponent_name }}</span>
@@ -73,7 +73,7 @@
                                     <p class="ms-3 fw-light text-dark text-opacity-75">played on {{ match.time }}</p>
                                 {%endif%}
                             </li>
-                        {% endfor %}
+                        {% endfor %} -->
                     </ul>
                 </div>
             </div>
@@ -92,9 +92,9 @@
             </div>
             <div class="modal-body ms-5 overflow-auto" style="height: 200px;">
                 <div>
-                    <ul class="list-unstyled">
-                        {% for match in matches %}
-                            <li class="d-flex flex-column text-align-center">
+                    <ul id="wins-history-{{ user.id }}" class="list-unstyled">
+                        <!-- {% for match in matches %}
+                            <li>
                                 {% if match.result == "Win" %}
                                     <p class="mb-1"><span class="bg-primary p-1 rounded-1 text-light shadow-sm px-2">win</span>
                                     vs <span class="bg-white bg-opacity-50 p-1 rounded-1 text-dark shadow-sm px-2">{{ match.opponent_name }}</span>
@@ -102,7 +102,7 @@
                                     <p class="ms-3 fw-light text-dark text-opacity-75">played on {{ match.time }}</p>
                                 {%endif%}
                             </li>
-                        {% endfor %}
+                        {% endfor %} -->
                     </ul>
                 </div>
             </div>

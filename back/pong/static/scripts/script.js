@@ -152,7 +152,9 @@ function startCountdown() {
     );
 }
 
-// script pour updater les stats en temps réel
+// script pour updater les stats en temps réel dans le dashboard 
+//+ les popovers 
+//+ les modales match history
 
 let url = `wss://${window.location.host}/ws/stats/`
 var socket = new WebSocket(url);
@@ -163,34 +165,63 @@ socket.onopen = function(e) {
 
 socket.onmessage = function(e) {
     var stats = JSON.parse(e.data);
-    console.log(stats);
-    console.log("envoie des donnes stats");
+    // console.log(stats);
+    // console.log("envoie des donnes stats");
 
-    let userElement = document.getElementById('stats-profile-' + stats.id);
-    console.log("user id recuperer par le js:", stats.id);
-    if (userElement) {
-        userElement.querySelector('#won').textContent = "M. won (" + stats.won + ")";
-        userElement.querySelector('#lost').textContent = "M. lost (" + stats.lost + ")";
-        var lost = userElement.querySelector('.progressLost');
+    var statsElement = document.getElementById('stats-profile-' + stats.id);
+    // console.log("user id recuperer par le js:", stats.id);
+    if (statsElement) {
+        statsElement.querySelector('#won').textContent = "M. won (" + stats.won + ")";
+        statsElement.querySelector('#lost').textContent = "M. lost (" + stats.lost + ")";
+        var lost = statsElement.querySelector('.progressLost');
         lost.style.width = stats.lp + '%';
         lost.setAttribute('aria-valuenow', stats.lp);
         lost.textContent = stats.lp + '%';  
-        var won = userElement.querySelector('.progressWon');
+        var won = statsElement.querySelector('.progressWon');
         won.style.width = stats.wp + '%';
         won.setAttribute('aria-valuenow', stats.wp);
         won.textContent = stats.wp + '%';   
-        userElement.querySelector('#tourn').innerHTML = "<i class='bi bi-trophy'></i> Tournament(s) won (" + stats.tourn + ")";
+        statsElement.querySelector('#tourn').innerHTML = "<i class='bi bi-trophy'></i> Tournament(s) won (" + stats.tourn + ")";
+    }
+
+    var lossesList = document.getElementById('losses-history-' + stats.id);
+    var winsList = document.getElementById('wins-history-' + stats.id);
+    var lastMatch = stats.matches[stats.matches.length - 1]; 
+    if (lastMatch.result === 'Loss') {
+        // console.log("match dans le js:", lastMatch);
+        var lossesElement = document.createElement('li');
+        lossesElement.innerHTML = `
+            <p class="mb-1">
+                <span class="bg-danger p-1 rounded-1 text-light shadow-sm px-2">loss</span>
+                vs <span class="bg-white bg-opacity-50 p-1 rounded-1 text-dark shadow-sm px-2">${lastMatch.opponent_name}</span>
+                (${lastMatch.user_score} - ${lastMatch.opponent_score})
+            </p>
+            <p class="ms-3 fw-light text-dark text-opacity-75">played on ${lastMatch.time}</p>
+        `;
+        lossesList.appendChild(lossesElement);
+    }
+    else if (lastMatch.result === 'Win') {
+        // console.log("match dans le js:", lastMatch);
+        var winsElement = document.createElement('li');
+        winsElement.innerHTML = `
+            <p class="mb-1">
+                <span class="bg-primary p-1 rounded-1 text-light shadow-sm px-2">win</span>
+                vs <span class="bg-white bg-opacity-50 p-1 rounded-1 text-dark shadow-sm px-2">${lastMatch.opponent_name}</span>
+                (${lastMatch.user_score} - ${lastMatch.opponent_score})
+            </p>
+            <p class="ms-3 fw-light text-dark text-opacity-75">played on ${lastMatch.time}</p>
+        `;
+        winsList.appendChild(winsElement);
     }
 
     var popoverElement = document.getElementById('profile-' + stats.id);
     var dateJoined = popoverElement.getAttribute('data-date-joined');
     console.log("id du popover:", popoverElement);
     console.log("stats dans le popover", stats);
-    var popover = bootstrap.Popover.getInstance(popoverElement); // Get existing popover instance
+    var popover = bootstrap.Popover.getInstance(popoverElement);
     if (popover) {
-        popover.dispose(); // Dispose existing popover
+        popover.dispose();
     }
-    // Create new popover with updated content
     popover = new bootstrap.Popover(popoverElement, {
         content: `<i class='bi bi-trophy-fill'></i> Won (${stats.tourn}) tournament(s)
         <br><i class='bi bi-joystick'></i> Played (${stats.won + stats.lost}) matches:
