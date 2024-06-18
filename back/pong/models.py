@@ -46,36 +46,23 @@ class Match(models.Model):
                 if player1_user is not None:
                     player1_user.matches_won += 1
                     player1_user.save()
-                    print("matches won de player1_user:", player1_user.matches_won)
                 if player2_user is not None:
                     player2_user.matches_lost += 1
                     player2_user.save()
-                    print("matches lost de player2_user:", player2_user.matches_lost)
         elif game_instance.p1_score < game_instance.p2_score:
                 if player1_user is not None:
                     player1_user.matches_lost += 1
                     player1_user.save()
-                    print("matches lost de player1_user:", player1_user.matches_lost)
                 if player2_user is not None:
                     player2_user.matches_won += 1
                     player2_user.save()
-                    print("matches won de player2_user:", player2_user.matches_won)
-
-        # player1 = player1_user if player1_user is not None else None
-        # player2 = player2_user if player2_user is not None else None
-        # player1_notUser = game_instance.player1 if player1_user is None else ''
-        # player2_notUser = game_instance.player2 if player2_user is None else ''
 
         match = Match.objects.create(
-            # player1=player1,
-            # player2=player2,
             player1=game_instance.player1,
             player2=game_instance.player2,
             player1_score=game_instance.p1_score,
             player2_score=game_instance.p2_score
             )
-        print("nom du player 1 dans models:", game_instance.player1)
-        print("nom du player 2 dans models:", game_instance.player2)
         match.save()
         return match
 
@@ -94,7 +81,6 @@ def update_stats(sender, instance, created, **kwargs):
                 print(f"UserProfile with username {user} does not exist.")
                 continue
             consumer = StatsConsumer.instances.get(userProfile.id)
-            print("userprofile dans consumer:", userProfile.id)
             if consumer:
                 from .views import match_stats
                 stats = match_stats(userProfile)  # replace with your function to calculate stats

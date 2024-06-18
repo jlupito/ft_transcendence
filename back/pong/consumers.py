@@ -496,8 +496,8 @@ class PongLocal(BasePongConsumer):
     async def receive(self, text_data):
         text_data_json = json.loads(text_data)
         message = text_data_json['message']
-        if message == 'setOpponentAlias':
-            self.game.player2 = text_data_json['opponent']
+        if message == 'opponent_name':
+            self.game.player2 = text_data_json['value']
         else:
             await super().receive(text_data)
 

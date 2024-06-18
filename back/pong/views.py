@@ -168,11 +168,7 @@ def match_history(user):
 	l = []
 	for match in matches:
 		time = match.timestamp.strftime('%d/%m/%Y %H:%M')
-		# opponent_name = ""
-		# opponent_score = 0
-		# user_score = 0
 		if match.player1 == user:
-			print("1")
 			user_score = match.player1_score
 			opponent_score = match.player2_score
 			opponent_name = match.player2
@@ -180,10 +176,6 @@ def match_history(user):
 			user_score = match.player2_score
 			opponent_score = match.player1_score
 			opponent_name = match.player1
-		print("opponent_name:", opponent_name),
-		print("user_name:", user),
-		# print("opponent_score:", opponent_score),
-		# print("user_score:", ),
 		match_result = {
         "opponent_name": opponent_name,
         "opponent_score": opponent_score,
@@ -216,7 +208,6 @@ def match_stats(user):
 		won_perc = round(won / total * 100)
 		lost_perc = round(lost / total * 100)
 	matches_hist = match_history(user)
-	print("id du user:", userProfile.id)
 	stats = {
 		'won': won,
 		'lost': lost,

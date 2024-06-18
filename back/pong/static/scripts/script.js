@@ -215,7 +215,7 @@ socket.onmessage = function(e) {
                     var winsElement = document.createElement('li');
                     winsElement.innerHTML = `
                     <p class="mb-1">
-                    <span class="bg-danger p-1 rounded-1 text-light shadow-sm px-2">win</span>
+                    <span class="bg-primary p-1 rounded-1 text-light shadow-sm px-2">win</span>
                     vs <span class="bg-white bg-opacity-50 p-1 rounded-1 text-dark shadow-sm px-2">${match.opponent_name}</span>
                     (${match.user_score} - ${match.opponent_score})
                     </p>
