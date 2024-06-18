@@ -15,28 +15,28 @@
             <div style="height: 200px;" class="overflow-auto">
                 <div class="col-10 bg-white bg-opacity-25 p-3 mb-2 rounded shadow-sm mx-auto" style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#winsModal">
                     <div class="row align-items-center">
-                        <div class="col-8 pe-0">
-                            <div class="d-flex align-items-center">
-                                <p class="m-0" id="won">Matches won ({{ stats.won }})</p>
-                            </div>
-                        </div>
-                        <div class="col-4 ps-0">
+                        <div class="col-4">
                             <div class="progress" data-bs-toggle="tooltip" title="% of matches won">
                                 <div class="progress-bar bg-primary progressWon" role="progressbar" style="width: {{ stats.wp }}%" aria-valuenow="{{ stats.wp }}" aria-valuemin="0" aria-valuemax="100">{{ stats.wp }}%</div>
+                            </div>
+                        </div>
+                        <div class="col-8">
+                            <div class="d-flex align-items-center">
+                                <p class="m-0" id="won">Matches won ({{ stats.won }})</p>
                             </div>
                         </div>
                     </div>
                 </div>
                 <div class="col-10 bg-white bg-opacity-25 p-3 mb-2 rounded shadow-sm mx-auto" style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#lossesModal">
                     <div class="row align-items-center">
-                        <div class="col-8 pe-0" >
-                            <div class="d-flex align-items-center">
-                                <p class="m-0" id="lost">Matches lost ({{ stats.lost }})</p>
-                            </div>
-                        </div>
-                        <div class="col-4 ps-0">
+                        <div class="col-4">
                             <div class="progress" data-bs-toggle="tooltip" title="% of matches lost">
                                 <div class="progress-bar bg-danger progressLost" role="progressbar" style="width: {{ stats.lp }}%" aria-valuenow="{{ stats.lp }}" aria-valuemin="0" aria-valuemax="100">{{ stats.lp }}%</div>
+                            </div>
+                        </div>
+                        <div class="col-8" >
+                            <div class="d-flex align-items-center">
+                                <p class="m-0" id="lost">matches lost ({{ stats.lost }})</p>
                             </div>
                         </div>
                     </div>
@@ -44,8 +44,8 @@
                 <div class="col-10 bg-white bg-opacity-25 p-3 mb-2 rounded shadow-sm mx-auto">
                     <div class="row align-items-center">
                         <div class="col" >
-                            <div class="d-flex align-items-center">
-                                <p class="m-0" id="tourn"><i class='bi bi-trophy'></i> Tournament(s) won ({{ stats.tourn }}) </p>
+                            <div class="text-center">
+                                <p class="m-0" id="tourn"><i class='bi bi-trophy-fill me-1'></i>  Tournament(s) won ({{ stats.tourn }}) </p>
                             </div>
                         </div>
                     </div>
