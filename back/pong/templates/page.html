@@ -55,7 +55,7 @@
 		<div id="ball"></div>
 	</main>
 	{% else %}
-	<main class="vh-100">
+	<main class="vh-90">
 		{% include 'section_profile.html' %}
 		<section id="dashboard" class="container" style="max-width: 750px">
 			<div class="row">
@@ -74,7 +74,7 @@
 					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 				</div>
 				<div class="modal-body">
-					<form action="register" method="POST" enctype="multipart/form-data">
+					<form id="signupForm" action="register" method="POST" enctype="multipart/form-data">
 						{% csrf_token %}
 						<div class="mb-3">
 							<label for="username" class="form-label">Username</label>

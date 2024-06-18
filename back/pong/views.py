@@ -1,7 +1,7 @@
 from django.shortcuts import redirect, render
 from django.http import HttpResponse
 from django.contrib.auth import authenticate, login, logout
-from .models import UserProfile, Match, Friend, Tournoi
+from .models import UserProfile, Match, Friend
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.cache import never_cache
@@ -11,7 +11,7 @@ from django.core.exceptions import ValidationError
 import requests
 import os
 from .forms import RegisterForm, LoginForm, localMatchForm
-from .consumers import Game
+from .consumers import Game, StatsConsumer
 from tempfile import NamedTemporaryFile
 from django.core.files.base import ContentFile
 from back.send_email import send_email
@@ -29,10 +29,10 @@ def home(request):
 		context['avatar'] = user.avatar.url
 		context['users'] = UserProfile.objects.all().exclude(username=user.username)
 		context['matches'] = match_history(user)
-		context['invites'] = invites_list(user)
 		context['friends'] = friends_list(user)
 		context['stats'] = match_stats(user)
-		context['invitees'] = invitees_list(user)
+		# context['invites'] = invites_list(user)
+		# context['invitees'] = invitees_list(user)
 	return render(request, 'page.html', context)
 
 
@@ -49,10 +49,12 @@ def sign_in(request):
 			user=authenticate(
 				username=loginform.cleaned_data['username'],
 				password=loginform.cleaned_data['password']
-				)
+			)
 			if user is not None:
-				request.session['id'] = user.id
-				return redirect('verify-view')
+				# request.session['id'] = user.id
+				# return redirect('verify-view')
+				login(request, user)
+				messages.success(request, 'You are now logged in!')
 			else:
 				messages.error(request, 'Invalid username or password')
 	else:
@@ -158,65 +160,32 @@ def auth(request):
 	messages.success(request, 'You are now logged in!')
 	return redirect('home')
 
-# class StatsAPI(APIView):
-#     def get(self, request):
-#         if request.user.is_authenticated:
-#             stats = match_stats(request.user)
-#             return Response(stats, status=status.HTTP_200_OK)
-#         else:
-#             return Response(status=status.HTTP_401_UNAUTHORIZED)
-		
-def match_stats(user):
-    matches = Match.objects.filter(player1=user) | Match.objects.filter(player2=user)
-    won = 0
-    lost = 0
-    for match in matches:
-        if match.player1 == user:
-            if match.player1_score > match.player2_score:
-                won += 1
-            else:
-                lost += 1
-        else:
-            if match.player1_score < match.player2_score:
-                won += 1
-            else:
-                lost += 1
-    total = matches.count()
-    if total == 0:
-        won_perc = 0
-        lost_perc = 0
-    else:
-        won_perc = round(won / total * 100)
-        lost_perc = round(lost / total * 100)
-
-    # tournaments = Tournoi.objects.all()
-    # tourn = 0
-    # for tournament in tournaments:
-    #     if tournament.winner == user.username:
-    #         tourn += 1
-    return {
-        'won': won,
-        'lost': lost,
-        'wp': won_perc,
-        'lp': lost_perc,
-		# 'tourn': tourn,
-    }
+# *********************************** MATCHS ***********************************
 
 def match_history(user):
+	user = user.username
 	matches = Match.objects.filter(player1=user) | Match.objects.filter(player2=user)
 	l = []
 	for match in matches:
 		time = match.timestamp.strftime('%d/%m/%Y %H:%M')
+		# opponent_name = ""
+		# opponent_score = 0
+		# user_score = 0
 		if match.player1 == user:
+			print("1")
 			user_score = match.player1_score
 			opponent_score = match.player2_score
-			opponent = match.player2
+			opponent_name = match.player2
 		else:
 			user_score = match.player2_score
 			opponent_score = match.player1_score
-			opponent = match.player1
+			opponent_name = match.player1
+		print("opponent_name:", opponent_name),
+		print("user_name:", user),
+		# print("opponent_score:", opponent_score),
+		# print("user_score:", ),
 		match_result = {
-        "opponent_name": opponent.username,
+        "opponent_name": opponent_name,
         "opponent_score": opponent_score,
         "user_score": user_score,
         "time": time,
@@ -227,39 +196,71 @@ def match_history(user):
 			match_result["result"] = "Loss"
 		l.append(match_result)
 	return l
+		
+def match_stats(user):
+	# user = User.objects.filter(username=user).first()
+	profiles = UserProfile.objects.filter(username=user)
+	userProfile = None
+	if profiles.exists():
+		userProfile = profiles.first()
+	else:
+		return None
+	won = userProfile.matches_won
+	lost = userProfile.matches_lost
+	total = won + lost
+	tourn = userProfile.tourn_won
+	if total == 0:
+		won_perc = 0
+		lost_perc = 0
+	else:
+		won_perc = round(won / total * 100)
+		lost_perc = round(lost / total * 100)
+	matches_hist = match_history(user)
+	print("id du user:", userProfile.id)
+	stats = {
+		'won': won,
+		'lost': lost,
+		'wp': won_perc,
+		'lp': lost_perc,
+		'tourn': tourn,
+		'id': userProfile.id,
+		'matches': matches_hist,
+    }
+	return stats
 
-def friend_match(request, friend_name):
-    friend_user = UserProfile.objects.get(username=friend_name)
-    fmatches = match_history(friend_user)
-    return render(request, 'friend_match', {'matches': fmatches})
+# *********************************** FRIENDS ***********************************
 
 def friends_list(user):
 	friends = Friend.objects.filter(sender=user, status='accepted') | Friend.objects.filter(receiver=user, status='accepted')
 	profiles = []
 	for friend in friends:
 		if friend.sender == user:
-			profiles.append(friend.receiver)
+			profiles.append(UserProfile.objects.get(username=friend.receiver))
 		else:
-			profiles.append(friend.sender)
-	l = []
+			profiles.append(UserProfile.objects.get(username=friend.sender))
+	friends_l = []
 	for profile in profiles:
-		l.append(profile)
-	return l
+		friends_l.append(profile)
 
-def invites_list(user):
 	invites = Friend.objects.filter(receiver=user, status='pending')
-	l = []
+	invites_l = []
 	for invite in invites:
-		l.append(invite.sender.username)
-	return l
+		invites_l.append(invite.sender.username)
+	
+	invitees = Friend.objects.filter(sender=user, status='pending')
+	invitees_l = []
+	for invitee in invitees:
+		invitees_l.append(invitee.receiver.username)
+	
+	friends_all_status = {
+        "friends": friends_l,
+        "invitees": invitees_l,
+        "invites": invites_l,
+		}
 
-def invitees_list(user):
-    invitees = Friend.objects.filter(sender=user, status='pending')
-    l = []
-    for invitee in invitees:
-        l.append(invitee.receiver.username)
-    return l
+	return friends_all_status
 
+@login_required
 def handle_invite(request):
 	if request.method == 'GET':
 		return redirect('home')
@@ -267,10 +268,12 @@ def handle_invite(request):
 	receiver = request.user
 	status = request.POST.get('status')
 	inv = Friend.objects.filter(sender=UserProfile.objects.get(username=sender), receiver=receiver).first()
-	inv.status = status
-	inv.save()
+	if inv:
+		inv.status = status
+		inv.save()
 	return redirect('home')
 
+@login_required
 def send_invite(request):
 	if request.method == 'GET':
 		return redirect('home')
@@ -278,7 +281,7 @@ def send_invite(request):
 	sender = request.user
 	friends_l = friends_list(sender)
 	request.session.set_expiry(4)
-	for friend in friends_l:
+	for friend in friends_l['friends']:
 		if friend.username == receiver:
 			messages.error(request, 'User is already your friend')
 			return redirect('home')
@@ -294,24 +297,6 @@ def send_invite(request):
 	Friend.objects.create(sender=sender, receiver=UserProfile.objects.get(username=receiver), status='pending')
 	return redirect('home')
 
-# *********************************** MATCHS ***********************************
-
-# def create_local_game(request):
-# 	if request.method == 'POST':
-# 		localform = localMatchForm(request.POST)
-
-# 		if localform.is_valid():
-# 			player1 = request.user
-# 			player2 = localform.cleaned_data['local_player2_name']
-
-# 			if player2:
-# 				new_game = Game.objects.create(player1=player1, player2=player2)
-# 				new_game.save()
-# 				return redirect('home')
-# 			else:
-# 				messages.error(request, "Player 2 name cannot be empty.")
-# 				localform=localMatchForm()
-# 	return redirect('home')
 
 import logging
 

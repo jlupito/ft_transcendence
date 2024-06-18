@@ -1,16 +1,38 @@
 import json
-from channels.generic.websocket import AsyncWebsocketConsumer
+from channels.generic.websocket import AsyncWebsocketConsumer, WebsocketConsumer
 import channels.layers
 from asgiref.sync import async_to_sync
 from django.core.cache import cache
-from channels.generic.websocket import WebsocketConsumer
 import threading
 import time
 import websockets
-from .models import Match, Tournoi
+from .models import Match
 
+class StatsConsumer(AsyncWebsocketConsumer):
+    instances = {}
 
+    async def connect(self):
+        self.user = self.scope["user"]
+        self.instances[self.user.id] = self
+        print("connect")
+        await self.accept()
 
+    async def disconnect(self, close_code):
+        print("disconnect")
+        del self.instances[self.user.id]
+
+    async def receive(self, text_data):
+        print("receiving data")
+        pass
+
+    async def send_stats(self, stats):
+        print("Sending stats")
+        await self.send(text_data=json.dumps(stats))
+
+    @classmethod
+    async def send_stats_to_all(cls, stats):
+        for consumer in cls.instances.values():
+            await consumer.send_stats(stats)
 
 games_online = []
 games_local = []
@@ -149,8 +171,9 @@ class Game():
         self.has_finished = True
         # print("Final scores: Player 1 =", self.p1_score, ", Player 2 =", self.p2_score)
         
-        # new_match = Match.create_match_from_game(self) y'a des erreurs avec ponglocaltournament
-        # new_match.save()
+        new_match = Match.create_match_from_game(self) 
+        #y'a des erreurs avec ponglocaltournament
+        new_match.save()
 
     async def key_up_pressed(self, username):
         if (username == self.player1):

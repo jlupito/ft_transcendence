@@ -7,11 +7,12 @@ function runsocket() {
         console.log('Player connected.');
     };
 
+    let data = NULL;
     chatSocket.onmessage = function(event){
 
         console.log('Received message:', event.data); // Debugging
 
-        let data = JSON.parse(event.data)
+        data = JSON.parse(event.data)
         if (data.type == 'status_update') {
             var statusIndicator = document.getElementById('status-indicator-' + data.user_id);
             console.log('user id ds le js:', data.user_id);
@@ -36,3 +37,4 @@ function runsocket() {
 document.addEventListener('DOMContentLoaded', (event) => {
     runsocket();
 });
+

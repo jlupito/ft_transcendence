@@ -46,19 +46,18 @@ class Migration(migrations.Migration):
                 ('objects', django.contrib.auth.models.UserManager()),
             ],
         ),
-        migrations.CreateModel(
-            name='Tournoi',
-            fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('tourn_name', models.CharField(blank=True, max_length=30)),
-                ('nb_players', models.IntegerField(default=0)),
-                ('nb_matches', models.IntegerField(default=0)),
-                ('nb_rounds', models.IntegerField(default=0)),
-                ('tourn_winner', models.CharField(blank=True, max_length=30)),
-                ('l_players', models.JSONField(default=dict)),
-                ('l_matches', models.JSONField(default=pong.models.Tournoi.get_default_l_matches_p_round)),
-            ],
-        ),
+        # migrations.CreateModel(
+        #     name='Tournoi',
+        #     fields=[
+        #         ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+        #         ('tourn_name', models.CharField(blank=True, max_length=30)),
+        #         ('nb_players', models.IntegerField(default=0)),
+        #         ('nb_matches', models.IntegerField(default=0)),
+        #         ('nb_rounds', models.IntegerField(default=0)),
+        #         ('tourn_winner', models.CharField(blank=True, max_length=30)),
+        #         ('l_players', models.JSONField(default=dict)),
+        #     ],
+        # ),
         migrations.CreateModel(
             name='Match',
             fields=[
