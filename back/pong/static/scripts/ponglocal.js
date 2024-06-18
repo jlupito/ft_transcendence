@@ -214,7 +214,8 @@ function runsocket(){
            ctx.fillStyle = 'white'
            ctx.textBaseline = 'center'
            ctx.fillText(win_message, WIDTH/2, HEIGHT/2 + 20)
-           }
+           chatSocket.close()
+        }
     }
 
     draw();

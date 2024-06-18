@@ -10,11 +10,11 @@ function runsocket(){
 
     let data = null
     let latestData = null;
-    setInterval(() => {
+    let interval = setInterval(() => {
         console.log(latestData);
         console.log(data);
         latestData = null;
-    }, 1000); 
+    }, 1000);
 
     chatSocket.onmessage = function(e){
         data = JSON.parse(e.data)
@@ -192,7 +192,7 @@ function runsocket(){
         }
     }
     
-    setInterval(() => {
+    let update = setInterval(() => {
         get_update()
     }, 10);
 
@@ -213,6 +213,9 @@ function runsocket(){
             ctx.fillStyle = 'white'
             ctx.textBaseline = 'center'
             ctx.fillText(win_message, WIDTH/2, HEIGHT/2 + 20)
+            clearInterval(update)
+            clearInterval(interval)
+            chatSocket.close()
         }
     }
     

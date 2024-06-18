@@ -23,6 +23,8 @@
 							});
 							canvasModal.addEventListener('hidden.bs.modal', function () {
 								if (pongScript) {
+									console.log("coucou", pongScript)
+
 									document.body.removeChild(pongScript);
 									pongScript = null;
 									// stopPongGame(); 

@@ -7,7 +7,7 @@ let running = true
 
 let data = null
 let latestData = null;
-setInterval(() => {
+let interval = setInterval(() => {
     console.log(latestData);
     console.log(data);
     latestData = null;
@@ -193,6 +193,8 @@ function draw(){
         ctx.fillStyle = 'white'
         ctx.textBaseline = 'center'
         ctx.fillText(win_message, WIDTH/2, HEIGHT/2 + 20)
+        clearInterval(interval)
+        chatSocket.close()
     }
 }
 

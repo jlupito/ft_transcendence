@@ -455,9 +455,8 @@ class BasePongConsumer(AsyncWebsocketConsumer):
         text_data_json = json.loads(text_data)
         message = text_data_json['message']
         username = self.scope['user'].username
-
         if message == 'update':
-            self.send_update()
+            await self.send_update()
         if message == 'opponent_name':
             self.game.player2 = text_data_json['value']
             if self.game.player1 == self.game.player2:

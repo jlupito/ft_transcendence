@@ -10,7 +10,7 @@ function runsocket(){
 
     let data = null
     let latestData = null;
-    setInterval(() => {
+    let interval = setInterval(() => {
         console.log(latestData);
         console.log(data);
         latestData = null;
@@ -233,7 +233,7 @@ function runsocket(){
         }
     }
     
-    setInterval(() => {
+    let update = setInterval(() => {
         get_update()
     }, 10);
 
@@ -253,6 +253,9 @@ function runsocket(){
             win_message = data.data.tournament.winner + " won the tournament"
             ctx.fillStyle = 'white'
             ctx.fillText(win_message, WIDTH/2 + 40, HEIGHT/2 +40)
+            clearInterval(update)
+            clearInterval(interval)
+            chatSocket.close()
         }
     }
     
