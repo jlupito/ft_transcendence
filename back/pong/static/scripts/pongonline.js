@@ -7,11 +7,11 @@ let running = true
 
 let data = null
 let latestData = null;
-setInterval(() => {
+let interval = setInterval(() => {
     console.log(latestData);
     console.log(data);
     latestData = null;
-}, 1000); 
+}, 1000);
 
 
 chatSocket.onmessage = function(e){
@@ -38,7 +38,6 @@ chatSocket.onmessage = function(e){
         ball_x_normalspeed = parseFloat(data.data.ball_x_normalspeed)
         player1 = data.data.player1
         player2 = data.data.player2
-        console.log(data);
         if (data.data.has_finished === true)
             running = false
     }
@@ -109,10 +108,6 @@ document.addEventListener('keydown', function(event) {
             if (chatSocket.readyState === WebSocket.OPEN)
                 chatSocket.send(JSON.stringify({'message': 'p2key_down_pressed'}));
             break;
-        // case 'space':
-        //     if (chatSocket.readyState === WebSocket.OPEN)
-        //         chatSocket.send(JSON.stringify({'message': 'replay'}));
-        //     break;
     }
 });
 
@@ -193,6 +188,8 @@ function draw(){
         ctx.fillStyle = 'white'
         ctx.textBaseline = 'center'
         ctx.fillText(win_message, WIDTH/2, HEIGHT/2 + 20)
+        clearInterval(interval)
+        chatSocket.close()
     }
 }
 
