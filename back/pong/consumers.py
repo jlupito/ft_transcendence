@@ -225,7 +225,7 @@ class TournamentOnline():
         self.timer = 10
         self.winner = None
         self.qualif = None
-        self.id = len(games_tournament_local)
+        self.id = len(games_tournament_online)
 
     async def to_dict(self):
         return {
@@ -550,14 +550,14 @@ class PongOnlineTournament(BasePongConsumer):
     async def setup_game(self):
         user = self.scope['user'].username
         found_tournament = False
-        for tournament in games_tournament_local:
+        for tournament in games_tournament_online:
             if not tournament.is_finished and await tournament.has_player(user):
                 self.tournament = tournament
                 await self.tournament.add_player(user)
                 found_tournament = True
                 break
         if not found_tournament:
-            for tournament in games_tournament_local:
+            for tournament in games_tournament_online:
                 if not tournament.is_finished and tournament.status == "Waiting" and len(tournament.players) < 8:
                     self.tournament = tournament
                     await self.tournament.add_player(user)
@@ -565,7 +565,7 @@ class PongOnlineTournament(BasePongConsumer):
                     break
         if not found_tournament:
             self.tournament = TournamentOnline()
-            games_tournament_local.append(self.tournament)
+            games_tournament_online.append(self.tournament)
             await self.tournament.add_player(user)
             await self.tournament.start()
 
