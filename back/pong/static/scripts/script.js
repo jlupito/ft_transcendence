@@ -237,7 +237,7 @@ socket.onmessage = function(e) {
     }
     popover = new bootstrap.Popover(popoverElement, {
         content: `<i class='bi bi-trophy-fill'></i> Won (${stats.tourn}) tournament(s)
-        <br><i class='bi bi-joystick'></i> Played (${stats.won + stats.lost}) matches:
+        <br><i class='bi bi-joystick'></i> Played (${stats.won + stats.lost}) games:
         <br>&nbsp;&nbsp;&nbsp;&nbsp;<i class='bi bi-caret-right-fill'></i>won (${stats.won})
         <br>&nbsp;&nbsp;&nbsp;&nbsp;<i class='bi bi-caret-right-fill'></i>lost (${stats.lost})
         <br><i class='bi bi-calendar-check-fill'></i> Joined on ${dateJoined}`,

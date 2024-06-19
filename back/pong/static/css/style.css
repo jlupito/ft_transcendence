@@ -81,22 +81,28 @@ body {
 
   .popover {
     max-width: 300px;
-    border-color: rgb(219, 213, 213);;
+    /* box-shadow: #000000 0px 0px 1px; */
     font-family: 'Orbitron', sans-serif;
-    background-color: rgb(219, 213, 213);
-    box-shadow: #414040 0px 0px 5px;
+  }
+  
+  .popover .popover-body {
+    border-color: #212529;
+    background-color: #212529;
+    border-radius: 0px 0px 5px 5px; 
+    color: white;
   }
     
-  .popover.bs-popover-auto[x-placement^="bottom"] .arrow::after,
-  .popover.bs-popover-bottom .arrow::after {
+  .popover .arrow::after {
+    background-color: #212529;
     border-bottom-color: rgb(219, 213, 213);
-    background-color: rgb(219, 213, 213);
   }
     
   .popover .popover-header {
-    background: #000000;
-    border-color: rgb(0, 0, 0);;
+    background: rgb(13, 110, 253);
+    border-radius: 5px 5px 0px 0px;
+    border-color: rgb(0, 0, 0);
     color: white;
+
   }
 
   /* Animation pour les messages */
