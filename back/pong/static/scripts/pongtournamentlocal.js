@@ -203,15 +203,21 @@ function runsocket(){
             // console.log(data)
             ctx.textBaseline = "middle"
             ctx.font = "25px Orbitron"
-            message = "Next match starts in: " + data.data.tournament.timer 
+            message = "Next match starts in: "
             ctx.fillText(message, WIDTH/2, HEIGHT/2 - 60)
+            ctx.font = "60px Orbitron"
+            message =  data.data.tournament.timer 
+            ctx.fillText(message, WIDTH/2, HEIGHT/2)
             message = data.data.tournament.games[0].player1
-            ctx.fillText(message, WIDTH/4, HEIGHT/2 + 50)
+            ctx.font = "35px Orbitron"
+            ctx.fillText(message, WIDTH/4 + 10, HEIGHT/2 + 60)
+            ctx.font = "25px Orbitron"
             ctx.fillStyle = 'red';
-            ctx.fillText("vs", WIDTH/2, HEIGHT/2 + 50)
+            ctx.fillText("vs", WIDTH/2, HEIGHT/2 + 60)
             ctx.fillStyle = 'white';
+            ctx.font = "35px Orbitron"
             message = data.data.tournament.games[0].player2
-            ctx.fillText(message, (WIDTH/4) * 3, HEIGHT/2 + 50)
+            ctx.fillText(message, ((WIDTH/4) * 3) -10, HEIGHT/2 + 60)
         }
         
         else    //pendant le match
@@ -258,7 +264,7 @@ function runsocket(){
             ctx.textAlign = "center"
             ctx.textBaseline = "middle"
             ctx.font = "25px Orbitron"
-            ctx.fillText("Tournament finished", WIDTH/2, HEIGHT/2 -20)
+            ctx.fillText("Tournament finished", WIDTH/2, HEIGHT/2 -40)
             let win_message
             ctx.fillStyle = 'red'
             ctx.textBaseline = 'center'
@@ -268,7 +274,7 @@ function runsocket(){
             ctx.fillStyle = 'white'
             ctx.textBaseline = 'center'
             ctx.font = "25px Orbitron"
-            ctx.fillText("won the tournament!", WIDTH/2, HEIGHT/2 +20)
+            ctx.fillText("won the tournament!", WIDTH/2, HEIGHT/2 +40)
             chatSocket.close()
         }
     }
