@@ -37,7 +37,7 @@ class StatsConsumer(AsyncWebsocketConsumer):
 games_online = []
 games_local = []
 games_tournament_local = []
-games_tournament_local = []
+games_tournament_online = []
 
 class Game():
     def __init__(self, maxscore, game_type):
@@ -498,6 +498,9 @@ class PongLocal(BasePongConsumer):
         else:
             self.game.is_running = True
 
+    async def disconnect(self, close_code):
+        self.tournament = None
+
     async def receive(self, text_data):
         text_data_json = json.loads(text_data)
         message = text_data_json['message']
@@ -512,9 +515,11 @@ class PongOnlineTournament(BasePongConsumer):
         self.tournament = None
     
     async def setup_game(self):
+        print("online init")
+        print(self.tournament)
         user = self.scope['user'].username
         found_tournament = False
-        for tournament in games_tournament_local:
+        for tournament in games_tournament_online:
             if not tournament.is_finished and await tournament.has_player(user):
                 self.tournament = tournament
                 await self.tournament.add_player(user)
@@ -529,7 +534,7 @@ class PongOnlineTournament(BasePongConsumer):
                     break
         if not found_tournament:
             self.tournament = TournamentOnline()
-            games_tournament_local.append(self.tournament)
+            games_tournament_online.append(self.tournament)
             await self.tournament.add_player(user)
             await self.tournament.start()
 
@@ -537,7 +542,8 @@ class PongOnlineTournament(BasePongConsumer):
         print(f"User {user} joined tournament {self.tournament.id}")
         print(f"Current players: {[player.name for player in self.tournament.players]}")
 
-
+    async def disconnect(self, close_code):
+        self.tournament = None
 
     async def receive(self, text_data):
         text_data_json = json.loads(text_data)
@@ -723,6 +729,8 @@ class PongLocalTournament(BasePongConsumer):
         self.tournament = None
 
     async def setup_game(self):
+        print("localinit")
+        print(self.tournament)
         user = self.scope['user'].username
         found_tournament = False
         for tournament in games_tournament_local:
@@ -731,6 +739,7 @@ class PongLocalTournament(BasePongConsumer):
                 found_tournament = True
                 break
         if not found_tournament:
+            print("coucou")
             self.tournament = TournamentLocal(user)
             games_tournament_local.append(self.tournament)
             await self.tournament.start()
@@ -753,6 +762,8 @@ class PongLocalTournament(BasePongConsumer):
                         self.tournament.status = "New_match"
                     self.tournament.playername = ""
 
+    async def disconnect(self, close_code):
+        self.tournament = None
 
     async def receive(self, text_data):
         text_data_json = json.loads(text_data)

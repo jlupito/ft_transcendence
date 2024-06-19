@@ -89,6 +89,17 @@ function runsocket(){
     
     const ctx = canvas.getContext('2d');
     
+    var canvasModal = document.getElementById('onlineTournament');
+    let update = null
+	canvasModal.addEventListener('hidden.bs.modal', function () {
+        if (chatSocket.readyState === WebSocket.OPEN)
+            chatSocket.send(JSON.stringify({'message': 'disconnect'}));
+		chatSocket.close()
+        clearInterval(interval)
+        clearInterval(update)
+        running = null
+	});
+
     document.addEventListener('keydown', function(event) {
         const key = event.key;
     
@@ -192,7 +203,7 @@ function runsocket(){
         }
     }
     
-    let update = setInterval(() => {
+    update = setInterval(() => {
         get_update()
     }, 10);
 
@@ -201,7 +212,7 @@ function runsocket(){
             draw_objects()
             requestAnimationFrame(draw);
         }
-        else //fin du tournois
+        else if (running == false) //fin du tournois
         {
             ctx.fillStyle = 'black'
             ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -217,6 +228,8 @@ function runsocket(){
             clearInterval(interval)
             chatSocket.close()
         }
+        else
+            return
     }
     
     draw();
