@@ -6,7 +6,7 @@ from django.core.cache import cache
 import threading
 import time
 import websockets
-from .models import Match
+from .models import Match, UserProfile, AbstractUser
 
 class StatsConsumer(AsyncWebsocketConsumer):
     instances = {}
@@ -170,10 +170,9 @@ class Game():
         self.is_running = False
         self.has_finished = True
         # print("Final scores: Player 1 =", self.p1_score, ", Player 2 =", self.p2_score)
-        
-        new_match = Match.create_match_from_game(self) 
-        #y'a des erreurs avec ponglocaltournament
-        new_match.save()
+        if (self.game_type == "online"):
+            new_match = Match.create_match_from_game(self) 
+            new_match.save()
 
     async def key_up_pressed(self, username):
         if (username == self.player1):
@@ -307,6 +306,12 @@ class TournamentOnline():
                     player.game = None
                     if (player.player_status == "Qualified"):
                         self.winner = player.name
+                        winnerProfiles = UserProfile.objects.filter(username=self.winner)
+                        winnerProfile = None
+                        if winnerProfiles.exists():
+                            winnerProfile = winnerProfiles.first()
+                            winnerProfile.tourn_won += 1
+                            winnerProfile.save()
             else:                       #relance une session de parties
                 self.games = []
                 for player in self.players:
@@ -710,7 +715,7 @@ class TournamentLocal():
             self.game.p2_down = True
         elif message == 'p2key_down_released' and self.game.game_type == "Local":
             self.game.p2_down = False
-        
+    
 
 class PongLocalTournament(BasePongConsumer):
     def __init__(self, *args, **kwargs):

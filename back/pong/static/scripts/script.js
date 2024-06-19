@@ -169,10 +169,11 @@ socket.onmessage = function(e) {
     // console.log("envoie des donnes stats");
 
     var statsElement = document.getElementById('stats-profile-' + stats.id);
+    console.log("coucou", stats)
     console.log("user id recuperer par le js:", stats.id);
     if (statsElement) {
-        statsElement.querySelector('#won').textContent = "Matches won (" + stats.won + ")";
-        statsElement.querySelector('#lost').textContent = "Matches lost (" + stats.lost + ")";
+        statsElement.querySelector('#won').textContent = "Games won (" + stats.won + ")";
+        statsElement.querySelector('#lost').textContent = "Games lost (" + stats.lost + ")";
         var lost = statsElement.querySelector('.progressLost');
         lost.style.width = stats.lp + '%';
         lost.setAttribute('aria-valuenow', stats.lp);
@@ -182,6 +183,7 @@ socket.onmessage = function(e) {
         won.setAttribute('aria-valuenow', stats.wp);
         won.textContent = stats.wp + '%';   
         statsElement.querySelector('#tourn').innerHTML = "<i class='bi bi-trophy-fill me-1'></i> Tournament(s) won (" + stats.tourn + ")";
+        console.log(stats)
     }
 
     var lastMatch = stats.matches[stats.matches.length - 1]; 

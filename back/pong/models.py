@@ -9,11 +9,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from asgiref.sync import async_to_sync
 
-# on vient creer un modele UserProfile qui surcharge le modele User préconçu.
-# Il est recommandé de créer ce modele en debut de projet (pour le SQL), meme si
-# on ne surcharge pas ce dernier.
 class UserProfile(AbstractUser):
-    # elo = models.IntegerField(default=1000)
     email = models.EmailField(unique=True)
     tourn_won = models.IntegerField(default=0)
     matches_won = models.IntegerField(default=0)
@@ -23,8 +19,6 @@ class UserProfile(AbstractUser):
         return self.username
 
 class Match(models.Model):
-    # player1 = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='player1', null=True)
-    # player2 = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='player2', null=True)
     player1 = models.CharField(max_length=30, blank=True)
     player2 = models.CharField(max_length=30, blank=True)
     player1_score = models.IntegerField(default=0)
@@ -33,12 +27,13 @@ class Match(models.Model):
 
     @classmethod
     def create_match_from_game(cls, game_instance):
-        player1_profiles = UserProfile.objects.filter(username=game_instance.player1)
         player1_user = None
+        player1_profiles = UserProfile.objects.filter(username=game_instance.player1)
         if player1_profiles.exists():
             player1_user = player1_profiles.first()
-        player2_profiles = UserProfile.objects.filter(username=game_instance.player2)
+
         player2_user = None
+        player2_profiles = UserProfile.objects.filter(username=game_instance.player2)
         if player2_profiles.exists():
             player2_user = player2_profiles.first()
             
@@ -83,7 +78,7 @@ def update_stats(sender, instance, created, **kwargs):
             consumer = StatsConsumer.instances.get(userProfile.id)
             if consumer:
                 from .views import match_stats
-                stats = match_stats(userProfile)  # replace with your function to calculate stats
+                stats = match_stats(userProfile)
                 async_to_sync(consumer.send_stats_to_all)(stats)
 
 class Friend(models.Model):
