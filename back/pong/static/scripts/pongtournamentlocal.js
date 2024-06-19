@@ -186,6 +186,7 @@ function runsocket(){
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             ctx.fillStyle = 'white';
             ctx.textAlign = "center"
+            ctx.font = "25px Orbitron"
             message = "select tournament size: "
             ctx.fillText(message, WIDTH/2, HEIGHT/2)
             message = "< " + data.data.tournament.maxplayer + " >"
@@ -197,6 +198,7 @@ function runsocket(){
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             ctx.fillStyle = 'white';
             ctx.textAlign = "center"
+            ctx.font = "25px Orbitron"
             message = "select player name: "
             ctx.fillText(message, WIDTH/2, HEIGHT/2)
             message = data.data.tournament.playername + "_"
@@ -239,11 +241,12 @@ function runsocket(){
             ctx.arc(ball_x_pos, ball_y_pos, ball_width, 0, Math.PI * 2);
             ctx.fill();
             ctx.closePath();
-            ctx.font = "45px sans-serif"
-            ctx.fillText(p2_score, WIDTH / 4, HEIGHT / 4, 45)
-            ctx.fillText(p1_score, WIDTH * 3 / 4, HEIGHT / 4, 45)
-            ctx.fillText(player1, WIDTH * 3 / 4, HEIGHT / 8, 90)
-            ctx.fillText(player2, WIDTH / 4, HEIGHT / 8, 90)
+            ctx.font = "25px Orbitron"
+            ctx.textAlign = 'center'
+            ctx.fillText(p2_score, WIDTH / 4, HEIGHT / 6, 45)
+            ctx.fillText(p1_score, WIDTH * 3 / 4, HEIGHT / 6, 45)
+            ctx.fillText(player1, WIDTH * 3 / 4, HEIGHT / 10)
+            ctx.fillText(player2, WIDTH / 4, HEIGHT / 10)
         }
     }
     
@@ -267,18 +270,20 @@ function runsocket(){
         {
             ctx.fillStyle = 'black'
             ctx.fillRect(0, 0, canvas.width, canvas.height);
-            ctx.fillStyle = 'red';
+            ctx.fillStyle = 'white';
             ctx.textAlign = "center"
             ctx.textBaseline = "middle"
             ctx.font = "25px Orbitron"
             ctx.fillText("Tournament finished", WIDTH/2, HEIGHT/2 -40)
             let win_message
-            win_message = data.data.tournament.winner + " won the tournament"
+            ctx.font = "35px Orbitron"
+            ctx.fillStyle = 'red';
+            win_message = data.data.tournament.winner
+            ctx.fillText(win_message, WIDTH/2, HEIGHT/2)
             ctx.fillStyle = 'white'
             ctx.textBaseline = 'center'
             ctx.font = "25px Orbitron"
             ctx.fillText("won the tournament!", WIDTH/2, HEIGHT/2 +40)
-            ctx.fillText(win_message, WIDTH/2 + 40, HEIGHT/2 +40)
             clearInterval(update)
             clearInterval(interval)
             chatSocket.close()
