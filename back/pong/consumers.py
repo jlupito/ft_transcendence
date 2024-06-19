@@ -326,14 +326,22 @@ class TournamentOnline():
                     self.timer -= 1
 
     def run(self):
-        # new_tourn = Tournoi.create_tournoi_from_tournament(self)
-        # new_tourn.save()
-        # round = 1
         while self.is_running:
             if self.status == "Waiting":
                 self.wait()
             if self.status == "Starting":
                 self.starting()
+                # for player in self.players:
+                #     if player.player_status == "Waiting":
+                #         self.add_player_to_game(player, round, current_tourn)
+                # for player in self.players:
+                #     if not player.game.is_running and player.game.player1 and player.game.player2:
+                #         player.game.start()
+                #         player.player_status = "Playing"
+                #         print(f"Game started for {player.name} with players {player.game.player1} and {player.game.player2}")
+                #     if player.game.is_running:
+                #         player.player_status = "Playing"
+                # self.status = "Started"
             if self.status == "Started":
                 self.started()
             if self.status == "Ending":
@@ -341,6 +349,30 @@ class TournamentOnline():
                 self.is_running = False
                 self.status == "Finished"
             time.sleep(0.005)
+                # for player in self.players:
+                #     if player.player_status == "Waiting" and (player.game.player1 is None or player.game.player2 is None):
+                #         player.player_status = "Winner"
+                #     if player.game.has_finished and player.game.player1 == player.name:
+                #         if player.game.p1_score <= player.game.p2_score:
+                #             player.player_status = "Disqualified"
+                #         else:
+                #             player.player_status = "Winner"
+                #     elif player.game.has_finished and player.game.player2 == player.name:
+                #         if player.game.p2_score <= player.game.p1_score:
+                #             player.player_status = "Disqualified"
+                #         else:
+                #             player.player_status = "Winner"
+                #             self.winner = player.name
+                # round+=1
+                # if self.winner:
+                #     self.is_running = False
+                #     self.is_finished = True
+                #     self.status = "Finished"
+                #     winner_user=User.objects.get(username=self.winner)
+                #     winner_userProfile=UserProfile.objects.get(user=winner_user)
+                #     winner_userProfile.tourn_won += 1
+                #     winner_userProfile.save()
+
          
     async def add_player(self, username):
         if self.status == "Waiting":
@@ -354,6 +386,7 @@ class TournamentOnline():
 
     async def start(self):
         if (self.is_started is not True):
+            print("coucou")
             self.is_started = True
             thread = threading.Thread(target=self.run)
             thread.start()
@@ -515,11 +548,9 @@ class PongOnlineTournament(BasePongConsumer):
         self.tournament = None
     
     async def setup_game(self):
-        print("online init")
-        print(self.tournament)
         user = self.scope['user'].username
         found_tournament = False
-        for tournament in games_tournament_online:
+        for tournament in games_tournament_local:
             if not tournament.is_finished and await tournament.has_player(user):
                 self.tournament = tournament
                 await self.tournament.add_player(user)
@@ -534,7 +565,7 @@ class PongOnlineTournament(BasePongConsumer):
                     break
         if not found_tournament:
             self.tournament = TournamentOnline()
-            games_tournament_online.append(self.tournament)
+            games_tournament_local.append(self.tournament)
             await self.tournament.add_player(user)
             await self.tournament.start()
 
@@ -542,7 +573,7 @@ class PongOnlineTournament(BasePongConsumer):
         print(f"User {user} joined tournament {self.tournament.id}")
         print(f"Current players: {[player.name for player in self.tournament.players]}")
 
-    async def disconnect(self, close_code):
+    async def disconnect(self, code):
         self.tournament = None
 
     async def receive(self, text_data):
@@ -729,8 +760,6 @@ class PongLocalTournament(BasePongConsumer):
         self.tournament = None
 
     async def setup_game(self):
-        print("localinit")
-        print(self.tournament)
         user = self.scope['user'].username
         found_tournament = False
         for tournament in games_tournament_local:
@@ -739,7 +768,6 @@ class PongLocalTournament(BasePongConsumer):
                 found_tournament = True
                 break
         if not found_tournament:
-            print("coucou")
             self.tournament = TournamentLocal(user)
             games_tournament_local.append(self.tournament)
             await self.tournament.start()
