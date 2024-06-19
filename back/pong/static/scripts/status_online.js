@@ -1,40 +1,34 @@
-function runsocket() {
+function runsocketStatus() {
 
     let url = `wss://${window.location.host}/ws/status/`
-    const chatSocket = new WebSocket(url);
+    const statusSock = new WebSocket(url);
 
-    chatSocket.onopen = function (event) {
-        console.log('Player connected.');
+    statusSock.onopen = function (event) {
+        console.log('Online WS connected.');
     };
 
-    let data = NULL;
-    chatSocket.onmessage = function(event){
+    statusSock.onmessage = function(event) {
 
-        console.log('Received message:', event.data); // Debugging
-
-        data = JSON.parse(event.data)
+        let data = JSON.parse(event.data)
         if (data.type == 'status_update') {
             var statusIndicator = document.getElementById('status-indicator-' + data.user_id);
-            console.log('user id ds le js:', data.user_id);
-            console.log('statusIndicator:', statusIndicator); // Debugging
-            console.log('status:', data.status); // Debugging
             if (data.status == 'online') {
-                statusIndicator.classList.add('border', 'border-2', 'border-success');
+                statusIndicator.style.backgroundColor = 'rgb(46, 206, 86)'; // Vert
             }
-            else {
-                statusIndicator.classList.remove('border', 'border-2', 'border-success');
+            else if (data.status == 'offline') {
+                statusIndicator.style.backgroundColor = 'rgb(255, 0, 0)'; // Rouge
+            }
+            else if (data.status == 'is_playing') {
+                statusIndicator.style.backgroundColor = 'rgb(255, 165, 0)'; // Orange
             }
         }
     };
 
-    chatSocket.onclose = function(event) {
-        console.log('WebSocket disconnected.');
+    statusSock.onclose = function(event) {
+        console.log('Online WS disconnected.');
     };
-
-    //ici tu peux lancer une boucle qui demande des updates toutes les 10 secondes.
 }
 
 document.addEventListener('DOMContentLoaded', (event) => {
-    runsocket();
+    runsocketStatus();
 });
-

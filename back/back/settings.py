@@ -35,17 +35,23 @@ INSTALLED_APPS = [
     'daphne',
     'channels',
     'django_extensions',
+	'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'pong',
-	'django.contrib.admin',
 	'doubleFa',
 ]
 
 ASGI_APPLICATION = 'back.asgi.application'
+
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels.layers.InMemoryChannelLayer'
+    }
+}
 
 LOGGING = {
     'version': 1,

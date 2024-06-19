@@ -1,24 +1,29 @@
+<script type="text/javascript">
+    var formHTML = `{% csrf_token %}<input type="hidden" name="receiver" value=""><button class="btn buttonfriends btn-sm btn-primary shadow-sm" type="submit" style="--bs-btn-font-size: .75rem;">add friend</button>`;
+</script>
 <div class="col mb-3 mx-auto">
     <div class="colSize p-3 bg-light border border-light border-opacity-25 bg-opacity-25 rounded shadow text-light">
         <h3 class="mb-4 ms-2">Users<i class="bi bi-people-fill ms-2"></i></h3>
         <div class="mb-3 overflow-auto">
-            <ul class="list-unstyled">
+            <ul id= "friendsList" class="list-unstyled">
+                <script src= "../static/scripts/friends_requests_refresh.js"></script>
                 {% for friend in friends.friends %}
                     <li class="mb-2">
                         <div class="d-flex justify-content-between align-items-center col-10 bg-white bg-opacity-25 mb-2 rounded shadow-sm mx-auto p-3">
                             <div class="d-flex align-items-center">
                                 <div class="position-relative">
+                                    <script src= "../static/scripts/status_online.js"></script>
                                     <img class="rounded-circle me-2" src="{{ friend.avatar.url }}" alt="Friend avatar" style="width: 35px; height: 35px;">
-                                    <div class="position-absolute top-0 end-1" style="width: 10px; height: 10px; background-color: rgb(46, 206, 86); border-radius: 50%;"></div>
+                                    <div id="status-indicator-{{ friend.user.id }}" class="position-absolute top-0 end-1" style="width: 10px; height: 10px; background-color: rgb(46, 206, 86); border-radius: 50%;"></div>
                                 </div>
                                 <div style="max-width: 7ch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
                                     {{ friend.username }}
                                 </div>
                             </div>
-                            <button class="btn buttonfriends btn-sm btn-dark shadow-sm" style="--bs-btn-font-size: .75rem;" 
+                            <button class="btn buttonfriends btn-sm btn-dark shadow-sm" style="--bs-btn-font-size: .75rem;"
                                 id="profile-{{ friend.id }}"
-                                type="button" data-bs-toggle="popover" 
-                                title="{{ friend.first_name }} profile" 
+                                type="button" data-bs-toggle="popover"
+                                title="{{ friend.first_name }} profile"
                                 data-placement="top"
                                 data-trigger="focus"
                                 data-date-joined="{{ friend.date_joined.date }}"
@@ -37,11 +42,12 @@
                 {% endfor %}
             </ul>
             <hr class="col-10 mt-0 mb-3 mx-auto">
-            <ul class="list-unstyled">
+            <ul id="usersList" class="list-unstyled">
+                <script src= "../static/scripts/usersList_update.js"></script>
                 {% for user in users %}
                     {% if user not in friends.friends %}
                     <li>
-                        <div class="d-flex justify-content-between align-items-center col-10 bg-white bg-opacity-25 p-3 mb-2 rounded shadow-sm mx-auto">
+                        <div id="userRemove-{{ user.id }}" class="d-flex justify-content-between align-items-center col-10 bg-white bg-opacity-25 p-3 mb-2 rounded shadow-sm mx-auto">
                             <div class="d-flex align-items-center">
                                 <img class="rounded-circle me-2" src="{{ user.avatar.url }}" alt="" style="width: 35px; height: 35px;">
                                 <div style="max-width: 7ch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
@@ -52,9 +58,9 @@
                             <form action="handle_invite" method="POST">
                                 {% csrf_token %}
                                 <input type="hidden" name="invite" value="{{ user.username }}">
-                                <button type="submit" name="status" value="accepted" class="btn buttonvalid px-2 btn-sm btn-primary shadow-sm"
+                                <button type="submit" name="friend_status" value="accepted" class="btn buttonvalid px-2 btn-sm btn-primary shadow-sm"
                                 style="--bs-btn-font-size: .75rem;"><i class="bi bi-check-square"></i></button>
-                                <button type="submit" name="status" value="declined" class="px-2 buttonvalid btn btn-sm btn-danger shadow-sm"
+                                <button type="submit" name="friend_status" value="declined" class="px-2 buttonvalid btn btn-sm btn-danger shadow-sm"
                                 style="--bs-btn-font-size: .75rem;"><i class="bi bi-x-square"></i></button>
                             </form>
                             {% elif user.username in friends.invitees %}
@@ -64,7 +70,7 @@
                             <form action="send_invite" method="POST">
                                 {% csrf_token %}
                                 <input type="hidden" name="receiver" value="{{ user.username }}">
-                                <button class="btn buttonfriends btn-sm btn-primary shadow-sm" type="submit"
+                                <button id="addFriendButton-{{ user.id }}" class="btn buttonfriends btn-sm btn-primary shadow-sm" type="submit"
                                 style="--bs-btn-font-size: .75rem;">add friend</button>
                             </form>
                             {% endif %}

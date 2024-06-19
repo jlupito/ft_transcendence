@@ -10,14 +10,11 @@ from django.contrib import messages
 from django.core.exceptions import ValidationError
 import requests
 import os
-from .forms import RegisterForm, LoginForm, localMatchForm
-from .consumers import Game, StatsConsumer
-from tempfile import NamedTemporaryFile
+from .forms import RegisterForm, LoginForm
 from django.core.files.base import ContentFile
-from back.send_email import send_email
-# from rest_framework.views import APIView
-# from rest_framework.response import Response
-# from rest_framework import status
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
+import logging
 
 def home(request):
 	context = {}
@@ -45,14 +42,11 @@ def sign_in(request):
 		loginform = LoginForm(request.POST)
 
 		if loginform.is_valid():
-			# verifier avec le mail ou avec le username ???? Plus complexe avec un mail mais faisable
 			user=authenticate(
 				username=loginform.cleaned_data['username'],
 				password=loginform.cleaned_data['password']
 			)
 			if user is not None:
-				# request.session['id'] = user.id
-				# return redirect('verify-view')
 				login(request, user)
 				messages.success(request, 'You are now logged in!')
 			else:
@@ -61,7 +55,6 @@ def sign_in(request):
 		loginform=LoginForm()
 	return redirect('home')
 
-# Lancer la creation d'un compte
 def register(request):
 	if request.method == 'POST':
 		registerform = RegisterForm(request.POST)
@@ -188,9 +181,8 @@ def match_history(user):
 			match_result["result"] = "Loss"
 		l.append(match_result)
 	return l
-		
+
 def match_stats(user):
-	# user = User.objects.filter(username=user).first()
 	profiles = UserProfile.objects.filter(username=user)
 	userProfile = None
 	if profiles.exists():
@@ -237,12 +229,12 @@ def friends_list(user):
 	invites_l = []
 	for invite in invites:
 		invites_l.append(invite.sender.username)
-	
+
 	invitees = Friend.objects.filter(sender=user, status='pending')
 	invitees_l = []
 	for invitee in invitees:
 		invitees_l.append(invitee.receiver.username)
-	
+
 	friends_all_status = {
         "friends": friends_l,
         "invitees": invitees_l,
@@ -257,11 +249,26 @@ def handle_invite(request):
 		return redirect('home')
 	sender = request.POST.get('invite')
 	receiver = request.user
-	status = request.POST.get('status')
+	status = request.POST.get('friend_status')
+	print('Status from frnt is :', status)
 	inv = Friend.objects.filter(sender=UserProfile.objects.get(username=sender), receiver=receiver).first()
+	print("inv:", inv)
 	if inv:
 		inv.status = status
+		print('COUCOU', inv.status)
 		inv.save()
+	userpro_receiver = UserProfile.objects.get(username=receiver.username)
+	channel_layer = get_channel_layer()
+	data = {
+			'type': 'friends_requests_update',
+			'friend_id': userpro_receiver.id,
+			'friend_avatar': userpro_receiver.avatar.url,
+			'friend_is_online': userpro_receiver.is_online,
+			'friend_username': userpro_receiver.username,
+		}
+	async_to_sync(channel_layer.group_send)(
+		"friends_requests", data
+		)
 	return redirect('home')
 
 @login_required
@@ -284,14 +291,21 @@ def send_invite(request):
 	if invite.exists():
 		messages.error(request, 'You already have an invite from this user')
 		return redirect('home')
-
 	Friend.objects.create(sender=sender, receiver=UserProfile.objects.get(username=receiver), status='pending')
+	friend_request_sender_profile=UserProfile.objects.get(username=sender)
+	channel_layer = get_channel_layer()
+	data =	{
+			'type': 'new_friend_request',
+			'friend_id': friend_request_sender_profile.id,
+			'friend_avatar': friend_request_sender_profile.avatar.url,
+			'friend_is_online': friend_request_sender_profile.is_online,
+			'friend_username': friend_request_sender_profile.username
+		}
+	async_to_sync(channel_layer.group_send)(
+		"friends_requests", data
+	)
 	return redirect('home')
 
-
-import logging
-
-# Obtenez un objet logger
 logger = logging.getLogger(__name__)
 
 def my_view(request):
