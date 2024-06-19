@@ -3,11 +3,10 @@ function runsocket(){
     const chatSocket = new WebSocket(url);
 
     opponent = document.getElementById('local_player2_name')
-    console.log("opponent_name: ", opponent.value)
     let running = true
     let data = null
     let latestData = null;
-    setInterval(() => {
+    let interval = setInterval(() => {
         console.log(latestData);
         latestData = null;
     }, 1000); 
@@ -39,23 +38,6 @@ function runsocket(){
             player2 = opponent.value
             if (data.data.has_finished === true)
                 running = false
-            // console.log('Data:', data)
-            // console.log("paddle speed", paddle_speed)
-            // console.log("paddle_width", paddle_width)
-            // console.log("paddle_height", paddle_height)
-            // console.log("p1_x_pos", p1_x_pos)
-            // console.log("p1_y_pos", p1_y_pos)
-            // console.log("p2_x_pos", p2_x_pos)
-            // console.log("p2_y_pos", p2_y_pos)
-            // console.log("p1_score", p1_score)
-            // console.log("p2_score", p2_score)
-            // console.log("ball_x_pos", ball_x_pos)
-            // console.log("ball_y_pos", ball_y_pos)
-            // console.log("ball_width", ball_width)
-            // console.log("ball_x_velocity", ball_x_velocity)
-            // console.log("ball_y_velocity", ball_y_velocity)
-            // console.log("ball_x_normalspeed", ball_x_normalspeed)
-            // console.log("p1ypos", data.data.p1_y_pos)
         }
     }
 
@@ -123,10 +105,6 @@ function runsocket(){
                 if (chatSocket.readyState === WebSocket.OPEN)
                     chatSocket.send(JSON.stringify({'message': 'p2key_down_pressed'}));
                 break;
-            // case 'space':
-            //     if (chatSocket.readyState === WebSocket.OPEN)
-            //         chatSocket.send(JSON.stringify({'message': 'replay'}));
-            //     break;
         }
     });
 
@@ -169,8 +147,8 @@ function runsocket(){
         ctx.closePath();
         ctx.font = "25px Orbitron"
         ctx.textAlign = 'center'
-        ctx.fillText(p1_score, WIDTH * 3 / 4, HEIGHT / 6, 45)
         ctx.fillText(p2_score, WIDTH / 4, HEIGHT / 6, 45)
+        ctx.fillText(p1_score, WIDTH * 3 / 4, HEIGHT / 6, 45)
         ctx.fillText(player1, WIDTH * 3 / 4, HEIGHT / 10)
         ctx.fillText(player2, WIDTH / 4, HEIGHT / 10)
     
@@ -215,7 +193,9 @@ function runsocket(){
            ctx.fillStyle = 'white'
            ctx.textBaseline = 'center'
            ctx.fillText(win_message, WIDTH/2, HEIGHT/2 + 20)
-           }
+           clearInterval(interval)
+           chatSocket.close()
+        }
     }
 
     draw();
