@@ -104,53 +104,53 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // script pour la modale du jeu Tournament Online
 
-document.addEventListener('DOMContentLoaded', function() {
-    var pongScript;
-    var canvasOnlineTour = document.getElementById('onlineTournament');
+// document.addEventListener('DOMContentLoaded', function() {
+//     var pongScript;
+//     var canvasOnlineTour = document.getElementById('onlineTournament');
     
-    canvasOnlineTour.addEventListener('submit', function(event) {
-        startCountdown();
-        event.preventDefault();
-        document.querySelector('#formViewOnlineTour').style.display = 'none';
-        document.querySelector('#waitViewOnlineTour').style.display = 'block';
-    });
-    canvasOnlineTour.addEventListener('hidden.bs.modal', function () {
-        if (pongScript) {
-            document.body.removeChild(pongScript);
-            pongScript = null;
-        }
-        document.querySelector('#onlineTourForm').style.display = 'block';
-        document.querySelector('#gameViewLocal').style.display = 'none';
-    });
-});
+//     canvasOnlineTour.addEventListener('submit', function(event) {
+//         startCountdown();
+//         event.preventDefault();
+//         document.querySelector('#formViewOnlineTour').style.display = 'none';
+//         document.querySelector('#waitViewOnlineTour').style.display = 'block';
+//     });
+//     canvasOnlineTour.addEventListener('hidden.bs.modal', function () {
+//         if (pongScript) {
+//             document.body.removeChild(pongScript);
+//             pongScript = null;
+//         }
+//         document.querySelector('#onlineTourForm').style.display = 'block';
+//         document.querySelector('#gameViewLocal').style.display = 'none';
+//     });
+// });
 
 // script pour le chrono de chargement du Tournoi Online
-function startCountdown() {
-let startCount = 2;
-const	stopCount = 0,	
-        duration = 2000,
-        countDownElement = document.getElementById('countdown'),
-        intervalTime = duration/Math.abs(startCount - stopCount);
+// function startCountdown() {
+// let startCount = 2;
+// const	stopCount = 0,	
+//         duration = 2000,
+//         countDownElement = document.getElementById('countdown'),
+//         intervalTime = duration/Math.abs(startCount - stopCount);
     
-let countDown = setInterval(function(){
-    if(startCount === stopCount)
-        startCount = "Go!",  
-        setTimeout(() => {
-            document.querySelector('#waitViewOnlineTour').style.display = 'none',
-            document.querySelector('#drawViewOnlineTour').style.display = 'block'
-            document.querySelector('#playViewOnlineTour').style.display = 'block'
-            // AJOUTER LANCEMENT DU SCRIPT ONLINE TOURNAMENT ICI
-        }, 1000),
-        clearInterval(countDown)
-    countDownElement.innerHTML = startCount;
-    if(startCount > stopCount)
-        startCount--
-    else
-        startCount++
-    },
-intervalTime
-);
-}
+// let countDown = setInterval(function(){
+//     if(startCount === stopCount)
+//         startCount = "Go!",  
+//         setTimeout(() => {
+//             document.querySelector('#waitViewOnlineTour').style.display = 'none',
+//             document.querySelector('#drawViewOnlineTour').style.display = 'block'
+//             document.querySelector('#playViewOnlineTour').style.display = 'block'
+//             // AJOUTER LANCEMENT DU SCRIPT ONLINE TOURNAMENT ICI
+//         }, 1000),
+//         clearInterval(countDown)
+//     countDownElement.innerHTML = startCount;
+//     if(startCount > stopCount)
+//         startCount--
+//     else
+//         startCount++
+//     },
+// intervalTime
+// );
+// }
 
 // script pour updater les stats en temps réel dans le dashboard 
 //+ les popovers 
@@ -171,8 +171,8 @@ socket.onmessage = function(e) {
     var statsElement = document.getElementById('stats-profile-' + stats.id);
     console.log("user id recuperer par le js:", stats.id);
     if (statsElement) {
-        statsElement.querySelector('#won').textContent = "M. won (" + stats.won + ")";
-        statsElement.querySelector('#lost').textContent = "M. lost (" + stats.lost + ")";
+        statsElement.querySelector('#won').textContent = "Matches won (" + stats.won + ")";
+        statsElement.querySelector('#lost').textContent = "Matches lost (" + stats.lost + ")";
         var lost = statsElement.querySelector('.progressLost');
         lost.style.width = stats.lp + '%';
         lost.setAttribute('aria-valuenow', stats.lp);
@@ -181,7 +181,7 @@ socket.onmessage = function(e) {
         won.style.width = stats.wp + '%';
         won.setAttribute('aria-valuenow', stats.wp);
         won.textContent = stats.wp + '%';   
-        statsElement.querySelector('#tourn').innerHTML = "<i class='bi bi-trophy'></i> Tournament(s) won (" + stats.tourn + ")";
+        statsElement.querySelector('#tourn').innerHTML = "<i class='bi bi-trophy-fill me-1'></i> Tournament(s) won (" + stats.tourn + ")";
     }
 
     var lastMatch = stats.matches[stats.matches.length - 1]; 

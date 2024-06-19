@@ -323,7 +323,7 @@ class TournamentOnline():
     def run(self):
         # new_tourn = Tournoi.create_tournoi_from_tournament(self)
         # new_tourn.save()
-        round = 1
+        # round = 1
         while self.is_running:
             if self.status == "Waiting":
                 self.wait()
@@ -747,7 +747,6 @@ class PongLocalTournament(BasePongConsumer):
                     if (len(self.tournament.players) == self.tournament.maxplayer):
                         self.tournament.status = "New_match"
                     self.tournament.playername = ""
-
 
 
     async def receive(self, text_data):
