@@ -28,7 +28,7 @@ function runsocketFriends() {
 
 	socket.onmessage = function(e) {
 	var data = JSON.parse(e.data);
-
+	console.log('Data received in the Friend_request WS is : ', data)
 	if (data.type === 'friends_requests_update') {
 
 		var userElement = document.getElementById('userRemove-' + data.friend_id);
