@@ -79,15 +79,63 @@ function runsocket(){
 
     const canvas = document.getElementById('CanvasLocal');
 
+    
+    var canvasModal = document.getElementById('localMatchModal');
+    let update = null
+    canvasModal.addEventListener('hidden.bs.modal', function () {
+        console.log("aurevoir")
+        chatSocket.close()
+        clearInterval(interval)
+        clearInterval(update)
+        running = null
+    });
+
+    function getCookie(name) {
+
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    const csrf_token = getCookie('csrftoken');
+
     const ctx = canvas.getContext('2d');
 
-    document.addEventListener('keydown', function(event) {
+    async function api() {
+        const response = await fetch(`/api/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': csrf_token,
+                'Content-Type': 'application/json'
+            },
+            body:JSON.stringify({'test':'test'})
+        });
+        const data = await response.json();
+        console.log('Game state:', data);
+        return data;
+    }
+
+
+
+    document.addEventListener('keydown', async function(event) {
         const key = event.key;
 
         switch(key) {
             case 'z':
-                if (chatSocket.readyState === WebSocket.OPEN)
-                    chatSocket.send(JSON.stringify({'message': 'key_up_pressed'}));
+                const response = await fetch(`/api/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
                 break;
             case 'w':
                 if (chatSocket.readyState === WebSocket.OPEN)
@@ -105,6 +153,8 @@ function runsocket(){
                 if (chatSocket.readyState === WebSocket.OPEN)
                     chatSocket.send(JSON.stringify({'message': 'p2key_down_pressed'}));
                 break;
+            case 'p':
+                await api()
         }
     });
 

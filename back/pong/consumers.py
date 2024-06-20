@@ -77,7 +77,7 @@ class Game():
         self.has_finished = False
         self.is_running = False
 
-    async def to_dict(self):
+    def to_dict(self):
         return {
             'game_type': self.game_type,
             'delay': self.delay,
@@ -217,7 +217,7 @@ class Player:
         return {
             'name': self.name,
             'player_status': self.player_status,
-            'game': await self.game.to_dict() if self.game else None
+            'game': self.game.to_dict() if self.game else None
         }
 
 
@@ -238,7 +238,7 @@ class TournamentOnline():
 
     async def to_dict(self):
         return {
-        'games': [await game.to_dict() for game in self.games] if self.games else [],
+        'games': [game.to_dict() for game in self.games] if self.games else [],
         'players': [await player.to_dict() for player in self.players],
         'status': self.status,
         'is_finished': self.is_finished,
@@ -446,6 +446,7 @@ class BasePongConsumer(AsyncWebsocketConsumer):
         self.game:Game = None
 
     async def connect(self):
+        print("scope: ", self.scope)
         await self.accept()
         await self.setup_game()
         if self.game and self.game.player1 and self.game.player2:
@@ -546,7 +547,18 @@ class PongLocal(BasePongConsumer):
             self.game.is_running = True
 
     async def disconnect(self, close_code):
-        self.tournament = None
+        print("local disconnect")
+        user = self.scope['user']
+        user1 = user.username
+        user2 = user.username + "_2"
+
+        for game in games_local:
+            if not game.has_finished and game.player1 == user1 and game.player2 == user2:
+                self.game = game
+                break
+        if (self.game):
+            self.game.is_running = False
+            self.game.has_finished = True
 
     async def receive(self, text_data):
         text_data_json = json.loads(text_data)
@@ -601,7 +613,7 @@ class PongOnlineTournament(BasePongConsumer):
             self.game = game_data
         if message == 'update':
             if (game_data is not None):
-                game_data = await game_data.to_dict()
+                game_data = game_data.to_dict()
             tournament_data = {
                 'tournament': await self.tournament.to_dict(),
                 # 'players': [await player.to_dict() for player in self.tournament.players],
@@ -731,8 +743,8 @@ class TournamentLocal():
             return (False)
     async def to_dict(self):
         return {
-        'games': [await self.game.to_dict() if self.game else None],
-        'players': [await player.to_dict() for player in self.players],
+        'games': [self.game.to_dict() if self.game else None],
+        'players': [player.to_dict() for player in self.players],
         'status': self.status,
         'is_finished': self.is_finished,
         'is_running': self.is_running,
@@ -827,7 +839,7 @@ class PongLocalTournament(BasePongConsumer):
                 self.tournament.addPlayers(text_data_json['playername'])
         if message == 'update':
             if (game_data is not None):
-                game_data = await game_data.to_dict()
+                game_data = game_data.to_dict()
             tournament_data = {
                 'tournament': await self.tournament.to_dict(),
                 # 'players': [await player.to_dict() for player in self.tournament.players],
