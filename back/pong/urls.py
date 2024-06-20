@@ -16,6 +16,7 @@ urlpatterns = [
 	path('create_account', views.send_invite, name='send_invite'),
 	path('register', views.register, name='register'),
     path('sign_in', views.sign_in, name='sign_in'),
+    path('api/', views.api, name='api'),
 	# path('create_local_game', views.create_local_game, name='create_local_game'),
     # path('friend_match/<str:friend_username>/', views.friend_match, name='friend_match'),
     re_path(r'ws/socket-pong-local/', consumers.PongLocal.as_asgi()),

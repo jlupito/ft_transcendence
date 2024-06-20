@@ -18,6 +18,7 @@ RUN pip install werkzeug
 RUN pip install pyOpenSSL
 RUN pip install psycopg2-binary==2.8.6
 RUN pip install django-request-logging
+RUN pip install djangorestframework
 
 
 COPY . /code/

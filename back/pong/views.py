@@ -300,3 +300,32 @@ def my_view(request):
     logger.warning('Ceci est un message d\'avertissement')
     logger.error('Ceci est un message d\'erreur')
     logger.critical('Ceci est un message critique')
+
+from .consumers import Game, games_local, games_online, games_tournament_local, games_tournament_online
+
+from django.http import JsonResponse
+from django.contrib.auth.decorators import login_required
+import json
+
+@login_required
+def api(request):
+	text_data_json = json.loads(request.body)
+	print(text_data_json['test'])
+	if (request.method == 'GET'):
+		user = request.user.username
+		games_data = {
+			'games_local': [],
+			'games_online': [],
+			'games_tournament_local': [],
+			'games_tournament_online': [],
+		}
+		game:Game
+		for game in games_local:
+			if (game.player1 == user or game.player2 == user):
+				games_data['games_local'].append(game.to_dict())
+		for game in games_online:
+			if (game.player1 == user or game.player2 == user):
+				games_data['games_online'].append(game.to_dict())
+		return JsonResponse(games_data)
+	else:
+		return JsonResponse({'coucou':'coucou'})

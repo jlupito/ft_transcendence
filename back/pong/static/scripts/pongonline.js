@@ -84,6 +84,16 @@ const canvas = document.getElementById('CanvasOnline');
 
 const ctx = canvas.getContext('2d');
 
+var canvasModal = document.getElementById('onlineMatchModal');
+    let update = null
+	canvasModal.addEventListener('hidden.bs.modal', function () {
+        console.log("aurevoir")
+		chatSocket.close()
+        clearInterval(interval)
+        clearInterval(update)
+        running = null
+	});
+
 document.addEventListener('keydown', function(event) {
     const key = event.key;
 
