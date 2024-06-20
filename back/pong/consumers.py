@@ -1,5 +1,6 @@
 import json
 from channels.generic.websocket import AsyncWebsocketConsumer
+from channels.db import database_sync_to_async
 import channels.layers
 from asgiref.sync import sync_to_async
 from django.core.cache import cache
@@ -8,6 +9,31 @@ from django.db.models import Q
 import threading
 import time
 from .models import Match, Friend, UserProfile
+
+
+# ************************* WS POUR LA LANGUE ******************************
+class LanguageConsumer(AsyncWebsocketConsumer):
+    async def set_language(self, language):
+        if language in ['english', 'français', 'español']: 
+            await self.update_language_in_db(language)
+            await self.send_language()
+
+    @database_sync_to_async
+    def update_language_in_db(self, language):
+        self.scope['user'].language = language
+        self.scope['user'].save()
+
+    async def receive_json(self, content):
+        action = content.get('action')
+        if action == 'get_language':
+            await self.send_language()
+        elif action == 'set_language':
+            language = content.get('language')
+            await self.set_language(language)
+
+    async def send_language(self):
+        language = self.scope['user'].language
+        await self.send_json({'action': 'get_language', 'language': language})
 
 
 # ************************* WS POUR LES STATS DES JOUEURS ****************************

@@ -132,7 +132,7 @@ socket.onmessage = function(e) {
         won.style.width = stats.wp + '%';
         won.setAttribute('aria-valuenow', stats.wp);
         won.textContent = stats.wp + '%';   
-        statsElement.querySelector('#tourn').innerHTML = "<i class='bi bi-trophy-fill me-1'></i> Tournament(s) won (" + stats.tourn + ")";
+        statsElement.querySelector('#tourn').textContent = "(" + stats.tourn + ")";
         console.log(stats)
     }
 
@@ -142,7 +142,6 @@ socket.onmessage = function(e) {
         if (lastMatch.result === 'Loss') {
             lossesList.innerHTML = '';
             for (let match of stats.matches) {
-                // let match = stats.matches[index];
                 if (match.result === 'Loss') {
                     var lossesElement = document.createElement('li');
                     lossesElement.innerHTML = `
@@ -162,7 +161,6 @@ socket.onmessage = function(e) {
     if (winsList) {
         if (lastMatch.result === 'Win') {
             for (let match of stats.matches) {
-                // let match = stats.matches[index];
                 if (match.result === 'Win') {
                     var winsElement = document.createElement('li');
                     winsElement.innerHTML = `
@@ -232,83 +230,4 @@ var popoverList = popoverTriggerList.map(function(element){
         html: true
     });
 });
-});
-
-// script pour les traductions
-
-
-document.addEventListener('DOMContentLoaded', function() {
-    var translations = {
-        "english": {
-            "welcome": "Welcome",
-            "edit": "Edit profile",
-            "update": "Update profile",
-            "username": "Username",
-            "picture": "Profile picture",
-            "save": "Save",
-            "close": "Close",
-            "language": "Language",
-            "authors": "Authors",
-            "game": "Game",
-            "play": "Play a:",
-            "tournament": "Tournament",
-            "won": "Games won",
-            "lost": "Games lost",
-            "tourn": "Tournament(s) won",
-            "1v1": "Play a 1v1 match:",
-            "online": "Online",
-        },
-        "français": {
-            "welcome": "Bienvenue",
-            "edit": "Modifier profil",
-            "update": "Mise à jour du profil",
-            "username": "Nom d'utilisateur",
-            "picture": "Photo de profil",
-            "save": "Enregistrer",
-            "close": "Fermer",
-            "language": "Langue",
-            "authors": "Auteurs",
-            "game": "Jeu",
-            "play": "Démarrer un :",
-            "tournament": "Tournoi",
-            "won": "Victoires",
-            "lost": "Défaites",
-            "tourn": "Tournoi(s) gagné(s)",
-            "1v1": "Jouer un match 1v1 :",
-            "online": "En ligne",
-        },
-        "español": {
-            "welcome": "Bienvenid@",
-            "edit": "Editar perfil",
-            "update": "Actualización del perfil",
-            "username": "Nombre de usuari@",
-            "picture": "Foto de perfil",
-            "save": "Guardar",
-            "close": "Cerrar",
-            "language": "Idioma",
-            "authors": "Autores",
-            "game": "Juego",
-            "play": "Iniciar un :",
-            "tournament": "Torneo",
-            "won": "Exitos",
-            "lost": "Derrotas",
-            "tourn": "Torneo(s) ganado(s)",
-            "1v1": "Jugar un partido 1v1 :",
-            "online": "En línea",
-        }
-    };
-    
-    var buttons = document.querySelectorAll('.chooseLanguage');
-    buttons.forEach(function(button) {
-        button.addEventListener('click', function() {
-            var language = this.textContent.trim().toLowerCase();
-            var elements = document.querySelectorAll('[data-translate]');
-            elements.forEach(function(element) {
-                var translation = translations[language][element.getAttribute('data-translate')];
-                if (translation) {
-                    element.textContent = translation;
-                }
-            });
-        });
-    });
 });

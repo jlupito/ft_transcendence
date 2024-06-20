@@ -25,9 +25,9 @@ def home(request):
 		context['username'] = user.username
 		context['avatar'] = user.avatar.url
 		context['users'] = UserProfile.objects.all().exclude(username=user.username)
-		context['matches'] = match_history(user)
 		context['friends'] = friends_list(user)
 		context['stats'] = match_stats(user)
+		# context['matches'] = match_history(user)
 		# context['invites'] = invites_list(user)
 		# context['invitees'] = invitees_list(user)
 	return render(request, 'page.html', context)
