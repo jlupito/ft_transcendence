@@ -251,7 +251,7 @@ def friends_list(user):
 
 	return friends_all_status
 
-@login_required
+# @login_required
 def handle_invite(request):
 	if request.method == 'GET':
 		return redirect('home')
@@ -261,10 +261,11 @@ def handle_invite(request):
 	inv = Friend.objects.filter(sender=UserProfile.objects.get(username=sender), receiver=receiver).first()
 	if inv:
 		inv.status = status
+		messages.success(request, f'Your are now friends with {sender}!')
 		inv.save()
 	return redirect('home')
 
-@login_required
+# @login_required
 def send_invite(request):
 	if request.method == 'GET':
 		return redirect('home')

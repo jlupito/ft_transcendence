@@ -92,7 +92,7 @@ body {
     color: white;
   }
     
-  .popover .arrow::after {
+  .popover .arrow::before {
     background-color: #212529;
     border-bottom-color: rgb(219, 213, 213);
   }

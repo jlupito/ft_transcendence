@@ -102,56 +102,6 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-// script pour la modale du jeu Tournament Online
-
-// document.addEventListener('DOMContentLoaded', function() {
-//     var pongScript;
-//     var canvasOnlineTour = document.getElementById('onlineTournament');
-    
-//     canvasOnlineTour.addEventListener('submit', function(event) {
-//         startCountdown();
-//         event.preventDefault();
-//         document.querySelector('#formViewOnlineTour').style.display = 'none';
-//         document.querySelector('#waitViewOnlineTour').style.display = 'block';
-//     });
-//     canvasOnlineTour.addEventListener('hidden.bs.modal', function () {
-//         if (pongScript) {
-//             document.body.removeChild(pongScript);
-//             pongScript = null;
-//         }
-//         document.querySelector('#onlineTourForm').style.display = 'block';
-//         document.querySelector('#gameViewLocal').style.display = 'none';
-//     });
-// });
-
-// script pour le chrono de chargement du Tournoi Online
-// function startCountdown() {
-// let startCount = 2;
-// const	stopCount = 0,	
-//         duration = 2000,
-//         countDownElement = document.getElementById('countdown'),
-//         intervalTime = duration/Math.abs(startCount - stopCount);
-    
-// let countDown = setInterval(function(){
-//     if(startCount === stopCount)
-//         startCount = "Go!",  
-//         setTimeout(() => {
-//             document.querySelector('#waitViewOnlineTour').style.display = 'none',
-//             document.querySelector('#drawViewOnlineTour').style.display = 'block'
-//             document.querySelector('#playViewOnlineTour').style.display = 'block'
-//             // AJOUTER LANCEMENT DU SCRIPT ONLINE TOURNAMENT ICI
-//         }, 1000),
-//         clearInterval(countDown)
-//     countDownElement.innerHTML = startCount;
-//     if(startCount > stopCount)
-//         startCount--
-//     else
-//         startCount++
-//     },
-// intervalTime
-// );
-// }
-
 // script pour updater les stats en temps réel dans le dashboard 
 //+ les popovers 
 //+ les modales match history
@@ -172,8 +122,8 @@ socket.onmessage = function(e) {
     console.log("coucou", stats)
     console.log("user id recuperer par le js:", stats.id);
     if (statsElement) {
-        statsElement.querySelector('#won').textContent = "Games won (" + stats.won + ")";
-        statsElement.querySelector('#lost').textContent = "Games lost (" + stats.lost + ")";
+        statsElement.querySelector('#won').textContent = "(" + stats.won + ")";
+        statsElement.querySelector('#lost').textContent = "(" + stats.lost + ")";
         var lost = statsElement.querySelector('.progressLost');
         lost.style.width = stats.lp + '%';
         lost.setAttribute('aria-valuenow', stats.lp);
@@ -282,4 +232,83 @@ var popoverList = popoverTriggerList.map(function(element){
         html: true
     });
 });
+});
+
+// script pour les traductions
+
+
+document.addEventListener('DOMContentLoaded', function() {
+    var translations = {
+        "english": {
+            "welcome": "Welcome",
+            "edit": "Edit profile",
+            "update": "Update profile",
+            "username": "Username",
+            "picture": "Profile picture",
+            "save": "Save",
+            "close": "Close",
+            "language": "Language",
+            "authors": "Authors",
+            "game": "Game",
+            "play": "Play a:",
+            "tournament": "Tournament",
+            "won": "Games won",
+            "lost": "Games lost",
+            "tourn": "Tournament(s) won",
+            "1v1": "Play a 1v1 match:",
+            "online": "Online",
+        },
+        "français": {
+            "welcome": "Bienvenue",
+            "edit": "Modifier profil",
+            "update": "Mise à jour du profil",
+            "username": "Nom d'utilisateur",
+            "picture": "Photo de profil",
+            "save": "Enregistrer",
+            "close": "Fermer",
+            "language": "Langue",
+            "authors": "Auteurs",
+            "game": "Jeu",
+            "play": "Démarrer un :",
+            "tournament": "Tournoi",
+            "won": "Victoires",
+            "lost": "Défaites",
+            "tourn": "Tournoi(s) gagné(s)",
+            "1v1": "Jouer un match 1v1 :",
+            "online": "En ligne",
+        },
+        "español": {
+            "welcome": "Bienvenid@",
+            "edit": "Editar perfil",
+            "update": "Actualización del perfil",
+            "username": "Nombre de usuari@",
+            "picture": "Foto de perfil",
+            "save": "Guardar",
+            "close": "Cerrar",
+            "language": "Idioma",
+            "authors": "Autores",
+            "game": "Juego",
+            "play": "Iniciar un :",
+            "tournament": "Torneo",
+            "won": "Exitos",
+            "lost": "Derrotas",
+            "tourn": "Torneo(s) ganado(s)",
+            "1v1": "Jugar un partido 1v1 :",
+            "online": "En línea",
+        }
+    };
+    
+    var buttons = document.querySelectorAll('.chooseLanguage');
+    buttons.forEach(function(button) {
+        button.addEventListener('click', function() {
+            var language = this.textContent.trim().toLowerCase();
+            var elements = document.querySelectorAll('[data-translate]');
+            elements.forEach(function(element) {
+                var translation = translations[language][element.getAttribute('data-translate')];
+                if (translation) {
+                    element.textContent = translation;
+                }
+            });
+        });
+    });
 });

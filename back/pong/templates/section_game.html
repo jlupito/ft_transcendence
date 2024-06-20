@@ -1,12 +1,15 @@
 <div class="col mb-3 mx-auto">
     <div class="colSize p-3 bg-light border border-light border-opacity-25 bg-opacity-25 rounded shadow text-light">
-        <h3 class="mb-4 ms-2">Game<i class="bi bi-joystick ms-2"></i></h3>
+        <div class="d-flex text-align-center">
+            <h3 class="mb-4 ms-2" data-translate="game">Game</h3>
+            <h3 class="mb-4 ms-2"><i class="bi bi-joystick"></i></h3>
+        </div>
         <div class="mb-3">
             <div id="playDiv" style="height: 150px; display: flex; flex-direction: column; justify-content: center;" class="col-10 bg-white bg-opacity-25 p-1 rounded shadow-sm mx-auto">
                 <div class="mb-2 text-center">
-                    <p class="mb-2">Play a:</p>
-                    <button id="playSingle" class="btn btn-dark btn-sm shadow-sm text-light col-8 mb-2">Match</button>
-                    <button id="playTournament" class="btn btn-dark btn-sm shadow-sm text-light col-8">Tournament</button>
+                    <p class="mb-2" data-translate="play">Play a:</p>
+                    <button id="playSingle" class="btn btn-dark btn-sm shadow-sm text-light col-8 mb-2" data-translate="match">Match</button>
+                    <button id="playTournament" class="btn btn-dark btn-sm shadow-sm text-light col-8" data-translate="tournament">Tournament</button>
                 </div>
             </div>
         </div>
@@ -15,33 +18,37 @@
             <div style="height: 200px;" class="overflow-auto">
                 <div class="col-10 bg-white bg-opacity-25 p-3 mb-2 rounded shadow-sm mx-auto" style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#winsModal">
                     <div class="row align-items-center">
-                        <div class="col-4">
+                        <div class="col-5">
                             <div class="progress" data-bs-toggle="tooltip" title="% of matches won">
                                 <div class="progress-bar bg-primary progressWon" role="progressbar" style="width: {{ stats.wp }}%" aria-valuenow="{{ stats.wp }}" aria-valuemin="0" aria-valuemax="100">{{ stats.wp }}%</div>
                             </div>
                         </div>
-                        <div class="col-8">
-                            <p class="m-0" id="won">Games won ({{ stats.won }})</p>
+                        <div class="col-7 d-flex align-items-center">
+                            <p class="m-0" data-translate="won">Games won</p>
+                            <p class="m-0" id="won">({{ stats.won }})</p>
                         </div>
                     </div>
                 </div>
                 <div class="col-10 bg-white bg-opacity-25 p-3 mb-2 rounded shadow-sm mx-auto" style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#lossesModal">
                     <div class="row align-items-center">
-                        <div class="col-4">
+                        <div class="col-5">
                             <div class="progress" data-bs-toggle="tooltip" title="% of matches lost">
                                 <div class="progress-bar bg-danger progressLost" role="progressbar" style="width: {{ stats.lp }}%" aria-valuenow="{{ stats.lp }}" aria-valuemin="0" aria-valuemax="100">{{ stats.lp }}%</div>
                             </div>
                         </div>
-                        <div class="col-8" >
-                            <p class="m-0" id="lost">Games lost ({{ stats.lost }})</p>
+                        <div class="col-7 d-flex align-items-center">
+                            <p class="m-0" data-translate="lost">Games lost</p>
+                            <p class="m-0" id="lost">({{ stats.lost }})</p>
                         </div>
                     </div>
                 </div>
                 <div class="col-10 bg-white bg-opacity-25 p-3 mb-2 rounded shadow-sm mx-auto">
                     <div class="row align-items-center">
                         <div class="col" >
-                            <div class="text-center">
-                                <p class="m-0" id="tourn"><i class='bi bi-trophy-fill me-1'></i>  Tournament(s) won ({{ stats.tourn }}) </p>
+                            <div class="text-center d-flex align-items-center justify-content-center">
+                                <p class="m-0"><i class='bi bi-trophy-fill me-1'></i></p>
+                                <p class="m-0" data-translate="tourn"></i>Tournament(s) won</p>
+                                <p class="m-0 ms-1" id="tourn">({{ stats.tourn }})</p>
                             </div>
                         </div>
                     </div>
