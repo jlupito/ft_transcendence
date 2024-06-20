@@ -823,38 +823,4 @@ class PongLocalTournament(BasePongConsumer):
         elif 'pressed' in message or 'released' in message:
             await self.tournament.handle_key_event(message, username)
 
-# ************************* CONSUMER ASYNCHRONE ****************************
 
-from channels.generic.websocket import AsyncWebsocketConsumer
-
-class FriendStatusConsumer(AsyncWebsocketConsumer):
-
-    async def connect(self):
-        print('connected in FriendStatusConsumer')
-        self.user = self.scope["user"]
-        if self.user.is_authenticated:
-            await self.channel_layer.group_add(
-                f"user_{self.user.id}",
-                # print('UserId on connect is', self.user.id),
-                    self.channel_name
-            )
-            await self.accept()
-        else:
-            await self.close()
-
-    async def disconnect(self, close_code):
-        await self.channel_layer.group_discard(
-            f"user_{self.user.id}",
-            # print('UserId on disconnect is', self.user.id),
-                self.channel_name
-        )
-
-    # async def receive(self, text_data):  <=== recois les données venant du front sous le format json. Tu peux regarder comment je l'interprête dans mes consumers
-
-    async def status_update(self, event):
-        print('status_update in FriendStatusConsumer is running')
-        await self.send(text_data=json.dumps({
-            'type': 'status_update',
-            'user_id': event['user_id'],
-            'status': event['status']
-        }))

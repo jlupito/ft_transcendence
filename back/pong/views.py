@@ -190,7 +190,6 @@ def match_history(user):
 	return l
 		
 def match_stats(user):
-	# user = User.objects.filter(username=user).first()
 	profiles = UserProfile.objects.filter(username=user)
 	userProfile = None
 	if profiles.exists():
