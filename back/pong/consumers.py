@@ -804,8 +804,9 @@ class FriendStatusConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         self.user = self.scope['user']
         if self.user.is_authenticated:
-            self.user.is_online = True
-            await sync_to_async(self.user.save)()
+            self.user_profile = await sync_to_async(UserProfile.objects.get)(username=self.user.username)
+            self.user_profile.is_online = True
+            await sync_to_async(self.user_profile.save)()
             await self.channel_layer.group_add(
                 "online_users",
                 self.channel_name
@@ -823,6 +824,7 @@ class FriendStatusConsumer(AsyncWebsocketConsumer):
             await self.close()
 
     async def disconnect(self, close_code):
+        self.user_profile = await sync_to_async(UserProfile.objects.get)(username=self.user.username)
         self.user_profile.is_online = False
         await sync_to_async(self.user_profile.save)()
         await self.channel_layer.group_discard(
@@ -833,7 +835,7 @@ class FriendStatusConsumer(AsyncWebsocketConsumer):
             "online_users",
             {
                 'type': 'status_update',
-                'user_id': self.user_profile.id,
+                'user_id': self.user.id,
                 'status': 'offline'
             }
         )
@@ -926,18 +928,14 @@ class UsersListUpdateConsumer(AsyncWebsocketConsumer):
 
     async def connect(self):
         self.user = self.scope['user']
-        # print('Step 1, self.user is ', self.user)
         if self.user.is_authenticated:
-            # print('Step 2, self.user is authenticated', self.user.is_authenticated)
             self.user_profile = await sync_to_async(UserProfile.objects.get)(username=self.user.username)
-            # print('Step 3, self.user_profile is', self.user_profile)
             await self.channel_layer.group_add(
                 "userslist_update",
                 self.channel_name
             )
             await self.accept()
             new_user = await self.get_new_user()
-            # print('Step 4, new_user is', new_user)
             await self.channel_layer.group_send(
                 "userslist_update",
                 {
@@ -961,12 +959,9 @@ class UsersListUpdateConsumer(AsyncWebsocketConsumer):
 
     async def userslist_update(self, event):
         new_user = event['new_user']
-        # print('Step 5, self.user.id verification in userslits_update, is', self.user.id)
-        # print('and new_user[new_user_id] is', new_user['new_user_id'])
         if self.user.id == new_user['new_user_id']:
             return
         is_friend = await self.is_friend(new_user['new_user_id'])
-        # print('Step 6, is_friend is :', is_friend)
         if is_friend:
             return
         data = {
@@ -980,12 +975,6 @@ class UsersListUpdateConsumer(AsyncWebsocketConsumer):
         return await sync_to_async(self._get_new_user)(new_user_profile)
 
     def _get_new_user(self, new_user_profile):
-        # data = {
-        #         'username': new_user_profile.username,
-        #         'avatar': new_user_profile.avatar.url,
-        #         'new_user_id': new_user_profile.id
-        # }
-        # print('Data sent to front for new user is ', data)
         return {
             'username': new_user_profile.username,
             'avatar': new_user_profile.avatar.url,
@@ -993,7 +982,6 @@ class UsersListUpdateConsumer(AsyncWebsocketConsumer):
         }
 
     async def is_friend(self, new_user_id):
-
         friend_exists = await sync_to_async(Friend.objects.filter, thread_sensitive=True)(
             Q(sender=self.user, receiver__id=new_user_id, status='accepted') |
             Q(receiver=self.user, sender__id=new_user_id, status='accepted')

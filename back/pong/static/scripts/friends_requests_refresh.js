@@ -28,7 +28,6 @@ function runsocketFriends() {
 
 	socket.onmessage = function(e) {
 	var data = JSON.parse(e.data);
-	console.log('Data received in the Friend_request WS is : ', data)
 	if (data.type === 'friends_requests_update') {
 
 		var userElement = document.getElementById('userRemove-' + data.friend_id);
@@ -37,20 +36,17 @@ function runsocketFriends() {
 		friendElement.innerHTML = `
 			<div class="d-flex justify-content-between align-items-center col-10 bg-white bg-opacity-25 mb-2 rounded shadow-sm mx-auto p-3">
 				<div class="d-flex align-items-center">
-					<div class="position-relative">
-						<img class="rounded-circle me-2" src="${data.friend_avatar}" alt="Friend avatar" style="width: 35px; height: 35px;">
-						<div id="status-indicator-${data.friend_id}" class="position-absolute top-0 end-1" style="width: 10px; height: 10px; background-color: ${data.friend_is_online ? 'rgb(46, 206, 86)' : 'rgb(255, 0, 0)'}; border-radius: 50%;"></div>
-					</div>
+					<img id="status-indicator-${data.friend_id}" class="rounded-circle me-2 {% if ${data.friend_is_online} %}border border-2 border-success{% endif %}" src="${data.friend_avatar}" alt="Friend avatar" style="width: 35px; height: 35px;">
 					<div style="max-width: 7ch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-						${data.friend_username}
+					${data.friend_username}
 					</div>
 				</div>
 				<button class="btn buttonfriends btn-sm btn-dark shadow-sm" style="--bs-btn-font-size: .75rem;"
-					data-bs-toggle="modal" data-bs-target="#friendsProfile">
-					profile
+				data-bs-toggle="modal" data-bs-target="#friendsProfile">
+				profile
 				</button>
 			</div>
-		`;
+			`;
 		document.getElementById('friendsList').appendChild(friendElement);
 	}
 	else if (data.type == 'new_friend_request') {

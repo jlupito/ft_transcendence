@@ -1,3 +1,4 @@
+// Script pour détecter le status des utilisateurs (online, offline, is_playing)
 function runsocketStatus() {
 
     let url = `wss://${window.location.host}/ws/status/`
@@ -10,16 +11,25 @@ function runsocketStatus() {
     statusSock.onmessage = function(event) {
 
         let data = JSON.parse(event.data)
+        console.log('Data received in front is : ', data);
         if (data.type == 'status_update') {
+
             var statusIndicator = document.getElementById('status-indicator-' + data.user_id);
-            if (data.status == 'online') {
-                statusIndicator.style.backgroundColor = 'rgb(46, 206, 86)'; // Vert
+            if (statusIndicator) {
+
+                console.log('Status Indicator Element was found for user', data.user_id);
+                if (data.status == 'online') {
+                    statusIndicator.classList.add('border', 'border-2', 'border-success'); // bordure verte
+                }
+                // else if (data.status == 'is_playing') {
+                //     statusIndicator.classList.add('border', 'border-2', 'border-primary'); // bordure bleue
+                // }
+                else if (data.status == 'offline') {
+                    statusIndicator.classList.remove('border', 'border-2'); // sans bordure
+                }
             }
-            else if (data.status == 'offline') {
-                statusIndicator.style.backgroundColor = 'rgb(255, 0, 0)'; // Rouge
-            }
-            else if (data.status == 'is_playing') {
-                statusIndicator.style.backgroundColor = 'rgb(255, 165, 0)'; // Orange
+            else {
+                console.log('Status Indicator Element not found for user', data.user_id);
             }
         }
     };
