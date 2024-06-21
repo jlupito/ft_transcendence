@@ -112,7 +112,7 @@ class Game():
         self.has_finished = False
         self.is_running = False
 
-    def to_dict(self):
+    async def to_dict(self):
         return {
             'game_type': self.game_type,
             'delay': self.delay,
@@ -141,7 +141,7 @@ class Game():
             'ball_y_velocity': self.ball_y_velocity,
             'ball_x_normalspeed': self.ball_x_normalspeed,
             'has_finished': self.has_finished,
-            'is_running': getattr(self, 'is_running', False)
+            'is_running': self.is_running
         }
 
     def apply_player_movement(self):
@@ -162,7 +162,7 @@ class Game():
             self.ball_y_velocity = -self.ball_y_velocity
 
         elif self.ball_x_pos + self.ball_x_velocity < 0:
-            self.p1_score += 1
+            self.p2_score += 1
             self.reset_ball_position()
         if (self.ball_x_pos + self.ball_x_velocity > self.p2_x_pos - self.paddle_width
             and (self.p2_y_pos < self.ball_y_pos + self.ball_y_velocity + self.ball_width < self.p2_y_pos + self.paddle_height + 10)):
@@ -170,7 +170,7 @@ class Game():
             self.ball_y_velocity = (self.p2_y_pos + self.paddle_height / 2 - self.ball_y_pos) / 16
             self.ball_y_velocity = -self.ball_y_velocity
         elif self.ball_x_pos + self.ball_x_velocity > self.WIDTH:
-            self.p2_score += 1
+            self.p1_score += 1
             self.reset_ball_position()
         if self.ball_y_pos + self.ball_y_velocity > self.HEIGHT or self.ball_y_pos + self.ball_y_velocity < 0:
             self.ball_y_velocity = -self.ball_y_velocity
@@ -252,7 +252,7 @@ class Player:
         return {
             'name': self.name,
             'player_status': self.player_status,
-            'game': self.game.to_dict() if self.game else None
+            'game': await self.game.to_dict() if self.game else None
         }
 
 
@@ -273,7 +273,7 @@ class TournamentOnline():
 
     async def to_dict(self):
         return {
-        'games': [game.to_dict() for game in self.games] if self.games else [],
+        'games': [await game.to_dict() for game in self.games] if self.games else [],
         'players': [await player.to_dict() for player in self.players],
         'status': self.status,
         'is_finished': self.is_finished,
@@ -647,7 +647,7 @@ class PongOnlineTournament(BasePongConsumer):
             self.game = game_data
         if message == 'update':
             if (game_data is not None):
-                game_data = game_data.to_dict()
+                game_data = await game_data.to_dict()
             tournament_data = {
                 'tournament': await self.tournament.to_dict(),
                 # 'players': [await player.to_dict() for player in self.tournament.players],
@@ -777,8 +777,8 @@ class TournamentLocal():
             return (False)
     async def to_dict(self):
         return {
-        'games': [self.game.to_dict() if self.game else None],
-        'players': [player.to_dict() for player in self.players],
+        'games': [await self.game.to_dict() if self.game else None],
+        'players': [await player.to_dict() for player in self.players],
         'status': self.status,
         'is_finished': self.is_finished,
         'is_running': self.is_running,
@@ -870,10 +870,10 @@ class PongLocalTournament(BasePongConsumer):
             self.tournament.status = "New_match"
         if message == 'addPlayer':
             if message.startswith('addPlayer'):
-                self.tournament.addPlayers(text_data_json['playername'])
+                await self.tournament.addPlayers(text_data_json['playername'])
         if message == 'update':
             if (game_data is not None):
-                game_data = game_data.to_dict()
+                game_data = await game_data.to_dict()
             tournament_data = {
                 'tournament': await self.tournament.to_dict(),
                 # 'players': [await player.to_dict() for player in self.tournament.players],
