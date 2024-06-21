@@ -28,10 +28,10 @@
 					<form action="sign_in" method="POST" class="row gy-2 mt-3 d-flex align-items-center justify-content-center">
 						{% csrf_token %}
 						<div class="mb-1 col-8">
-							<input type="username" class="form-control" id="username" name="username" placeholder="Username">
+							<input type="username" class="form-control" id="username" name="username" placeholder="Username" data-translate="username">
 						</div>
 						<div class="mb-1 col-8">
-							<input type="password" class="form-control" id="password" name="password" placeholder="Password">
+							<input type="password" class="form-control" id="password" name="password" placeholder="Password" data-translate="password">
 						</div>
 						<div class="mb-1">
 							<button type="submit" class="btn btn-dark text-light col-8" data-translate="signin">Sign in</button>

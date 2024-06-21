@@ -49,18 +49,6 @@ function launchBall() {
 
 setInterval(launchBall, 3);
 
-// script pour garder actif le choix de la langue
-
-const language = document.querySelectorAll('.chooseLanguage');
-language.forEach(item => {
-    item.addEventListener('click', () => {
-        language.forEach(item => {
-            item.classList.remove('active');
-        });
-
-        item.classList.add('active');
-    });
-});
 
 // script pour fermer les messages d alerte
 

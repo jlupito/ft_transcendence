@@ -37,6 +37,7 @@ function runSocketLanguage() {
             "email": "Email adress",
             "password": "Password",
             "submit": "Submit",
+            "logout": "Log out",
         },
         "français": {
             "welcome": "Bienvenue",
@@ -70,6 +71,7 @@ function runSocketLanguage() {
             "email": "Adresse email",
             "password": "Mot de passe",
             "submit": "Confirmer",
+            "logout": "Se déconnecter",
         },
         "español": {
             "welcome": "Bienvenido",
@@ -103,18 +105,34 @@ function runSocketLanguage() {
             "email": "Correo electrónico",
             "password": "Contraseña",
             "submit": "Confirmar",
+            "logout": "Cerrar sesión",
         }
     };
 
+
     function applyTranslation(language) {
-        console.log("appel de la focntion traduction:", language)
         var elements = document.querySelectorAll('[data-translate]');
         elements.forEach(function(element) {
             var translation = translations[language][element.getAttribute('data-translate')];
             if (translation) {
-                element.textContent = translation;
+                if (element.textContent)
+                    element.textContent = translation;
+                else if (element.placeholder) {
+                    element.placeholder = translation;
+                }
+                else if (element.title) {
+                    element.title = translation;
+                }
             }
         });
+        var activeLanguage = document.querySelector('.chooseLanguage.active');
+        if (activeLanguage) {
+            activeLanguage.classList.remove('active');
+        }
+        var newLanguage = document.getElementById(language);
+        if (newLanguage) {
+            newLanguage.classList.add('active');
+        }
     }
 
     var buttons = document.querySelectorAll('.chooseLanguage');
@@ -126,7 +144,6 @@ function runSocketLanguage() {
             action: 'set_language',
             language: language
         };
-        // console.log("message envoyé du js:", message)
         languageSock.send(JSON.stringify(message));
         });
     });
@@ -142,11 +159,7 @@ function runSocketLanguage() {
         var message = JSON.parse(event.data);
         if (message.action === 'get_language') {
             var language = message.language;
-            // console.log("message recu dans js language received:", language)
             applyTranslation(language);
-            // document.querySelector('button[data-translate="language"]').textContent = language;
-            // document.querySelector('.chooseLanguage.active').classList.remove('active');
-            // document.querySelector('.chooseLanguage:contains("' + language + '")').classList.add('active');
         }
     };
 
