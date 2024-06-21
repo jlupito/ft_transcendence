@@ -4,7 +4,7 @@ function runsocketUsersListUpdate() {
     const usersListUpdateSock = new WebSocket(url);
 
     usersListUpdateSock.onopen = function (event) {
-        console.log('UsersListUpdate WS - Player connected.');
+        console.log('users list socket is open');
     };
 
     usersListUpdateSock.onmessage = function (event) {

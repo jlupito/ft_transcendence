@@ -23,7 +23,7 @@ function runsocketFriends() {
 	var socket = new WebSocket(url);
 
 	socket.onopen = function(e) {
-	console.log("Friend_Request Connection WS is established");
+	console.log("Friend_Request socket is open");
 	};
 
 	socket.onmessage = function(e) {

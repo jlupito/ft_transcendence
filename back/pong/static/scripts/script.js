@@ -110,7 +110,7 @@ let url = `wss://${window.location.host}/ws/stats/`
 var socket = new WebSocket(url);
 
 socket.onopen = function(e) {
-console.log("Connection established stats");
+console.log("stats socket is open");
 };
 
 socket.onmessage = function(e) {
@@ -119,8 +119,8 @@ socket.onmessage = function(e) {
     // console.log("envoie des donnes stats");
 
     var statsElement = document.getElementById('stats-profile-' + stats.id);
-    console.log("coucou", stats)
-    console.log("user id recuperer par le js:", stats.id);
+    // console.log("stats updated:", stats)
+    // console.log("user id recuperer par le js:", stats.id);
     if (statsElement) {
         statsElement.querySelector('#won').textContent = "(" + stats.won + ")";
         statsElement.querySelector('#lost').textContent = "(" + stats.lost + ")";
@@ -133,7 +133,7 @@ socket.onmessage = function(e) {
         won.setAttribute('aria-valuenow', stats.wp);
         won.textContent = stats.wp + '%';   
         statsElement.querySelector('#tourn').textContent = "(" + stats.tourn + ")";
-        console.log(stats)
+        // console.log(stats)
     }
 
     var lastMatch = stats.matches[stats.matches.length - 1]; 
@@ -191,10 +191,6 @@ socket.onmessage = function(e) {
         <br><i class='bi bi-calendar-check-fill'></i> Joined on ${dateJoined}`,
         html:true
     });
-};
-
-socket.onclose = function(e) {
-console.log("Connection closed stats");
 };
 
 socket.onerror = function(e) {

@@ -13,28 +13,37 @@ from .models import Match, Friend, UserProfile
 
 # ************************* WS POUR LA LANGUE ******************************
 class LanguageConsumer(AsyncWebsocketConsumer):
-    async def set_language(self, language):
-        if language in ['english', 'français', 'español']: 
-            await self.update_language_in_db(language)
-            await self.send_language()
+    async def connect(self):
+        self.user = self.scope['user']
+        if self.user.is_authenticated:
+            self.user_profile = await sync_to_async(UserProfile.objects.get)(username=self.user.username)
+            await self.accept()
+
 
     @database_sync_to_async
     def update_language_in_db(self, language):
         self.scope['user'].language = language
         self.scope['user'].save()
+        print("Language updated in db: ", language)
 
-    async def receive_json(self, content):
-        action = content.get('action')
-        if action == 'get_language':
-            await self.send_language()
-        elif action == 'set_language':
-            language = content.get('language')
-            await self.set_language(language)
+    async def set_language(self, language):
+        if language in ['english', 'français', 'español']: 
+            await self.update_language_in_db(language)
+            # await self.send_language()
 
     async def send_language(self):
-        language = self.scope['user'].language
-        await self.send_json({'action': 'get_language', 'language': language})
+        language = self.user_profile.language
+        await self.send(text_data=json.dumps({'action': 'get_language', 'language': language}))
 
+    async def receive(self, text_data):
+        data = json.loads(text_data)
+        print("message received in consumer: ", data)
+        action = data['action']
+        if action == 'get_language':
+            await self.send_language()
+        if action == 'set_language':
+            language = data['language']
+            await self.set_language(language)
 
 # ************************* WS POUR LES STATS DES JOUEURS ****************************
 
@@ -421,7 +430,6 @@ class TournamentOnline():
 
     async def start(self):
         if (self.is_started is not True):
-            print("coucou")
             self.is_started = True
             thread = threading.Thread(target=self.run)
             thread.start()
