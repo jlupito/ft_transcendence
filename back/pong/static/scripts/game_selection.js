@@ -23,7 +23,7 @@ function attachEvent() {
             <div class="mb-2 text-center">
                 <p class="mb-2"><span id="backArrow" style="cursor: pointer;">
                     <i class="bi bi-arrow-left text-light me-1"></i>
-                </span>Lancer une partie 1v1 :</p>
+                </span>Lancer un match 1v1 :</p>
                 <button class="btn btn-dark btn-sm shadow-sm text-light col-6 mb-2" data-bs-toggle="modal" data-bs-target="#localMatchModal">Local
                 </button>
                 <button class="btn btn-primary btn-sm shadow-sm text-light col-6" data-bs-toggle="modal" data-bs-target="#onlineMatchModal">En ligne
@@ -73,7 +73,7 @@ function attachEvent() {
                 <p class="mb-2"><span id="backArrow" style="cursor: pointer;">
                     <i class="bi bi-arrow-left text-light me-1"></i>
                 </span>Lancer un tournoi :</p>
-                <button class="btn btn-dark btn-sm shadow-sm text-light col-6 mb-2" data-bs-toggle="modal" data-bs-target="#localTournament">Locale
+                <button class="btn btn-dark btn-sm shadow-sm text-light col-6 mb-2" data-bs-toggle="modal" data-bs-target="#localTournament">Local
                 </button>
                 <button class="btn btn-primary btn-sm shadow-sm text-light col-6" data-bs-toggle="modal" data-bs-target="#onlineTournament">En ligne
                 </button>
