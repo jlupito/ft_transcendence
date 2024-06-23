@@ -252,56 +252,99 @@ def handle_invite(request):
 	print("inv:", inv)
 	if inv:
 		inv.status = status
-		messages.success(request, f'Your are now friends with {sender}!')
 		inv.save()
-	userpro_receiver = UserProfile.objects.get(username=receiver.username)
-	channel_layer = get_channel_layer()
-	data = {
-			'type': 'friends_requests_update',
-			'friend_id': userpro_receiver.id,
-			'friend_avatar': userpro_receiver.avatar.url,
-			'friend_is_online': userpro_receiver.is_online,
-			'friend_username': userpro_receiver.username,
-		}
-	async_to_sync(channel_layer.group_send)(
-		"friends_requests", data
-		)
+	validated_profile = UserProfile.objects.get(username=receiver.username)
+	validating_profile = UserProfile.objects.get(username=sender.username)
+	# channel_layer = get_channel_layer()
+	# if status == 'accepted':
+	# 	data = {
+	# 		'type': 'accept_f_request',
+	# 		'friend_validated': validated_profile,
+	# 		'friend_validating': validating_profile,
+	# 		# 'friend_id': receiver_profile.id,
+	# 		# 'friend_avatar': receiver_profile.avatar.url,
+	# 		# 'friend_is_online': receiver_profile.is_online,
+	# 		# 'friend_username': receiver_profile.username,
+	# 	}
+	# 	async_to_sync(channel_layer.group_send)(
+	# 		"friends_requests", data
+	# 	)
+	# elif status == 'rejected':
+	# 	data = {
+	# 			'type': 'reject_f_request',
+	# 			'friend_validated': validated_profile,
+	# 			'friend_validating': validating_profile,
+	# 			# 'friend_id': receiver_profile.id,
+	# 			# 'friend_avatar': receiver_profile.avatar.url,
+	# 			# 'friend_is_online': receiver_profile.is_online,
+	# 			# 'friend_username': receiver_profile.username,
+	# 		}
+	# 	async_to_sync(channel_layer.group_send)(
+	# 		"friends_requests", data
+	# 		)
 	return redirect('home')
 
 # @login_required
 def send_invite(request):
 	if request.method == 'GET':
-		return redirect('home')
+		return HttpResponse(status=204)
 	receiver = request.POST.get('receiver')
 	sender = request.user
 	friends_l = friends_list(sender)
-	request.session.set_expiry(4)
 	for friend in friends_l['friends']:
 		if friend.username == receiver:
 			messages.error(request, 'User is already your friend')
-			return redirect('home')
+			return HttpResponse(status=204)
 	invite = Friend.objects.filter(sender=sender, receiver=UserProfile.objects.get(username=receiver), status='pending')
 	if invite.exists():
 		messages.error(request, 'Invite already sent')
-		return redirect('home')
+		return HttpResponse(status=204)
 	invite = Friend.objects.filter(sender=UserProfile.objects.get(username=receiver), receiver=sender, status='pending')
 	if invite.exists():
 		messages.error(request, 'You already have an invite from this user')
-		return redirect('home')
+		return HttpResponse(status=204)
 	Friend.objects.create(sender=sender, receiver=UserProfile.objects.get(username=receiver), status='pending')
-	friend_request_sender_profile=UserProfile.objects.get(username=sender)
-	channel_layer = get_channel_layer()
+	sender_profile=UserProfile.objects.get(username=sender)
+	print('sender_profile:', sender_profile)
+	receiver_profile=UserProfile.objects.get(username=receiver)
+	print('receiver_profile:', receiver_profile)
 	data =	{
-			'type': 'new_friend_request',
-			'friend_id': friend_request_sender_profile.id,
-			'friend_avatar': friend_request_sender_profile.avatar.url,
-			'friend_is_online': friend_request_sender_profile.is_online,
-			'friend_username': friend_request_sender_profile.username
+			'type': 'send_f_request',
+			'friend_sender': {
+				'id': sender_profile.id,
+				# 'avatar': sender_profile.avatar.url,
+				'is_online': sender_profile.is_online,
+				'username': sender_profile.username,
+			},
+			'friend_receiver': {
+				'id': receiver_profile.id,
+				# 'avatar': receiver_profile.avatar.url,
+				'is_online': receiver_profile.is_online,
+				'username': receiver_profile.username
+			},
+			# 'friend_id': sender_profile.id,
+			# 'friend_avatar': sender_profile.avatar.url,
+			# 'friend_is_online': sender_profile.is_online,
+			# 'friend_username': sender_profile.username
 		}
-	async_to_sync(channel_layer.group_send)(
-		"friends_requests", data
-	)
-	return redirect('home')
+	for user in [receiver_profile, sender_profile]:
+		from .consumers import FriendsRequestsConsumer
+		# try:
+		# 	userProfile = UserProfile.objects.get(username=user)
+		# except UserProfile.DoesNotExist:
+		# 	print(f"UserProfile with username {user} does not exist.")
+		# 	continue
+		consumer = FriendsRequestsConsumer.instances.get(user.id)
+		if consumer:
+			print(f"Sending update to {user.username}")
+			async_to_sync(consumer.send_f_updates)(data)
+		else:
+			print(f"No FriendsRequestsConsumer instance for {user.username}")
+	# channel_layer = get_channel_layer()
+	# async_to_sync(channel_layer.group_send)(
+	# 	"friends_requests", data
+	# )
+	return HttpResponse(status=204)
 
 logger = logging.getLogger(__name__)
 

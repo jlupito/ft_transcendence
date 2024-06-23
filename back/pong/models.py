@@ -14,6 +14,7 @@ class UserProfile(AbstractUser):
     is_online = models.BooleanField(default=False)
     # is_playing = models.BooleanField(default=False) # modif pour statut, ou faire un status choice comme Friend
     language = models.CharField(max_length=9, default='english')
+
     def __str__(self):
         return self.username
 

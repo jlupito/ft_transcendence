@@ -98,7 +98,7 @@ let url = `wss://${window.location.host}/ws/stats/`
 var socket = new WebSocket(url);
 
 socket.onopen = function(e) {
-console.log("stats socket is open");
+    console.log("stats socket is open");
 };
 
 socket.onmessage = function(e) {
@@ -181,6 +181,9 @@ socket.onmessage = function(e) {
     });
 };
 
+socket.onclose = function(e) {
+    console.log("stats socket is closed.");
+    };
 socket.onerror = function(e) {
 console.log("Error occurred stats");
 };

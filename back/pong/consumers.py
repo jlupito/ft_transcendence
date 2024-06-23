@@ -951,68 +951,109 @@ class FriendStatusConsumer(AsyncWebsocketConsumer):
 
 # ************************* CONSUMER ASYNC FRIENDS REQUESTS ****************************
 
-User = get_user_model()
 
 class FriendsRequestsConsumer(AsyncWebsocketConsumer):
+    instances = {} # Creation d'un dictionnaire vide
 
     async def connect(self):
-        self.user = self.scope['user']
+        self.user = self.scope["user"]
         if self.user.is_authenticated:
-            self.user_profile = await sync_to_async(UserProfile.objects.get)(username=self.user.username)
-            await self.channel_layer.group_add(
-                "friends_requests",
-                self.channel_name
-            )
+            self.instances[self.user.id] = self
+            print(f"Added {self.user.username} to instances")
+            print(f"WebSocket for {self.user.username} is now open.")
             await self.accept()
-
-            friends_requests = await self.get_friends_requests()
-            await self.send(text_data=json.dumps({
-                'friends_requests': friends_requests
-            }))
         else:
-            await self.close()
+            print(f"User {self.user.username} is not authenticated")
 
     async def disconnect(self, close_code):
-        await self.channel_layer.group_discard(
-            "friends_requests",
-            self.channel_name
-        )
+        print(f"Removed {self.user.username} from instances")
+        print(f"WebSocket for {self.user.username} is now closed.")
+        del self.instances[self.user.id]
 
     async def receive(self, text_data):
-        text_data_json = json.loads(text_data)
-        message = text_data_json['message']
-        await self.send(text_data=json.dumps({
-            'message': message
-        }))
+        try:
+            pass
+        except Exception as e:
+            print(f"Exception in receive: {e}")
 
-    async def friends_requests_update(self, event):
-        data = {
-            'type': 'friends_requests_update',
-            'friend_id': event['friend_id'],
-            'friend_avatar': event['friend_avatar'],
-            'friend_is_online': event['friend_is_online'],
-            'friend_username': event['friend_username'],
-        }
-        print('Friebnd Raquest update data is : ', data)
-        await self.send(text_data=json.dumps(data))
+    async def send_f_updates(self, f_updates):
+        print("Sending f_updates")
+        print(f"WebSocket for {self.user.username} is still open.")
+        await self.send(text_data=json.dumps(f_updates))
 
-    async def get_friends_requests(self):
-        friend_requests = await sync_to_async(Friend.objects.filter)(receiver=self.user_profile, status='pending')
-        return await sync_to_async(self._get_friends_requests)(friend_requests)
 
-    def _get_friends_requests(self, friend_requests):
-        return [fr.sender.username for fr in friend_requests]
+    # @classmethod
+    # async def send_f_updates_to_all(cls, f_updates):
+    #     for consumer in cls.instances.values():
+    #         await consumer.send_f_updates(f_updates)
 
-    async def new_friend_request(self, event):
-        data = {
-            'type': 'new_friend_request',
-            'friend_id': event['friend_id'],
-            'friend_avatar': event['friend_avatar'],
-            'friend_is_online': event['friend_is_online'],
-            'friend_username': event['friend_username'],
-        }
-        print('New friend request data is : ', data)
-        await self.send(text_data=json.dumps(data))
+
+# User = get_user_model()
+
+# class FriendsRequestsConsumer(AsyncWebsocketConsumer):
+
+#     async def connect(self):
+#         self.user = self.scope['user']
+#         if self.user.is_authenticated:
+#             self.user_profile = await sync_to_async(UserProfile.objects.get)(username=self.user.username)
+#             await self.channel_layer.group_add(
+#                 "friends_requests",
+#                 self.channel_name
+#             )
+#             await self.accept()
+
+#             friends_requests = await self.get_friends_requests()
+#             await self.send(text_data=json.dumps({
+#                 'friends_requests': friends_requests
+#             }))
+#         else:
+#             await self.close()
+
+#     async def disconnect(self, close_code):
+#         await self.channel_layer.group_discard(
+#             "friends_requests",
+#             self.channel_name
+#         )
+
+#     async def receive(self, text_data):
+#         text_data_json = json.loads(text_data)
+#         message = text_data_json['message']
+#         await self.send(text_data=json.dumps({
+#             'message': message
+#         }))
+
+#     async def accept_f_request(self, event):
+#         data = {
+#             'type': 'accept_f_request',
+#             'friend_validated': event['friend_validated'],
+#             'friend_validating': event['friend_validating'],
+#             # 'friend_id': event['friend_id'],
+#             # 'friend_avatar': event['friend_avatar'],
+#             # 'friend_is_online': event['friend_is_online'],
+#             # 'friend_username': event['friend_username'],
+#         }
+#         print('Friebnd Raquest update data is : ', data)
+#         await self.send(text_data=json.dumps(data))
+
+#     async def get_friends_requests(self):
+#         friend_requests = await sync_to_async(Friend.objects.filter)(receiver=self.user_profile, status='pending')
+#         return await sync_to_async(self._get_friends_requests)(friend_requests)
+
+#     def _get_friends_requests(self, friend_requests):
+#         return [fr.sender.username for fr in friend_requests]
+
+#     async def send_f_request(self, event):
+#         data = {
+#             'type': 'send_f_request',
+#             'friend_sender': event['friend_sender'],
+#             'friend_receiver': event['friend_receiver'],
+#             # 'friend_id': event['friend_id'],
+#             # 'friend_avatar': event['friend_avatar'],
+#             # 'friend_is_online': event['friend_is_online'],
+#             # 'friend_username': event['friend_username'],
+#         }
+#         print('New friend request data is : ', data)
+#         await self.send(text_data=json.dumps(data))
 
 
 

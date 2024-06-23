@@ -9,7 +9,7 @@ function runsocketUsersListUpdate() {
 
     usersListUpdateSock.onmessage = function (event) {
 
-        console.log('On recoit le message : ', event.data)
+        console.log('userlist s update avec le new user: ', event.data)
         let data = JSON.parse(event.data)
         console.log('On entre dans le console.log de onmessage avec ', data)
         if (data.type == 'userslist_update') {
@@ -42,10 +42,9 @@ function runsocketUsersListUpdate() {
     }
 
     usersListUpdateSock.onclose = function (event) {
-        console.log('UsersListUpdate WS - Player connected.');
+        console.log('Users_list socket is closed.');
     };
 }
 
-document.addEventListener('DOMContentLoaded', (event) => {
-    runsocketUsersListUpdate();
-});
+
+runsocketUsersListUpdate();

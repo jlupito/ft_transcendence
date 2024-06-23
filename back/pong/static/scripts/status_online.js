@@ -5,7 +5,7 @@ function runsocketStatus() {
     const statusSock = new WebSocket(url);
 
     statusSock.onopen = function (event) {
-        console.log('Online WS connected.');
+        console.log('Status indicator socket is open.');
     };
 
     statusSock.onmessage = function(event) {
@@ -35,10 +35,9 @@ function runsocketStatus() {
     };
 
     statusSock.onclose = function(event) {
-        console.log('Online WS disconnected.');
+        console.log('Status_indicator socket is close.');
     };
 }
 
-document.addEventListener('DOMContentLoaded', (event) => {
-    runsocketStatus();
-});
+
+runsocketStatus();

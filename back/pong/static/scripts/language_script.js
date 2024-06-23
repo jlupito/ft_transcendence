@@ -186,5 +186,9 @@ function runSocketLanguage() {
         }
     };
 
+    languageSock.onclose = function() {
+        console.log('Language socket is closed.');
+    };
+
 }
 runSocketLanguage();
