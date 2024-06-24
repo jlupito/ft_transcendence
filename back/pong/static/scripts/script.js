@@ -109,6 +109,7 @@ socket.onmessage = function(e) {
     var statsElement = document.getElementById('stats-profile-' + stats.id);
     // console.log("stats updated:", stats)
     // console.log("user id recuperer par le js:", stats.id);
+    console.log(stats)
     if (statsElement) {
         statsElement.querySelector('#won').textContent = "(" + stats.won + ")";
         statsElement.querySelector('#lost').textContent = "(" + stats.lost + ")";

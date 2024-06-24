@@ -6,6 +6,7 @@ from django.dispatch import receiver
 from asgiref.sync import async_to_sync
 
 class UserProfile(AbstractUser):
+    update_from = models.CharField(max_length=100, default='created', blank=True, null=True)
     email = models.EmailField(unique=True)
     tourn_won = models.IntegerField(default=0)
     matches_won = models.IntegerField(default=0)
@@ -39,25 +40,32 @@ class Match(models.Model):
         if game_instance.p1_score > game_instance.p2_score:
                 if player1_user is not None:
                     player1_user.matches_won += 1
+                    player1_user.update_from = 'p1 match won save'
+                    delattr(player1_user, 'tourn_won')
                     player1_user.save()
                 if player2_user is not None:
                     player2_user.matches_lost += 1
+                    player2_user.update_from = 'p2 match lost save'
+                    delattr(player2_user, 'tourn_won')
                     player2_user.save()
         elif game_instance.p1_score < game_instance.p2_score:
                 if player1_user is not None:
                     player1_user.matches_lost += 1
+                    player1_user.update_from = 'p1 match lost save'
+                    delattr(player1_user, 'tourn_won')
                     player1_user.save()
                 if player2_user is not None:
                     player2_user.matches_won += 1
+                    player2_user.update_from = 'p2 match won save'
+                    delattr(player2_user, 'tourn_won')
                     player2_user.save()
 
         match = Match.objects.create(
             player1=game_instance.player1,
             player2=game_instance.player2,
             player1_score=game_instance.p1_score,
-            player2_score=game_instance.p2_score
+            player2_score=game_instance.p2_score,
             )
-        match.save()
         return match
 
     def __str__(self):

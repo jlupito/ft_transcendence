@@ -23,6 +23,7 @@ class LanguageConsumer(AsyncWebsocketConsumer):
     @database_sync_to_async
     def update_language_in_db(self, language):
         self.scope['user'].language = language
+        self.scope['user'].update_from = 'langage save'
         self.scope['user'].save()
         print("Language updated in db: ", language)
 
@@ -210,7 +211,8 @@ class Game():
         self.has_finished = True
         # print("Final scores: Player 1 =", self.p1_score, ", Player 2 =", self.p2_score)
         if (self.game_type == "online"):
-            new_match = Match.create_match_from_game(self) 
+            new_match = Match.create_match_from_game(self)
+            delattr(new_match, 'tourn_won')
             new_match.save()
 
     async def key_up_pressed(self, username):
@@ -350,12 +352,15 @@ class TournamentOnline():
                     player.game = None
                     if (player.player_status == "Qualified"):
                         self.winner = player.name
-                        winnerProfiles = UserProfile.objects.filter(username=self.winner)
-                        winnerProfile = None
-                        if winnerProfiles.exists():
-                            winnerProfile = winnerProfiles.first()
-                            winnerProfile.tourn_won += 1
-                            winnerProfile.save()
+                        from django.db import transaction
+                        with transaction.atomic():
+                            winnerProfiles = UserProfile.objects.select_for_update().filter(username=self.winner)
+                            if winnerProfiles.exists():
+                                winnerProfile = winnerProfiles.first()
+                                winnerProfile.tourn_won += 1
+                                winnerProfile.update_from = "tourn update"
+                                winnerProfile.save()
+                                print("stats saved")
             else:                       #relance une session de parties
                 self.games = []
                 for player in self.players:
