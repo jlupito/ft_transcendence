@@ -19,9 +19,11 @@ function runsocketStatus() {
 
                 console.log('Status Indicator Element was found for user', data.user_id);
                 if (data.status == 'is_online') {
+                    statusIndicator.classList.remove('border', 'border-2', 'border-danger'); 
                     statusIndicator.classList.add('border', 'border-2', 'border-success'); // bordure verte
                 }
                 else if (data.status == 'is_playing') {
+                    statusIndicator.classList.remove('border', 'border-2', 'border-success'); 
                     statusIndicator.classList.add('border', 'border-2', 'border-danger'); // bordure bleue
                 }
                 else if (data.status == 'is_offline') {
