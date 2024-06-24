@@ -36,9 +36,13 @@ function runsocketFriends() {
 		friendElement.innerHTML = `
 			<div class="d-flex justify-content-between align-items-center col-10 bg-white bg-opacity-25 mb-2 rounded shadow-sm mx-auto p-3">
 				<div class="d-flex align-items-center">
-					<img id="status-indicator-${data.friend_id}" class="rounded-circle me-2 {% if ${data.friend_status} == 'is_online' %}border border-2 border-success{% endif %}" src="${data.friend_avatar}" alt="Friend avatar" style="width: 35px; height: 35px;">
+					<img id="status-indicator-${data.friend_id}" class="rounded-circle me-2 
+					{% if ${data.friend_status} == 'is_online' %}border border-2 border-success
+                    {% elif ${data.friend_status} == 'is_playing' %}border border-2 border-danger
+                    {% elif ${data.friend_status} == 'is_offline' %}
+					{% endif %}" src="${data.friend_avatar}" alt="Friend avatar" style="width: 35px; height: 35px;">
 					<div style="max-width: 7ch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-						${data.friend_username}
+						${data.friend_username} ${data.friend_id}
 					</div>
 				</div>
 				<button class="btn buttonfriends btn-sm btn-dark shadow-sm" data-translate="profile" style="--bs-btn-font-size: .75rem;"

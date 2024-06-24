@@ -48,7 +48,7 @@ class LanguageConsumer(AsyncWebsocketConsumer):
 # ************************* WS POUR LES STATS DES JOUEURS ****************************
 
 class StatsConsumer(AsyncWebsocketConsumer):
-    instances = {} # Creation d'un dictionnaire vide
+    instances = {}
 
     async def connect(self):
         self.user = self.scope["user"]
@@ -485,10 +485,27 @@ class BasePongConsumer(AsyncWebsocketConsumer):
         await self.setup_game()
         if self.game and self.game.player1 and self.game.player2:
             self.game.start()
+            print("appelle send status")
+            await self.send_status_update('is_playing')
         await self.send_connection_message()
 
     async def setup_game(self):
         pass
+
+    async def disconnect(self, close_code):
+        await self.send_status_update('is_online')
+        print("passe par le disconnect")
+
+    async def send_status_update(self, status):
+        await self.channel_layer.group_send(
+            "online_users",
+            {
+                'type': 'status_update',
+                'user_id': self.scope['user'].id,
+                'status': status
+            }
+        )
+        print("send isplaying ou offline update from:", self.scope['user'].username)
 
     async def send_connection_message(self):
         user = self.scope['user']
@@ -910,7 +927,7 @@ class FriendStatusConsumer(AsyncWebsocketConsumer):
                 {
                     'type': 'status_update',
                     'user_id': self.user.id,
-                    'status': 'online'
+                    'status': 'is_online'
                 }
             )
             await self.accept()
@@ -939,6 +956,7 @@ class FriendStatusConsumer(AsyncWebsocketConsumer):
         )
 
     async def receive(self, text_data):
+        print("receive dans le status consumer")
         text_data_json = json.loads(text_data)
         message = text_data_json['message']
         await self.send(text_data=json.dumps({
@@ -951,6 +969,7 @@ class FriendStatusConsumer(AsyncWebsocketConsumer):
             'user_id': event['user_id'],
             'status': event['status']
         }))
+        print("status update event is:", event)
 
 
 # ************************* CONSUMER ASYNC FRIENDS REQUESTS ****************************

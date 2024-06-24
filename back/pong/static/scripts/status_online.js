@@ -18,13 +18,13 @@ function runsocketStatus() {
             if (statusIndicator) {
 
                 console.log('Status Indicator Element was found for user', data.user_id);
-                if (data.status == 'online') {
+                if (data.status == 'is_online') {
                     statusIndicator.classList.add('border', 'border-2', 'border-success'); // bordure verte
                 }
-                // else if (data.status == 'is_playing') {
-                //     statusIndicator.classList.add('border', 'border-2', 'border-primary'); // bordure bleue
-                // }
-                else if (data.status == 'offline') {
+                else if (data.status == 'is_playing') {
+                    statusIndicator.classList.add('border', 'border-2', 'border-danger'); // bordure bleue
+                }
+                else if (data.status == 'is_offline') {
                     statusIndicator.classList.remove('border', 'border-2'); // sans bordure
                 }
             }

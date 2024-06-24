@@ -7,11 +7,10 @@ function runsocket(){
     let data = null
     let latestData = null;
     let interval = setInterval(() => {
-        console.log(latestData);
+        // console.log(latestData);
         latestData = null;
     }, 1000); 
-    
-    
+
     chatSocket.onmessage = function(e){
         data = JSON.parse(e.data)
         if (data.type == 'connection_established')
