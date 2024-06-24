@@ -36,18 +36,36 @@ function runsocketFriends() {
 		friendElement.innerHTML = `
 			<div class="d-flex justify-content-between align-items-center col-10 bg-white bg-opacity-25 mb-2 rounded shadow-sm mx-auto p-3">
 				<div class="d-flex align-items-center">
-					<img id="status-indicator-${data.friend_id}" class="rounded-circle me-2 {% if ${data.friend_is_online} %}border border-2 border-success{% endif %}" src="${data.friend_avatar}" alt="Friend avatar" style="width: 35px; height: 35px;">
+					<img id="status-indicator-${data.friend_id}" class="rounded-circle me-2 {% if ${data.friend_status} == 'is_online' %}border border-2 border-success{% endif %}" src="${data.friend_avatar}" alt="Friend avatar" style="width: 35px; height: 35px;">
 					<div style="max-width: 7ch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-					${data.friend_username}
+						${data.friend_username}
 					</div>
 				</div>
-				<button class="btn buttonfriends btn-sm btn-dark shadow-sm" style="--bs-btn-font-size: .75rem;"
-				data-bs-toggle="modal" data-bs-target="#friendsProfile">
-				profile
+				<button class="btn buttonfriends btn-sm btn-dark shadow-sm" data-translate="profile" style="--bs-btn-font-size: .75rem;"
+					id="profile-${data.friend_id}"
+					type="button" data-bs-toggle="popover"
+					title="${data.friend_username} profile"
+					data-bs-custom-class="custom-popover"
+					data-bs-html="true"
+					data-bs-content="
+					<i class='bi bi-trophy-fill'></i> Won (${data.friend_stats.tourn}) tournament(s)
+					<br><i class='bi bi-joystick'></i> Played (${data.friend_stats.total}) matches:
+					<br>&nbsp;&nbsp;&nbsp;&nbsp;<i class='bi bi-caret-right-fill'></i>won (${data.friend_stats.won})
+					<br>&nbsp;&nbsp;&nbsp;&nbsp;<i class='bi bi-caret-right-fill'></i>lost (${data.friend_stats.lost})
+					<br><i class='bi bi-calendar-check-fill'></i> Joined on ${data.friend_joined}
+					">
+					profile
 				</button>
 			</div>
 			`;
 		document.getElementById('friendsList').appendChild(friendElement);
+		applyTranslation
+
+		// Initialisez les popovers
+		var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'))
+		var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
+			return new bootstrap.Popover(popoverTriggerEl)
+})
 	}
 	else if (data.type == 'new_friend_request') {
 

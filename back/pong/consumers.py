@@ -899,7 +899,7 @@ class FriendStatusConsumer(AsyncWebsocketConsumer):
         self.user = self.scope['user']
         if self.user.is_authenticated:
             self.user_profile = await sync_to_async(UserProfile.objects.get)(username=self.user.username)
-            self.user_profile.is_online = True
+            self.user_profile.status = 'is_online'
             await sync_to_async(self.user_profile.save)()
             await self.channel_layer.group_add(
                 "online_users",
@@ -916,10 +916,14 @@ class FriendStatusConsumer(AsyncWebsocketConsumer):
             await self.accept()
         else:
             await self.close()
+        print("user is:", self.user_profile)
+        print("status is:", self.user_profile.status)
 
     async def disconnect(self, close_code):
         self.user_profile = await sync_to_async(UserProfile.objects.get)(username=self.user.username)
-        self.user_profile.is_online = False
+        self.user_profile.status = 'is_offline'
+        print("user is:", self.user_profile)
+        print("status is:", self.user_profile.status)
         await sync_to_async(self.user_profile.save)()
         await self.channel_layer.group_discard(
             "online_users",
@@ -990,8 +994,10 @@ class FriendsRequestsConsumer(AsyncWebsocketConsumer):
             'type': 'friends_requests_update',
             'friend_id': event['friend_id'],
             'friend_avatar': event['friend_avatar'],
-            'friend_is_online': event['friend_is_online'],
+            'friend_status': event['friend_status'],
             'friend_username': event['friend_username'],
+            'friend_stats': event['friend_stats'],
+            'friend_joined': event['friend_joined'],
         }
         print('Friebnd Raquest update data is : ', data)
         await self.send(text_data=json.dumps(data))
@@ -1008,7 +1014,7 @@ class FriendsRequestsConsumer(AsyncWebsocketConsumer):
             'type': 'new_friend_request',
             'friend_id': event['friend_id'],
             'friend_avatar': event['friend_avatar'],
-            'friend_is_online': event['friend_is_online'],
+            'friend_status': event['friend_status'],
             'friend_username': event['friend_username'],
         }
         print('New friend request data is : ', data)

@@ -129,6 +129,11 @@ var translations = {
 
 function applyTranslation(language) {
 
+    if (!language) {
+        var activeLanguage = document.querySelector('.chooseLanguage.active');
+        var language = this.textContent.trim().toLowerCase();
+    }
+
     var elements = document.querySelectorAll('[data-translate]');
     elements.forEach(function(element) {
         var translation = translations[language][element.getAttribute('data-translate')];
@@ -188,3 +193,84 @@ function runSocketLanguage() {
 
 }
 runSocketLanguage();
+
+// function getPopoverContentContent(language, data) {
+//     console.log("rentre dans la fonction avec : ", language);
+
+//     let newContent
+//     if (language === 'english') {
+//         console.log("rentrer ici anglais : ");
+//         newContent = `
+//         <button class="btn buttonfriends btn-sm btn-dark shadow-sm" style="--bs-btn-font-size: .75rem;"
+//             id="profile-${data.friend_id}"
+//             type="button" data-bs-toggle="popover"
+//             title="${data.friend_username} profile"
+//             data-bs-custom-class="custom-popover"
+//             data-bs-html="true"
+//             data-bs-content="
+//             <i class='bi bi-trophy-fill'></i> Won (${data.friend_stats.tourn}) tournament(s)
+//             <br><i class='bi bi-joystick'></i> Played (${data.friend_stats.total}) matches:
+//             <br>&nbsp;&nbsp;&nbsp;&nbsp;<i class='bi bi-caret-right-fill'></i>won (${data.friend_stats.won})
+//             <br>&nbsp;&nbsp;&nbsp;&nbsp;<i class='bi bi-caret-right-fill'></i>lost (${data.friend_stats.lost})
+//             <br><i class='bi bi-calendar-check-fill'></i> Joined on ${data.friend_joined}
+//             ">
+//             profile
+// 		</button>
+        
+//         `;
+//     }
+//     else if (language === 'français') {
+//         console.log("rentrer ici francais : ");
+//         newContent = `
+//         <button class="btn buttonfriends btn-sm btn-dark shadow-sm" style="--bs-btn-font-size: .75rem;"
+//             id="profile-${data.friend_id}"
+//             type="button" data-bs-toggle="popover"
+//             title="Profil de ${data.friend_username}"
+//             data-bs-custom-class="custom-popover"
+//             data-bs-html="true"
+//             data-bs-content="
+//             <i class='bi bi-trophy-fill'></i> (${data.friend_stats.tourn}) Tournament(s) gagné(s)
+//             <br><i class='bi bi-joystick'></i> (${data.friend_stats.total}) Match(s) joué(s):
+//             <br>&nbsp;&nbsp;&nbsp;&nbsp;<i class='bi bi-caret-right-fill'></i>victoires (${data.friend_stats.won})
+//             <br>&nbsp;&nbsp;&nbsp;&nbsp;<i class='bi bi-caret-right-fill'></i>défaites (${data.friend_stats.lost})
+//             <br><i class='bi bi-calendar-check-fill'></i> Inscrit depuis ${data.friend_joined}
+//             profil
+//         </button>
+//         `;
+//         console.log("contenu apres : ", newContent);
+//     }
+//     else if (language === 'español') {
+//         console.log("rentrer ici espagnol : ");
+//         newContent = `
+//         <button class="btn buttonfriends btn-sm btn-dark shadow-sm" style="--bs-btn-font-size: .75rem;"
+//             id="profile-${data.friend_id}"
+//             type="button" data-bs-toggle="popover"
+//             title="Perfil de ${data.friend_username}"
+//             data-bs-custom-class="custom-popover"
+//             data-bs-html="true"
+//             data-bs-content="
+//             <i class='bi bi-trophy-fill'></i> (${data.friend_stats.tourn}) Torneo(s) ganado(s)
+//             <br><i class='bi bi-joystick'></i> (${data.friend_stats.total}) Partido(s) jugado(s):
+//             <br>&nbsp;&nbsp;&nbsp;&nbsp;<i class='bi bi-caret-right-fill'></i>triumfo(s) (${data.friend_stats.won})
+//             <br>&nbsp;&nbsp;&nbsp;&nbsp;<i class='bi bi-caret-right-fill'></i>derrota(s) (${data.friend_stats.lost})
+//             <br><i class='bi bi-calendar-check-fill'></i> Regigistrado desde ${data.friend_joined}
+//             perfil
+//         </button>
+//         `;
+//         console.log("contenu apres : ", newContent);
+//     }
+//     return newContent;
+// }
+
+
+// function translatePopover(data) {
+
+//     var activeLanguage = document.querySelector('.chooseLanguage.active');
+
+//     console.log("traduction de la popover en", activeLanguage.textContent.trim().toLowerCase());
+//     var translatedContent = getPopoverContent(activeLanguage.textContent.trim().toLowerCase(), data);
+
+//     console.log("contenu traduit : ", translatedContent);
+
+//     return translatedContent
+// }

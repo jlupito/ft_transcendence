@@ -202,6 +202,7 @@ def match_stats(user):
 		'lost': lost,
 		'wp': won_perc,
 		'lp': lost_perc,
+		'total': lost + won,
 		'tourn': tourn,
 		'id': userProfile.id,
 		'matches': matches_hist,
@@ -260,12 +261,17 @@ def handle_invite(request):
 			'type': 'friends_requests_update',
 			'friend_id': userpro_receiver.id,
 			'friend_avatar': userpro_receiver.avatar.url,
-			'friend_is_online': userpro_receiver.is_online,
+			'friend_status': userpro_receiver.status,
 			'friend_username': userpro_receiver.username,
+			'friend_stats': {
+				'won': userpro_receiver.matches_won,
+				'lost': userpro_receiver.matches_lost,
+				'tourn': userpro_receiver.tourn_won,
+				'total': userpro_receiver.matches_won + userpro_receiver.matches_lost,
+			},
+			'friend_joined': userpro_receiver.date_joined.strftime('%B %d, %Y')
 		}
-	async_to_sync(channel_layer.group_send)(
-		"friends_requests", data
-		)
+	async_to_sync(channel_layer.group_send)("friends_requests", data)
 	return redirect('home')
 
 # @login_required
@@ -275,7 +281,6 @@ def send_invite(request):
 	receiver = request.POST.get('receiver')
 	sender = request.user
 	friends_l = friends_list(sender)
-	request.session.set_expiry(4)
 	for friend in friends_l['friends']:
 		if friend.username == receiver:
 			messages.error(request, 'User is already your friend')
@@ -295,12 +300,10 @@ def send_invite(request):
 			'type': 'new_friend_request',
 			'friend_id': friend_request_sender_profile.id,
 			'friend_avatar': friend_request_sender_profile.avatar.url,
-			'friend_is_online': friend_request_sender_profile.is_online,
+			'friend_status': friend_request_sender_profile.status,
 			'friend_username': friend_request_sender_profile.username
 		}
-	async_to_sync(channel_layer.group_send)(
-		"friends_requests", data
-	)
+	async_to_sync(channel_layer.group_send)("friends_requests", data)
 	return redirect('home')
 
 logger = logging.getLogger(__name__)
