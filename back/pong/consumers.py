@@ -9,6 +9,7 @@ from django.db.models import Q
 import threading
 import time
 from .models import Match, Friend, UserProfile
+from django.contrib import messages
 
 
 # ************************* WS POUR LA LANGUE ******************************
@@ -966,20 +967,63 @@ class FriendsRequestsConsumer(AsyncWebsocketConsumer):
             print(f"User {self.user.username} is not authenticated")
 
     async def disconnect(self, close_code):
-        print(f"Removed {self.user.username} from instances")
-        print(f"WebSocket for {self.user.username} is now closed.")
-        del self.instances[self.user.id]
+        if self.user and self.user.id in self.instances:
+            del self.instances[self.user.id]
+            print(f"Removed {self.user.username} from instances")
+            print(f"WebSocket for {self.user.username} is now closed.")
+        await super().disconnect(close_code)
 
     async def receive(self, text_data):
-        try:
-            pass
-        except Exception as e:
-            print(f"Exception in receive: {e}")
+        data = json.loads(text_data)
+        print("message received in consumer: ", data)
+        inner_data= data['data']
+        type = inner_data['type']
+        if type == 'send_f_request':
+            await self.send_f_updates(inner_data)
+        elif type == 'accepted' or type == 'rejected':
+            await self.handle_f_updates(inner_data)
 
-    async def send_f_updates(self, f_updates):
-        print("Sending f_updates")
-        print(f"WebSocket for {self.user.username} is still open.")
-        await self.send(text_data=json.dumps(f_updates))
+    async def send_f_updates(self, data):
+        receiver_id = data['receiver_id']
+        receiver = await sync_to_async(UserProfile.objects.get)(id=receiver_id)
+        sender_id = data['sender_id']
+        sender = await sync_to_async(UserProfile.objects.get)(id=sender_id)
+        from .views import friends_list
+        friends_l = await sync_to_async(friends_list)(sender)
+        for friend in friends_l['friends']:
+            if friend.username == receiver:
+                return
+        invite_exists = await sync_to_async(lambda: Friend.objects.filter(sender=sender, receiver=receiver, status='pending').exists())()
+        if invite_exists:
+            return
+        invite_exists = await sync_to_async(lambda: Friend.objects.filter(sender=receiver, receiver=sender, status='pending').exists())()
+        if invite_exists:
+            return
+        await sync_to_async(Friend.objects.create)(sender=sender, receiver=receiver, status='pending')
+        
+        for user in [receiver, sender]:
+            consumer = FriendsRequestsConsumer.instances.get(user.id)
+            if consumer:
+                print(f"Sending update to {user.username}")
+                await consumer.send(text_data=json.dumps(data))
+
+
+    async def handle_f_updates(self, data):
+        status = data['type']
+        receiver_id = data['receiver_id']
+        receiver = await sync_to_async(UserProfile.objects.get)(id=receiver_id)
+        sender_id = data['sender_id']
+        sender = await sync_to_async(UserProfile.objects.get)(id=sender_id)
+        inv = await sync_to_async(Friend.objects.filter(sender=sender, receiver=receiver).first(), thread_sensitive=True)
+        if inv:
+            inv.status = status
+            inv.save()
+        
+        for user in [receiver, sender]:
+            consumer = FriendsRequestsConsumer.instances.get(user.id)
+            if consumer:
+                print(f"Sending update to {user.username}")
+                await consumer.send(text_data=json.dumps(data))
 
 
     # @classmethod
