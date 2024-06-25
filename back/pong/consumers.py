@@ -1014,7 +1014,7 @@ class FriendsRequestsConsumer(AsyncWebsocketConsumer):
         receiver = await sync_to_async(UserProfile.objects.get)(id=receiver_id)
         sender_id = data['sender_id']
         sender = await sync_to_async(UserProfile.objects.get)(id=sender_id)
-        inv = await sync_to_async(Friend.objects.filter(sender=sender, receiver=receiver).first(), thread_sensitive=True)
+        inv = await sync_to_async(Friend.objects.filter(sender=sender, receiver=receiver).first, thread_sensitive=True)()
         if inv:
             inv.status = status
             inv.save()

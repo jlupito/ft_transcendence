@@ -64,12 +64,16 @@
                                 style="--bs-btn-font-size: .75rem;"><i class="bi bi-x-square"></i></button>
                             </div>
                             {% elif user.username in friends.invitees %}
-                            <button id="f_request_pending-{{ other_user.id }}" class="btn buttonfriends btn-sm btn-primary shadow-sm" disabled
-                            style="--bs-btn-font-size: .75rem;" data-translate="pending">pending</button>
+                            <div id="f_request_pending-{{ other_user.id }}" >
+                                <button class="btn buttonfriends btn-sm btn-primary shadow-sm" disabled
+                                style="--bs-btn-font-size: .75rem;" data-translate="pending">pending</button>
+                            </div>
                             {% else %}
-                            <button id="f_request_add-{{ other_user.id }}" data-type="send_f_request" data-sender="{{ user.id }}" data-receiver="{{ other_user.id }}" class="btn buttonfriends button_friends btn-sm btn-primary shadow-sm"
-                            style="--bs-btn-font-size: .75rem;" data-translate="add">add friend
-                            </button>
+                            <div id="f_request_add-{{ other_user.id }}" >
+                                <button data-type="send_f_request" data-sender="{{ user.id }}" data-receiver="{{ other_user.id }}" class="btn buttonfriends button_friends btn-sm btn-primary shadow-sm"
+                                style="--bs-btn-font-size: .75rem;" data-translate="add">add friend
+                                </button>
+                            </div>
                             {% endif %}
                         </div>
                     </li>
