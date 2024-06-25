@@ -15,15 +15,17 @@ function getCookie(name) {
     return cookieValue;
 }
 
+// Update profile script
 document.getElementById('updateProfileForm').addEventListener('submit', function(event) {
     event.preventDefault();
 
     var formData = new FormData(this);
+
     fetch('/update_profile', {
         method: 'POST',
         body: formData,
         headers: {
-            'X-CSRFToken': getCookie('csrftoken') // Ajoutez le CSRF token à l'en-tête de la requête
+            'X-CSRFToken': getCookie('csrftoken')
         }
     })
     .then(response => {

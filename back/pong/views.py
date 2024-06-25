@@ -107,7 +107,7 @@ def update_profile(request):
         print("Avatar updated")
     user.save()
     print("User saved")
-    return JsonResponse({'status': 'success', 'message': 'Profile updated successfully'})
+    return JsonResponse({'status': 'success', 'message': 'Profile updated successfully', 'avatar_url': user.avatar.url})
 
 @login_required
 def logout_view(request):
