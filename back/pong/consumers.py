@@ -604,6 +604,7 @@ class PongLocal(BasePongConsumer):
 
     async def disconnect(self, close_code):
         print("local disconnect")
+        await self.send_status_update('is_online')
         user = self.scope['user']
         user1 = user.username
         user2 = user.username + "_2"
