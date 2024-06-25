@@ -3,14 +3,14 @@
         <div class="d-flex justify-content-between col mb-2">
             <div class="me-auto w-100 d-flex text-align-center justify-content-center">
                 <h2 class="text-light my-3 ms-5" data-translate="welcome">Welcome</h2>
-				<h2 class="text-light my-3 ms-2">{{ username }} !</h2>
+				<h2 id='usernameDisplay' class="text-light my-3 ms-2">{{ username }} !</h2>
             </div>
             <a class="btn btn-lg text-light ms-auto" role="button" title="Log out" href="{% url 'logout' %}">
                 <i class="bi-x-square"></i>
             </a>
         </div>
         <div class="col mb-2 ">
-            <img class="rounded-circle shadow-lg" src="{{ avatar }}" alt="User avatar" style="width: 60px; height: 60px;">
+            <img id='avatarDisplay' class="rounded-circle shadow-lg" src="{{ avatar }}" alt="User avatar" style="width: 60px; height: 60px;">
         </div>
         <div class="col mb-2">
             <a class="btn btn-sm text-light" href="#" data-bs-toggle="modal" data-bs-target="#profileModal" data-translate="edit">
@@ -47,3 +47,4 @@
 		</div>
 	</div>
 </section>
+<script src="/static/scripts/update_profile.js"></script>

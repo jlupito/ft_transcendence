@@ -9,7 +9,7 @@ function runsocket(){
     let interval = setInterval(() => {
         // console.log(latestData);
         latestData = null;
-    }, 1000); 
+    }, 1000);
 
     chatSocket.onmessage = function(e){
         data = JSON.parse(e.data)
@@ -78,11 +78,10 @@ function runsocket(){
 
     const canvas = document.getElementById('CanvasLocal');
 
-    
+
     var canvasModal = document.getElementById('localMatchModal');
     let update = null
     canvasModal.addEventListener('hidden.bs.modal', function () {
-        console.log("aurevoir")
         chatSocket.close()
         clearInterval(interval)
         clearInterval(update)
@@ -200,7 +199,7 @@ function runsocket(){
         ctx.fillText(p2_score, WIDTH * 3 / 4, HEIGHT / 6, 45)
         ctx.fillText(player2, WIDTH * 3 / 4, HEIGHT / 10)
         ctx.fillText(player1, WIDTH / 4, HEIGHT / 10)
-    
+
     }
 
     function get_update(){

@@ -9,9 +9,9 @@ function runsocketUsersListUpdate() {
 
     usersListUpdateSock.onmessage = function (event) {
 
-        console.log('On recoit le message : ', event.data)
+        // console.log('On recoit le message : ', event.data)
         let data = JSON.parse(event.data)
-        console.log('On entre dans le console.log de onmessage avec ', data)
+        // console.log('On entre dans le console.log de onmessage avec ', data)
         if (data.type == 'userslist_update') {
             let parentElement = document.getElementById(`usersList`);
             if (parentElement) {

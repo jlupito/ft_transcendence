@@ -75,29 +75,39 @@ def register(request):
 		registerform = RegisterForm()
 	return redirect('home')
 
+# modifier pour supprimer le return redirect
+from django.http.request import QueryDict
 def update_profile(request):
-	if request.method == 'GET':
-		return redirect('home')
-	username = request.POST.get('username')
-	profile_picture = request.FILES.get('profile_picture')
-	if (UserProfile.objects.filter(username=username).exists() and username != request.user.username):
-		messages.error(request, 'Username already taken')
-		return redirect('home')
-	user = request.user
-	user.username = username
-	if (profile_picture is not None):
-		validate = FileExtensionValidator(allowed_extensions=['jpg', 'jpeg', 'png'])
-		try:
-			validate(profile_picture)
-		except ValidationError as e:
-			messages.error(request, 'Invalid file type')
-			return redirect('home')
-		if user.avatar.url != "/media/avatars/default2.png":
-			user.avatar.delete()
-		profile_picture.name = user.username
-		user.avatar = profile_picture
-	user.save()
-	return redirect('home')
+    print("update_profile called")
+    if request.method == 'GET':
+        print("GET method not allowed")
+        return JsonResponse({'status': 'error', 'message': 'GET method not allowed'})
+    username = request.POST.get('username')
+    print('Received username:', username)
+    profile_picture = request.FILES.get('profile_picture')
+    if (UserProfile.objects.filter(username=username).exists() and username != request.user.username):
+        print("Username is already taken")
+        return JsonResponse({'status': 'error', 'message': 'Username is already taken'})
+    user = request.user
+    print("Current username:", user.username)
+    user.username = username
+    print("Username updated to:", user.username)
+    if (profile_picture is not None):
+        validate = FileExtensionValidator(allowed_extensions=['jpg', 'jpeg', 'png'])
+        try:
+            validate(profile_picture)
+        except ValidationError as e:
+            print("Invalid file type, only jpg, jpeg and png are allowed")
+            return JsonResponse({'status': 'error', 'message': 'Invalid file type, only jpg, jpeg and png are allowed'})
+        if user.avatar.url != "/media/avatars/default2.png":
+            print("Deleting old avatar")
+            user.avatar.delete(save=False)
+        profile_picture.name = user.username
+        user.avatar = profile_picture
+        print("Avatar updated")
+    user.save()
+    print("User saved")
+    return JsonResponse({'status': 'success', 'message': 'Profile updated successfully'})
 
 @login_required
 def logout_view(request):
@@ -244,17 +254,22 @@ def friends_list(user):
 # @login_required
 def handle_invite(request):
 	if request.method == 'GET':
-		return redirect('home')
-	sender = request.POST.get('invite')
+		return JsonResponse({'status': 'error', 'message': 'GET method not allowed'})
+
+	print(request.body.decode('utf-8'))
+
+	data = json.loads(request.body)
+	sender = data.get('invite')
 	receiver = request.user
-	status = request.POST.get('friend_status')
-	print('Status from frnt is :', status)
+	status = data.get('friend_status')
 	inv = Friend.objects.filter(sender=UserProfile.objects.get(username=sender), receiver=receiver).first()
-	print("inv:", inv)
+
 	if inv:
 		inv.status = status
 		messages.success(request, f'Your are now friends with {sender}!')
 		inv.save()
+	else:
+		return JsonResponse({'status': 'error', 'message': 'No invitation found'}, status=404)
 	userpro_receiver = UserProfile.objects.get(username=receiver.username)
 	channel_layer = get_channel_layer()
 	data = {
@@ -272,27 +287,30 @@ def handle_invite(request):
 			'friend_joined': userpro_receiver.date_joined.strftime('%B %d, %Y')
 		}
 	async_to_sync(channel_layer.group_send)("friends_requests", data)
-	return redirect('home')
+	return JsonResponse({'status': 'success', 'message': f'You are now friends with {sender}!'})
 
 # @login_required
 def send_invite(request):
+	# print('COUCOU LE SEND INVITE') # ok
+	# print(json.loads(request.body)) # ok
 	if request.method == 'GET':
-		return redirect('home')
-	receiver = request.POST.get('receiver')
+		return JsonResponse({'status': 'error', 'message': 'GET method not allowed'})
+	data = json.loads(request.body)
+	receiver = data.get('receiver')
 	sender = request.user
 	friends_l = friends_list(sender)
 	for friend in friends_l['friends']:
 		if friend.username == receiver:
-			messages.error(request, 'User is already your friend')
-			return redirect('home')
+			return JsonResponse({'status': 'error', 'message': 'User is already your friend'})
+
 	invite = Friend.objects.filter(sender=sender, receiver=UserProfile.objects.get(username=receiver), status='pending')
 	if invite.exists():
-		messages.error(request, 'Invite already sent')
-		return redirect('home')
+		return JsonResponse({'status': 'error', 'message': 'Invite already sent'})
+
 	invite = Friend.objects.filter(sender=UserProfile.objects.get(username=receiver), receiver=sender, status='pending')
 	if invite.exists():
-		messages.error(request, 'You already have an invite from this user')
-		return redirect('home')
+		return JsonResponse({'status': 'error', 'message': 'You already have an invite from this user'})
+
 	Friend.objects.create(sender=sender, receiver=UserProfile.objects.get(username=receiver), status='pending')
 	friend_request_sender_profile=UserProfile.objects.get(username=sender)
 	channel_layer = get_channel_layer()
@@ -303,8 +321,10 @@ def send_invite(request):
 			'friend_status': friend_request_sender_profile.status,
 			'friend_username': friend_request_sender_profile.username
 		}
+	# print(data)
 	async_to_sync(channel_layer.group_send)("friends_requests", data)
-	return redirect('home')
+	return JsonResponse({'status': 'success', 'message': 'Invite sent successfully'})
+
 
 logger = logging.getLogger(__name__)
 

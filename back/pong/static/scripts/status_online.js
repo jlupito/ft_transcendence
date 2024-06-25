@@ -11,28 +11,28 @@ function runsocketStatus() {
     statusSock.onmessage = function(event) {
 
         let data = JSON.parse(event.data)
-        console.log('Data received in front is : ', data);
+        // console.log('Data received in front is : ', data);
         if (data.type == 'status_update') {
 
             var statusIndicator = document.getElementById('status-indicator-' + data.user_id);
             if (statusIndicator) {
 
-                console.log('Status Indicator Element was found for user', data.user_id);
+                // console.log('Status Indicator Element was found for user', data.user_id);
                 if (data.status == 'is_online') {
-                    statusIndicator.classList.remove('border', 'border-2', 'border-danger'); 
+                    statusIndicator.classList.remove('border', 'border-2', 'border-danger');
                     statusIndicator.classList.add('border', 'border-2', 'border-success'); // bordure verte
                 }
                 else if (data.status == 'is_playing') {
-                    statusIndicator.classList.remove('border', 'border-2', 'border-success'); 
+                    statusIndicator.classList.remove('border', 'border-2', 'border-success');
                     statusIndicator.classList.add('border', 'border-2', 'border-danger'); // bordure bleue
                 }
                 else if (data.status == 'is_offline') {
                     statusIndicator.classList.remove('border', 'border-2'); // sans bordure
                 }
             }
-            else {
-                console.log('Status Indicator Element not found for user', data.user_id);
-            }
+            // else {
+            //     console.log('Status Indicator Element not found for user', data.user_id);
+            // }
         }
     };
 

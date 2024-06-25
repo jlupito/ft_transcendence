@@ -27,7 +27,7 @@ class LanguageConsumer(AsyncWebsocketConsumer):
         print("Language updated in db: ", language)
 
     async def set_language(self, language):
-        if language in ['english', 'français', 'español']: 
+        if language in ['english', 'français', 'español']:
             await self.update_language_in_db(language)
             # await self.send_language()
 
@@ -37,7 +37,7 @@ class LanguageConsumer(AsyncWebsocketConsumer):
 
     async def receive(self, text_data):
         data = json.loads(text_data)
-        print("message received in consumer: ", data)
+        # print("message received in consumer: ", data)
         action = data['action']
         if action == 'get_language':
             await self.send_language()
@@ -210,7 +210,7 @@ class Game():
         self.has_finished = True
         # print("Final scores: Player 1 =", self.p1_score, ", Player 2 =", self.p2_score)
         if (self.game_type == "online"):
-            new_match = Match.create_match_from_game(self) 
+            new_match = Match.create_match_from_game(self)
             new_match.save()
 
     async def key_up_pressed(self, username):
@@ -417,7 +417,7 @@ class TournamentOnline():
                 #     winner_userProfile.tourn_won += 1
                 #     winner_userProfile.save()
 
-         
+
     async def add_player(self, username):
         if self.status == "Waiting":
             for player in self.players:
@@ -933,14 +933,10 @@ class FriendStatusConsumer(AsyncWebsocketConsumer):
             await self.accept()
         else:
             await self.close()
-        print("user is:", self.user_profile)
-        print("status is:", self.user_profile.status)
 
     async def disconnect(self, close_code):
         self.user_profile = await sync_to_async(UserProfile.objects.get)(username=self.user.username)
         self.user_profile.status = 'is_offline'
-        print("user is:", self.user_profile)
-        print("status is:", self.user_profile.status)
         await sync_to_async(self.user_profile.save)()
         await self.channel_layer.group_discard(
             "online_users",
@@ -1036,7 +1032,7 @@ class FriendsRequestsConsumer(AsyncWebsocketConsumer):
             'friend_status': event['friend_status'],
             'friend_username': event['friend_username'],
         }
-        print('New friend request data is : ', data)
+        # print('New friend request data is : ', data)
         await self.send(text_data=json.dumps(data))
 
 

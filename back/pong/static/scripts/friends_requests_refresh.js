@@ -28,6 +28,7 @@ function runsocketFriends() {
 
 	socket.onmessage = function(e) {
 	var data = JSON.parse(e.data);
+	console.log('Recu par le JS suite au Send_invite:', data)
 	if (data.type === 'friends_requests_update') {
 
 		var userElement = document.getElementById('userRemove-' + data.friend_id);
@@ -36,7 +37,7 @@ function runsocketFriends() {
 		friendElement.innerHTML = `
 			<div class="d-flex justify-content-between align-items-center col-10 bg-white bg-opacity-25 mb-2 rounded shadow-sm mx-auto p-3">
 				<div class="d-flex align-items-center">
-					<img id="status-indicator-${data.friend_id}" class="rounded-circle me-2 
+					<img id="status-indicator-${data.friend_id}" class="rounded-circle me-2
 					{% if ${data.friend_status} == 'is_online' %}border border-2 border-success
                     {% elif ${data.friend_status} == 'is_playing' %}border border-2 border-danger
                     {% elif ${data.friend_status} == 'is_offline' %}
@@ -65,7 +66,6 @@ function runsocketFriends() {
 		document.getElementById('friendsList').appendChild(friendElement);
 		applyTranslation
 
-		// Initialisez les popovers
 		var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'))
 		var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
 			return new bootstrap.Popover(popoverTriggerEl)
@@ -73,42 +73,61 @@ function runsocketFriends() {
 	}
 	else if (data.type == 'new_friend_request') {
 
-		// Suppression de l'ancien élément de demande d'ami s'il existe
-		var addFriendButton = document.getElementById('addFriendButton-' + data.friend_id);
-		if (addFriendButton) {
-			addFriendButton.remove();
-		}
-		// Suppression de l'ancien élément de demande d'ami s'il existe
-		var oldRequestElement = document.getElementById('userRemove-' + data.friend_id);
-		if (oldRequestElement) {
-			oldRequestElement.remove();
-		}
-		// Creation du nouvel élément de demande d'ami avec accept ou reject
-		var newRequestElement = document.createElement('li');
+		var acceptButton = document.createElement('button');
+		acceptButton.innerHTML = '<i class="bi bi-check-square"></i>';
+		acceptButton.classList.add('btn', 'buttonvalid', 'px-2', 'btn-sm', 'btn-primary', 'shadow-sm');
+		acceptButton.style.setProperty('--bs-btn-font-size', '.75rem');
+		acceptButton.addEventListener('click', function() {
+			handleInvite(data.friend_username, 'accepted');
+		});
+
+		var rejectButton = document.createElement('button');
+		rejectButton.innerHTML = '<i class="bi bi-x-square"></i>';
+		rejectButton.classList.add('btn', 'buttonvalid', 'px-2', 'btn-sm', 'btn-danger', 'shadow-sm');
+		rejectButton.style.setProperty('--bs-btn-font-size', '.75rem');
+		rejectButton.addEventListener('click', function() {
+			handleInvite(data.friend_username, 'rejected');
+		});
+
 		newRequestElement.innerHTML = `
 		<div id="userRemove-${data.friend_id}" class="d-flex justify-content-between align-items-center col-10 bg-white bg-opacity-25 p-3 mb-2 rounded shadow-sm mx-auto">
 			<div class="d-flex align-items-center">
-                <img class="rounded-circle me-2" src="${data.friend_avatar}" alt="" style="width: 35px; height: 35px;">
-                <div style="max-width: 7ch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                ${data.friend_username}
-                </div>
+				<img class="rounded-circle me-2" src="${data.friend_avatar}" alt="" style="width: 35px; height: 35px;">
+				<div style="max-width: 7ch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+				${data.friend_username}
+				</div>
 			</div>
-			<form action="handle_invite" method="POST">
-				<input type="hidden" name="csrfmiddlewaretoken" value="${csrf_token}">
-                <input type="hidden" name="invite" value="${data.friend_username}">
-                <button type="submit" name="friend_status" value="accepted" class="btn buttonvalid px-2 btn-sm btn-primary shadow-sm"
-                style="--bs-btn-font-size: .75rem;"><i class="bi bi-check-square"></i></button>
-                <button type="submit" name="friend_status" value="rejected" class="px-2 buttonvalid btn btn-sm btn-danger shadow-sm"
-                style="--bs-btn-font-size: .75rem;"><i class="bi bi-x-square"></i></button>
-			</form>
 		</div>
 		`;
+		newRequestElement.appendChild(acceptButton);
+		newRequestElement.appendChild(rejectButton);
 		document.getElementById('usersList').appendChild(newRequestElement);
+	}
+
+	function handleInvite(inviteUsername, friendStatus) {
+		fetch('/handle_invite', {
+			method: 'POST',
+			body: JSON.stringify({
+				invite: inviteUsername,
+				friend_status: friendStatus
+			}),
+			headers: {
+				'Content-Type': 'application/json',
+				'X-CSRFToken': getCookie('csrftoken')
+			}
+		}).then(response => response.json())
+		  .then(data => {
+			if (data.status === 'success') {
+				window.location.href = '/';
+			} else {
+				alert(data.message);
+			}
+		});
 	}
 	};
 
 	socket.onclose = function(e) {
-	console.log("Connection WS REFRESH FRIENDS closed");
+	// console.log("Connection WS REFRESH FRIENDS closed");
 	};
 }
 
