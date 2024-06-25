@@ -6,12 +6,16 @@ function runsocketFriends() {
 	var socketFriends = new WebSocket(url);
 
 	function handleClick(event) {
-		if (event.target.matches('.button_friends')) {
+		var element = event.target;
+		while (element && !element.matches('.button_friends')) {
+			element = element.parentElement;
+		}
+		if (element) {
 			console.log("clique sur le bouton bien detecté");
 			var data= {
-				sender_id: event.target.getAttribute('data-sender'),
-				receiver_id: event.target.getAttribute('data-receiver'),
-				type: event.target.getAttribute('data-type')
+				sender_id: element.getAttribute('data-sender'),
+				receiver_id: element.getAttribute('data-receiver'),
+				type: element.getAttribute('data-type')
 			}
 			console.log("data envoyé apres click sur le add button:", data);
 			socketFriends.send(JSON.stringify({
@@ -30,80 +34,128 @@ function runsocketFriends() {
 	console.log("data reçue apr le JS:", data);
 
 	if (data.type === 'accepted') {
-
-
+		var divRecUser = document.getElementById('userDiv-' + data.receiver_id);
+		if (divRecUser) {
+			divRecUser.remove();
+			var friendsList = document.getElementById('friendsList-' + data.sender_id);
+			if (friendsList) {
+				var newFriendElement = document.createElement('li');
+				newFriendElement.innerHTML = `
+				<div class="d-flex justify-content-between align-items-center col-10 bg-white bg-opacity-25 mb-2 rounded shadow-sm mx-auto p-3">
+					<div class="d-flex align-items-center">
+						<img id="status-indicator-${ data.receiver_id }" class="rounded-circle me-2
+						{% if ${ data.rec_status } %}border border-2 border-success
+						{% elif ${ data.rec_status } %}border border-2 border-primary
+						{% else %}
+						{% endif %}" src="${ data.rec_avatar }" alt="Friend avatar" style="width: 35px; height: 35px;">
+						<div style="max-width: 7ch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+							${ data.rec_username }
+						</div>
+					</div>
+					<button class="btn buttonfriends btn-sm btn-dark shadow-sm" data-translate="profile" style="--bs-btn-font-size: .75rem;">
+						profile
+					</button>
+				</div>
+				`;
+				friendsList.appendChild(newFriendElement);
+			}
+		}
+		var divSendUser = document.getElementById('userDiv-' + data.sender_id);
+		if (divSendUser) {
+			divSendUser.remove();
+			var friendsList = document.getElementById('friendsList-' + data.receiver_id);
+			if (friendsList) {
+				var newFriendElement = document.createElement('li');
+				newFriendElement.innerHTML = `
+				<div class="d-flex justify-content-between align-items-center col-10 bg-white bg-opacity-25 mb-2 rounded shadow-sm mx-auto p-3">
+					<div class="d-flex align-items-center">
+						<img id="status-indicator-${ data.sender_id }" class="rounded-circle me-2
+						{% if ${ data.send_status } %}border border-2 border-success
+						{% elif ${ data.send_status } %}border border-2 border-primary
+						{% else %}
+						{% endif %}" src="${ data.send_avatar }" alt="Friend avatar" style="width: 35px; height: 35px;">
+						<div style="max-width: 7ch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+							${ data.send_username }
+						</div>
+					</div>
+					<button class="btn buttonfriends btn-sm btn-dark shadow-sm" data-translate="profile" style="--bs-btn-font-size: .75rem;">
+						profile
+					</button>
+				</div>
+				`;
+				friendsList.appendChild(newFriendElement);
+			}
+		}
+		
 	}
 	else if (data.type === 'rejected') {
-		console.log("data_sender:", data.receiver_id)
-		console.log("data_recever:", data.sender_id)
-		var receiverElement = document.getElementById('userDiv-' + data.receiver_id);
-		console.log("receiverElement:", receiverElement)
-		if (receiverElement) {
-			console.log("tu rentres ici?")
-			var button = document.getElementById("f_request_pending-" + data.receiver_id);
-			console.log("button:", button)	
-			receiverElement.removeChild(button);
-			var newButton = document.createElement('div');
-			newButton.innerHTML = `
-			<button id="f_request_add-${ data.sender_id }" data-type="send_f_request" data-sender="${ data.receiver_id }" data-receiver="${ data.sender_id }" class="btn buttonfriends button_friends btn-sm btn-primary shadow-sm"
-            style="--bs-btn-font-size: .75rem;" data-translate="add">add friend
-             </button>
+		
+		var divParent = document.getElementById('userDiv-' + data.receiver_id);
+		if (divParent) {
+			var divButton = document.getElementById("f_request_validation-" + data.receiver_id);
+			divButton.remove();
+			var newDivButton = document.createElement('div');
+			newDivButton.innerHTML = `
+			<div id="f_request_add-${ data.receiver_id }">
+                <button data-type="send_f_request" data-sender="${ data.sender_id }" data-receiver="${ data.receiver_id }" class="btn buttonfriends button_friends btn-sm btn-primary shadow-sm"
+                style="--bs-btn-font-size: .75rem;" data-translate="add">add friend
+                </button>
+            </div>
 			`;
-			receiverElement.appendChild(newButton);
+			divParent.appendChild(newDivButton);
 		}
 
-		var senderElement = document.getElementById('userDiv-' + data.receiver_id);
-		if (senderElement) {
-			var button = document.getElementById("f_request_pending-" + data.receiver_id);
-			senderElement.removeChild(button);
-			var newButton = document.createElement('div');
-			newButton.innerHTML = `
-			<button id="f_request_add-${ data.sender_id }" data-type="send_f_request" data-sender="${ data.receiver_id }" data-receiver="${ data.sender_id }" class="btn buttonfriends button_friends btn-sm btn-primary shadow-sm"
-            style="--bs-btn-font-size: .75rem;" data-translate="add">add friend
-             </button>
+		var divParent = document.getElementById('userDiv-' + data.sender_id);
+		if (divParent) {
+			var divButton = document.getElementById("f_request_pending-" + data.sender_id);
+			divButton.remove();
+			var newDivButton = document.createElement('div');
+			newDivButton.innerHTML = `
+			<div id="f_request_add-${ data.sender_id }">
+                <button data-type="send_f_request" data-sender="${ data.receiver_id }" data-receiver="${ data.sender_id }" class="btn buttonfriends button_friends btn-sm btn-primary shadow-sm"
+                style="--bs-btn-font-size: .75rem;" data-translate="add">add friend
+                </button>
+            </div>
 			`;
-			senderElement.appendChild(newButton);
+			divParent.appendChild(newDivButton);
 		}
+		
 	}
 
 	else if (data.type == 'send_f_request') {
 
-
-		var divS = document.getElementById("f_request_add-" + data.sender_id);
-		if (divS) {
-			console.log("la divs existe bien:", divS)
-			var button = divS.querySelector('button');
-			divS.removeChild(button);
-			console.log("button:", button)	
-			var newButton = document.createElement('div');
-			newButton.innerHTML = `
-            <button data-type="accepted" data-sender="${ data.receiver_id }" data-receiver="${ data.sender_id }" class="btn buttonvalid px-2 button_friends btn-sm btn-primary shadow-sm"
-            style="--bs-btn-font-size: .75rem;"><i class="bi bi-check-square"></i></button>
-            <button data-type="rejected" data-sender="${ data.receiver_id }" data-receiver="${ data.sender_id }" class="px-2 buttonvalid button_friends btn btn-sm btn-danger shadow-sm"
-            style="--bs-btn-font-size: .75rem;"><i class="bi bi-x-square"></i></button>
+		var divParent = document.getElementById('userDiv-' + data.sender_id);
+		if (divParent) {
+			var divButton = document.getElementById("f_request_add-" + data.sender_id);
+			divButton.remove();
+			var newDivButton = document.createElement('div');
+			newDivButton.innerHTML = `
+			<div id="f_request_validation-${ data.sender_id }" class="d-flex flex-row align-items-center">
+				<div class="button_friends" data-type="accepted" data-sender="${ data.receiver_id }" data-receiver="${ data.sender_id }" >
+					<button class="btn buttonvalid px-2 btn-sm btn-primary shadow-sm"
+					style="--bs-btn-font-size: .75rem;"><i class="bi bi-check-square"></i></button>
+				</div>
+				<div class="button_friends" data-type="rejected" data-sender="${ data.receiver_id }" data-receiver="${ data.sender_id }" >
+					<button class="px-2 buttonvalid btn btn-sm btn-danger shadow-sm"
+					style="--bs-btn-font-size: .75rem;"><i class="bi bi-x-square"></i></button>
+				</div>
+			</div>
 			`;
-			console.log("le newbutton1 dans la divS:", newButton)
-			divS.appendChild(newButton);
-			console.log(document.querySelector('.button_friends'))
-			document.body.addEventListener('click', handleClick);
+			divParent.appendChild(newDivButton);
 
 		}
 
-		var divR = document.getElementById("f_request_add-" + data.receiver_id);
-		if (divR) {
-			console.log("la divR existe bien:", divR)
-			var button = divR.querySelector('button');
-			divR.removeChild(button);
-			var newButton = document.createElement('div');
-			newButton.innerHTML = `
-			<button id="f_request_pending-${ data.sender_id }" class="btn buttonfriends btn-sm btn-primary shadow-sm" disabled
+		var divParent = document.getElementById('userDiv-' + data.receiver_id);
+		if (divParent) {
+			var divButton = document.getElementById("f_request_add-" + data.receiver_id);
+			divButton.remove();
+			var newDivButton = document.createElement('div');
+			newDivButton.innerHTML = `
+			<button id="f_request_pending-${ data.receiver_id }" class="btn buttonfriends btn-sm btn-primary shadow-sm" disabled
             style="--bs-btn-font-size: .75rem;" data-translate="pending">pending
 			</button>
 			`;
-			console.log("le new button dans la divR:", newButton)
-			divR.appendChild(newButton);
-			console.log(document.querySelector('.button_friends'))
-			document.body.addEventListener('click', handleClick);
+			divParent.appendChild(newDivButton);
 		}
 	}
 	};

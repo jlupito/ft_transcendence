@@ -9,7 +9,7 @@
             <h3 class="mb-4 ms-2"><i class="bi bi-people-fill"></i></h3>
         </div>
         <div class="mb-3 overflow-auto" style="height: 366px;">
-            <ul id= "friendsList" class="list-unstyled">
+            <ul id= "friendsList-{{ user.id }}" class="list-unstyled">
                 {% for friend in friends.friends %}
                     <li class="mb-2">
                         <div class="d-flex justify-content-between align-items-center col-10 bg-white bg-opacity-25 mb-2 rounded shadow-sm mx-auto p-3">
@@ -57,19 +57,23 @@
                                 </div>
                             </div>
                             {% if other_user.username in friends.invites %}
-                            <div id="f_request_validation-{{ other_user.id }}">
-                                <button data-type="accepted" data-sender="{{ user.id }}" data-receiver="{{ other_user.id }}" class="btn buttonvalid px-2 button_friends btn-sm btn-primary shadow-sm"
-                                style="--bs-btn-font-size: .75rem;"><i class="bi bi-check-square"></i></button>
-                                <button data-type="rejected" data-sender="{{ user.id }}" data-receiver="{{ other_user.id }}" class="px-2 buttonvalid button_friends btn btn-sm btn-danger shadow-sm"
-                                style="--bs-btn-font-size: .75rem;"><i class="bi bi-x-square"></i></button>
+                            <div id="f_request_validation-{{ other_user.id }}" class="d-flex flex-row align-items-center">
+                                <div class="button_friends" data-type="accepted" data-sender="{{ user.id }}" data-receiver="{{ other_user.id }}" >
+                                    <button class="btn buttonvalid px-2 btn-sm btn-primary shadow-sm"
+                                    style="--bs-btn-font-size: .75rem;"><i class="bi bi-check-square"></i></button>
+                                </div>
+                                <div class="button_friends" data-type="rejected" data-sender="{{ user.id }}" data-receiver="{{ other_user.id }}" >
+                                    <button class="px-2 buttonvalid btn btn-sm btn-danger shadow-sm"
+                                    style="--bs-btn-font-size: .75rem;"><i class="bi bi-x-square"></i></button>
+                                </div>
                             </div>
                             {% elif user.username in friends.invitees %}
-                            <div id="f_request_pending-{{ other_user.id }}" >
+                            <div id="f_request_pending-{{ other_user.id }}">
                                 <button class="btn buttonfriends btn-sm btn-primary shadow-sm" disabled
                                 style="--bs-btn-font-size: .75rem;" data-translate="pending">pending</button>
                             </div>
                             {% else %}
-                            <div id="f_request_add-{{ other_user.id }}" >
+                            <div id="f_request_add-{{ other_user.id }}">
                                 <button data-type="send_f_request" data-sender="{{ user.id }}" data-receiver="{{ other_user.id }}" class="btn buttonfriends button_friends btn-sm btn-primary shadow-sm"
                                 style="--bs-btn-font-size: .75rem;" data-translate="add">add friend
                                 </button>

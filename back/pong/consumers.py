@@ -995,10 +995,12 @@ class FriendsRequestsConsumer(AsyncWebsocketConsumer):
                 return
         invite_exists = await sync_to_async(lambda: Friend.objects.filter(sender=sender, receiver=receiver, status='pending').exists())()
         if invite_exists:
-            return
+            print("Invite already exists")
+            # return
         invite_exists = await sync_to_async(lambda: Friend.objects.filter(sender=receiver, receiver=sender, status='pending').exists())()
         if invite_exists:
-            return
+            print("Invite already exists")
+            # return
         await sync_to_async(Friend.objects.create)(sender=sender, receiver=receiver, status='pending')
         
         for user in [receiver, sender]:
@@ -1014,11 +1016,21 @@ class FriendsRequestsConsumer(AsyncWebsocketConsumer):
         receiver = await sync_to_async(UserProfile.objects.get)(id=receiver_id)
         sender_id = data['sender_id']
         sender = await sync_to_async(UserProfile.objects.get)(id=sender_id)
-        inv = await sync_to_async(Friend.objects.filter(sender=sender, receiver=receiver).first, thread_sensitive=True)()
+        inv = await sync_to_async(Friend.objects.filter(sender=receiver, receiver=sender, status='pending').first)()       
+         # print(f"friend found: {inv}")
+        print(f"Updating status in consumer to {status}")
         if inv:
+            print("nouvel ami créé")
             inv.status = status
-            inv.save()
-        
+            print(f"Updating status in consumer to {status}")
+            await sync_to_async(inv.save)()
+        if status == 'accepted':
+            data['rec_avatar'] = receiver.avatar.url
+            data['rec_status'] = receiver.is_online
+            data['rec_username'] = receiver.username
+            data['send_avatar'] = sender.avatar.url
+            data['send_status'] = sender.is_online
+            data['send_username'] = sender.username
         for user in [receiver, sender]:
             consumer = FriendsRequestsConsumer.instances.get(user.id)
             if consumer:
