@@ -38,6 +38,10 @@ function runsocketUsersUpdate() {
 
             }
         }
+
+        var activeLanguage = document.querySelector('.chooseLanguage.active');
+		applyTranslation(activeLanguage.textContent.trim().toLowerCase());
+        
     }
 
     usersUpdateSock.onclose = function (event) {

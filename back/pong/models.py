@@ -13,7 +13,6 @@ class UserProfile(AbstractUser):
     matches_lost = models.IntegerField(default=0)
     avatar = models.ImageField(upload_to='avatars/', default='avatars/default2.png')
     status = models.CharField(max_length=10, default='is_offline')
-    # is_playing = models.BooleanField(default=False) # modif pour statut, ou faire un status choice comme Friend
     language = models.CharField(max_length=9, default='english')
     def __str__(self):
         return self.username
