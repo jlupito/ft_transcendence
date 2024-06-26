@@ -78,35 +78,31 @@ def register(request):
 # modifier pour supprimer le return redirect
 from django.http.request import QueryDict
 def update_profile(request):
-    print("update_profile called")
     if request.method == 'GET':
-        print("GET method not allowed")
         return JsonResponse({'status': 'error', 'message': 'GET method not allowed'})
-    username = request.POST.get('username')
-    print('Received username:', username)
-    profile_picture = request.FILES.get('profile_picture')
-    if (UserProfile.objects.filter(username=username).exists() and username != request.user.username):
-        print("Username is already taken")
-        return JsonResponse({'status': 'error', 'message': 'Username is already taken'})
+
     user = request.user
-    print("Current username:", user.username)
-    user.username = username
-    print("Username updated to:", user.username)
-    if (profile_picture is not None):
+    old_username = user.username
+    new_username = request.POST.get('username')
+    new_profile_picture = request.FILES.get('profile_picture')
+
+    if new_username and not new_username.isspace():
+        if UserProfile.objects.filter(username=new_username).exists() and new_username != old_username:
+            return JsonResponse({'status': 'error', 'message': 'Username is already taken'})
+        user.username = new_username
+
+    if new_profile_picture:
         validate = FileExtensionValidator(allowed_extensions=['jpg', 'jpeg', 'png'])
         try:
-            validate(profile_picture)
+            validate(new_profile_picture)
         except ValidationError as e:
-            print("Invalid file type, only jpg, jpeg and png are allowed")
             return JsonResponse({'status': 'error', 'message': 'Invalid file type, only jpg, jpeg and png are allowed'})
-        if user.avatar.url != "/media/avatars/default2.png":
-            print("Deleting old avatar")
+        if user.avatar:
             user.avatar.delete(save=False)
-        profile_picture.name = user.username
-        user.avatar = profile_picture
-        print("Avatar updated")
+        new_profile_picture.name = user.username
+        user.avatar = new_profile_picture
+
     user.save()
-    print("User saved")
     return JsonResponse({'status': 'success', 'message': 'Profile updated successfully', 'avatar_url': user.avatar.url})
 
 @login_required
