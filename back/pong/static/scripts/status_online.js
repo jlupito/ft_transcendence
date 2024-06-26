@@ -11,7 +11,7 @@ function runsocketStatus() {
     statusSock.onmessage = function(event) {
 
         let data = JSON.parse(event.data)
-        console.log('Data received in front is : ', data);
+        // console.log('Data received in front is : ', data);
         if (data.type == 'status_update') {
 
             var statusIndicator = document.getElementById('status-indicator-' + data.user_id);
@@ -27,7 +27,7 @@ function runsocketStatus() {
                     statusIndicator.classList.add('border', 'border-2', 'border-danger'); // bordure bleue
                 }
                 else if (data.status == 'is_offline') {
-                    statusIndicator.classList.remove('border', 'border-2'); // sans bordure
+                    statusIndicator.classList.remove('border', 'border-2', 'border-danger', 'border-success'); // sans bordure
                 }
             }
             else {
