@@ -10,69 +10,133 @@ from django.contrib import messages
 from django.core.exceptions import ValidationError
 import requests
 import os
-from .forms import RegisterForm, LoginForm
+from .forms import RegisterForm, LoginForm, localMatchForm
+from .consumers import Game, StatsConsumer
+from tempfile import NamedTemporaryFile
 from django.core.files.base import ContentFile
-from channels.layers import get_channel_layer
-from asgiref.sync import async_to_sync
-import logging
+from back.send_email import send_email
+from rest_framework.views import APIView
+from .serializers import UserSerializer
+from rest_framework.response import Response
+import jwt, datetime, json
+from django.http.request import QueryDict
+from django.http import HttpResponse, JsonResponse
+# from rest_framework import status
 
-def home(request):
+# *********************************** HOME ***********************************
+def HomeView(request):
 	context = {}
-	user = request.user
-	if (request.user.is_authenticated):
+	#print('apres context')
+	#def get(self, request):
+	if request.method == 'GET':
+		user = request.user
+		#print('username:', user.username)
+		#print('id:', user.id)
+		token = request.COOKIES.get('jwt')
+		if not token:
+			#print('no token')
+			#return Response({'message': 'Unauthorized'}, status=401)
+			#messages.error(request, 'Unauthorized')
+			return render(request, 'page.html', context)
+		try:
+			print('try')
+			payload = jwt.decode(token, 'SECRET', algorithms=['HS256'])
+		except jwt.ExpiredSignatureError:
+			messages.error(request, 'Session expired')
+			return render(request, 'page.html', context)
+			return Response({'message': 'Session expired'}, status=401)
+		except jwt.DecodeError:
+			messages.error(request, 'Invalid token')
+			return render(request, 'page.html', context)
+			return Response({'message': 'Invalid token'}, status=401)
+		
+		user = UserProfile.objects.filter(id=payload['id']).first()
+		serializer = UserSerializer(user)
+
+		#if (request.user.is_authenticated):
+		print('user is authenticated')
+		print('username:', user.username)
+		print('id:', user.id)
 		context['id'] = user.id
 		context['user'] = user
 		context['username'] = user.username
 		context['avatar'] = user.avatar.url
 		context['users'] = UserProfile.objects.all().exclude(username=user.username)
+		context['matches'] = match_history(user)
 		context['friends'] = friends_list(user)
 		context['stats'] = match_stats(user)
-	return render(request, 'page.html', context)
+		# context['invites'] = invites_list(user)
+		# context['invitees'] = invitees_list(user)	
 
+		print('avant return')
+		return Response(serializer.data, status=200, template_name='page.html', content_type=context)
+	return render(request, 'page.html', context) 
 
 # *********************************** LOGIN ***********************************
 
-# Utilisation des fonctions is_valide(), authenticate() avec "is not None"
-# fonctions et outils de Python/Django
-def sign_in(request):
+def LoginView(request):
+	print('login view')
+	#if request.method == 'GET':
+	#	print("GET method not allowed")
+	#	return render(request, 'page.html')
+	#	#return JsonResponse({'status': 'error', 'message': 'GET method not allowed'})
 	if request.method == 'POST':
 		loginform = LoginForm(request.POST)
-
 		if loginform.is_valid():
 			user=authenticate(
 				username=loginform.cleaned_data['username'],
 				password=loginform.cleaned_data['password']
 			)
-			if user is not None:
-				login(request, user)
-				messages.success(request, 'You are now logged in!')
-			else:
-				messages.error(request, 'Invalid username or password')
-	else:
-		loginform=LoginForm()
-	return redirect('home')
+		if user is not None:
+			request.session['id'] = user.id
+			payload = {
+			'id': user.id,
+			'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=60),
+			'iat': datetime.datetime.utcnow(),
+			}
+			jwt_token = jwt.encode(payload, 'SECRET', algorithm='HS256')
+			response = Response()
+			response.set_cookie(key='jwt', value=jwt_token, httponly=True)
+			response.data = {
+				'name':'token',
+				'value': jwt_token,
+				'user': UserSerializer(user).data,
+			}
+			#return Response(response.data, status=200, template_name='verify.html')
+			#print('user exist -> 2FA')
+			#return Response(render(response.data, status=200, template_name='verify.html'))
+			return JsonResponse({'status': 'success', 'message': 'go to 2FA', 'token': response.data, 'template_name': 'verify.html'})
+			#return redirect('verify-view')
+		else:
+			messages.error(request, 'Invalid username or password')
+			return render(request, 'page.html')
+			#return JsonResponse({'status': 'error', 'message': 'Invalid username or password'})
+	#return redirect('home')
+	return render(request, 'page.html')
 
-def register(request):
+	
+def RegisterView(request):
+	print('register view')
 	if request.method == 'POST':
 		registerform = RegisterForm(request.POST)
 		if registerform.is_valid():
 			username=registerform.cleaned_data['username']
 			if UserProfile.objects.filter(username=username).exists():
 				messages.error(request, 'This username is already used!')
+				return render(request, 'page.html')
 				return redirect('home')
 			mdp=registerform.cleaned_data['password']
 			email=registerform.cleaned_data['email']
-			if UserProfile.objects.filter(email=email).exists():
-				messages.error(request, 'This email is already in use...')
-				return redirect('home')
-			new_user = UserProfile.objects.create_user(username=username, password=mdp, email=email)
-			login(request, new_user)
+		serializer = UserSerializer(data=request.POST)
+		if serializer.is_valid():
+			#new_user = UserProfile.objects.create_user(username=username, password=mdp, email=email)
+			#login(request, new_user)
+			serializer.save()
+			#print('serializer is valid')
 			messages.success(request, 'Account created successfully!')
-			return redirect('home')
-		else:
-			messages.error(request, 'Invalid form data')
-	else:
-		registerform = RegisterForm()
+			return JsonResponse({'status': 'success', 'message': 'register is good', 'template_name': 'page.html'})
+			return Response(serializer, status=200, template_name='page.html')
+	return render(request, 'page.html')
 	return redirect('home')
 
 def update_profile(request):
@@ -100,8 +164,10 @@ def update_profile(request):
 	return redirect('home')
 
 @login_required
-def logout_view(request):
-	logout(request)
+def LogoutView(request):
+	response = Response()
+	response.delete_cookie('jwt')
+	response.data = {logout(request)}
 	messages.success(request, 'You are logged out!')
 	return redirect('home')
 
@@ -178,8 +244,9 @@ def match_history(user):
 			match_result["result"] = "Loss"
 		l.append(match_result)
 	return l
-
+		
 def match_stats(user):
+	# user = User.objects.filter(username=user).first()
 	profiles = UserProfile.objects.filter(username=user)
 	userProfile = None
 	if profiles.exists():
@@ -202,7 +269,6 @@ def match_stats(user):
 		'lost': lost,
 		'wp': won_perc,
 		'lp': lost_perc,
-		'total': lost + won,
 		'tourn': tourn,
 		'id': userProfile.id,
 		'matches': matches_hist,
@@ -227,12 +293,12 @@ def friends_list(user):
 	invites_l = []
 	for invite in invites:
 		invites_l.append(invite.sender.username)
-
+	
 	invitees = Friend.objects.filter(sender=user, status='pending')
 	invitees_l = []
 	for invitee in invitees:
 		invitees_l.append(invitee.receiver.username)
-
+	
 	friends_all_status = {
         "friends": friends_l,
         "invitees": invitees_l,
@@ -241,46 +307,27 @@ def friends_list(user):
 
 	return friends_all_status
 
-# @login_required
+@login_required
 def handle_invite(request):
 	if request.method == 'GET':
 		return redirect('home')
 	sender = request.POST.get('invite')
 	receiver = request.user
-	status = request.POST.get('friend_status')
-	print('Status from frnt is :', status)
+	status = request.POST.get('status')
 	inv = Friend.objects.filter(sender=UserProfile.objects.get(username=sender), receiver=receiver).first()
-	print("inv:", inv)
 	if inv:
 		inv.status = status
-		messages.success(request, f'Your are now friends with {sender}!')
 		inv.save()
-	userpro_receiver = UserProfile.objects.get(username=receiver.username)
-	channel_layer = get_channel_layer()
-	data = {
-			'type': 'friends_requests_update',
-			'friend_id': userpro_receiver.id,
-			'friend_avatar': userpro_receiver.avatar.url,
-			'friend_status': userpro_receiver.status,
-			'friend_username': userpro_receiver.username,
-			'friend_stats': {
-				'won': userpro_receiver.matches_won,
-				'lost': userpro_receiver.matches_lost,
-				'tourn': userpro_receiver.tourn_won,
-				'total': userpro_receiver.matches_won + userpro_receiver.matches_lost,
-			},
-			'friend_joined': userpro_receiver.date_joined.strftime('%B %d, %Y')
-		}
-	async_to_sync(channel_layer.group_send)("friends_requests", data)
 	return redirect('home')
 
-# @login_required
+@login_required
 def send_invite(request):
 	if request.method == 'GET':
 		return redirect('home')
 	receiver = request.POST.get('receiver')
 	sender = request.user
 	friends_l = friends_list(sender)
+	request.session.set_expiry(4)
 	for friend in friends_l['friends']:
 		if friend.username == receiver:
 			messages.error(request, 'User is already your friend')
@@ -293,19 +340,14 @@ def send_invite(request):
 	if invite.exists():
 		messages.error(request, 'You already have an invite from this user')
 		return redirect('home')
+
 	Friend.objects.create(sender=sender, receiver=UserProfile.objects.get(username=receiver), status='pending')
-	friend_request_sender_profile=UserProfile.objects.get(username=sender)
-	channel_layer = get_channel_layer()
-	data =	{
-			'type': 'new_friend_request',
-			'friend_id': friend_request_sender_profile.id,
-			'friend_avatar': friend_request_sender_profile.avatar.url,
-			'friend_status': friend_request_sender_profile.status,
-			'friend_username': friend_request_sender_profile.username
-		}
-	async_to_sync(channel_layer.group_send)("friends_requests", data)
 	return redirect('home')
 
+
+import logging
+
+# Obtenez un objet logger
 logger = logging.getLogger(__name__)
 
 def my_view(request):
@@ -314,32 +356,3 @@ def my_view(request):
     logger.warning('Ceci est un message d\'avertissement')
     logger.error('Ceci est un message d\'erreur')
     logger.critical('Ceci est un message critique')
-
-from .consumers import Game, games_local, games_online, games_tournament_local, games_tournament_online
-
-from django.http import JsonResponse
-from django.contrib.auth.decorators import login_required
-import json
-
-@login_required
-def api(request):
-	text_data_json = json.loads(request.body)
-	print(text_data_json['test'])
-	if (request.method == 'GET'):
-		user = request.user.username
-		games_data = {
-			'games_local': [],
-			'games_online': [],
-			'games_tournament_local': [],
-			'games_tournament_online': [],
-		}
-		game:Game
-		for game in games_local:
-			if (game.player1 == user or game.player2 == user):
-				games_data['games_local'].append(game.to_dict())
-		for game in games_online:
-			if (game.player1 == user or game.player2 == user):
-				games_data['games_online'].append(game.to_dict())
-		return JsonResponse(games_data)
-	else:
-		return JsonResponse({'coucou':'coucou'})

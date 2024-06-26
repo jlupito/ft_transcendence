@@ -84,16 +84,6 @@ const canvas = document.getElementById('CanvasOnline');
 
 const ctx = canvas.getContext('2d');
 
-var canvasModal = document.getElementById('onlineMatchModal');
-    let update = null
-	canvasModal.addEventListener('hidden.bs.modal', function () {
-        console.log("aurevoir")
-		chatSocket.close()
-        clearInterval(interval)
-        clearInterval(update)
-        running = null
-	});
-
 document.addEventListener('keydown', function(event) {
     const key = event.key;
 
@@ -161,10 +151,10 @@ function draw_objects(){
     ctx.font = "45px sans-serif"
     ctx.font = "25px Orbitron"
     ctx.textAlign = 'center'
-    ctx.fillText(p1_score, WIDTH / 4, HEIGHT / 6, 45)
-    ctx.fillText(p2_score, WIDTH * 3 / 4, HEIGHT / 6, 45)
-    ctx.fillText(player2, WIDTH * 3 / 4, HEIGHT / 10)
-    ctx.fillText(player1, WIDTH / 4, HEIGHT / 10)
+    ctx.fillText(p2_score, WIDTH / 4, HEIGHT / 6, 45)
+    ctx.fillText(p1_score, WIDTH * 3 / 4, HEIGHT / 6, 45)
+    ctx.fillText(player1, WIDTH * 3 / 4, HEIGHT / 10)
+    ctx.fillText(player2, WIDTH / 4, HEIGHT / 10)
 
 }
 
@@ -182,7 +172,6 @@ function draw(){
     }
     else
     {
-        console.log(latestData)
         ctx.fillStyle = 'black'
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         ctx.fillStyle = 'red';

@@ -1,46 +1,40 @@
-// Script pour détecter le status des utilisateurs (online, offline, is_playing)
-function runsocketStatus() {
+function runsocket() {
 
     let url = `wss://${window.location.host}/ws/status/`
-    const statusSock = new WebSocket(url);
+    const chatSocket = new WebSocket(url);
 
-    statusSock.onopen = function (event) {
-        console.log('Status_indicator socket is open.');
+    chatSocket.onopen = function (event) {
+        console.log('Player connected.');
     };
 
-    statusSock.onmessage = function(event) {
+    let data = NULL;
+    chatSocket.onmessage = function(event){
 
-        let data = JSON.parse(event.data)
-        console.log('Data received in front is : ', data);
+        console.log('Received message:', event.data); // Debugging
+
+        data = JSON.parse(event.data)
         if (data.type == 'status_update') {
-
             var statusIndicator = document.getElementById('status-indicator-' + data.user_id);
-            if (statusIndicator) {
-
-                console.log('Status Indicator Element was found for user', data.user_id);
-                if (data.status == 'is_online') {
-                    statusIndicator.classList.remove('border', 'border-2', 'border-danger'); 
-                    statusIndicator.classList.add('border', 'border-2', 'border-success'); // bordure verte
-                }
-                else if (data.status == 'is_playing') {
-                    statusIndicator.classList.remove('border', 'border-2', 'border-success'); 
-                    statusIndicator.classList.add('border', 'border-2', 'border-danger'); // bordure bleue
-                }
-                else if (data.status == 'is_offline') {
-                    statusIndicator.classList.remove('border', 'border-2'); // sans bordure
-                }
+            console.log('user id ds le js:', data.user_id);
+            console.log('statusIndicator:', statusIndicator); // Debugging
+            console.log('status:', data.status); // Debugging
+            if (data.status == 'online') {
+                statusIndicator.classList.add('border', 'border-2', 'border-success');
             }
             else {
-                console.log('Status Indicator Element not found for user', data.user_id);
+                statusIndicator.classList.remove('border', 'border-2', 'border-success');
             }
         }
     };
 
-    statusSock.onclose = function(event) {
-        console.log('Status_indicator socket is closed');
+    chatSocket.onclose = function(event) {
+        console.log('WebSocket disconnected.');
     };
+
+    //ici tu peux lancer une boucle qui demande des updates toutes les 10 secondes.
 }
 
 document.addEventListener('DOMContentLoaded', (event) => {
-    runsocketStatus();
+    runsocket();
 });
+

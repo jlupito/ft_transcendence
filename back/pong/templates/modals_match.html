@@ -3,7 +3,7 @@
 		<div class="modal-dialog" style="min-width: 700px;">
 			<div class="modal-content bg-dark-subtle shadow">
 				<div class="modal-header">
-					<h5 class="modal-title" id="localMatchModalLabel" data-translate="localmatch">Local match</h5>
+					<h5 class="modal-title" id="localMatchModalLabel">Local match</h5>
 					<button type="button" class="btn-close closeRefresh" data-bs-dismiss="modal" aria-label="Close"></button>
 				</div>
 				<div class="modal-body">
@@ -11,9 +11,9 @@
 						<form id="localMatchForm" class="row my-4 d-flex align-items-center justify-content-center">
 							{% csrf_token %}
 							<div class="col-7">
-								<input type="text" class="form-control" id="local_player2_name" name="local_player2_name" data-translate="opponent" placeholder="Choose an alias for your opponent">
+								<input type="text" class="form-control" id="local_player2_name" name="local_player2_name" placeholder="Choose an alias for your opponent">
 							</div>
-							<button type="submit" id="startLocalGameBtn" class="btn btn-primary col-2 shadow-sm" data-translate="start">Start</button>
+							<button type="submit" id="startLocalGameBtn" class="btn btn-primary col-2 shadow-sm">Start</button>
 						</form>
 					</div>
 					<div id="gameViewLocal" style="display: none;">
@@ -23,7 +23,7 @@
 					</div>
 				</div>
 				<div class="modal-footer">
-					<button type="button" class="btn btn-secondary btn-sm shadow-sm closeRefresh" data-bs-dismiss="modal" data-translate="close">Close</button>
+					<button type="button" class="btn btn-secondary closeRefresh" data-bs-dismiss="modal">Close</button>
 				</div>
 			</div>
 		</div>
@@ -33,37 +33,45 @@
 		<div class="modal-dialog" style="min-width: 700px;">
 			<div class="modal-content bg-dark-subtle shadow">
 				<div class="modal-header">
-					<h5 class="modal-title" id="matchModalLabel" data-translate="onlinematch">Online match</h5>
+					<h5 class="modal-title" id="matchModalLabel">Online match</h5>
 					<button type="button" class="btn-close closeRefresh" data-bs-dismiss="modal" aria-label="Close"></button>
 				</div>
 				<div class="modal-body">
-					<div class="canvas" width="600" height="600">
-						<canvas id="CanvasOnline" width="600" height="600"></canvas>
-						<script>
-							var pongScript;
-							document.addEventListener('DOMContentLoaded', function() {
-								var canvasModal = document.getElementById('onlineMatchModal');
+					<!-- <div id="waitViewOnline" class="d-flex justify-content-center align-items-center my-5">
+						<p class="my-auto me-2">Waiting for an opponent</p>
+						<div class="dot"></div>
+						<div class="dot"></div>
+						<div class="dot"></div>
+					</div> -->
+					<div id="gameViewOnline" style="display: block;">
+						<div class="canvas" width="600" height="600">
+							<canvas id="CanvasOnline" width="600" height="600"></canvas>
+							<script>
+								var pongScript;
+								document.addEventListener('DOMContentLoaded', function() {
+									var canvasModal = document.getElementById('onlineMatchModal');
 
-								canvasModal.addEventListener('show.bs.modal', function () {
-									console.log('ONLINE');
-									pongScript = document.createElement('script');
-									pongScript.src = '../static/scripts/pongonline.js';
-									pongScript.defer = true;
-									document.body.appendChild(pongScript);
+									canvasModal.addEventListener('show.bs.modal', function () {
+										console.log('ONLINE');
+										pongScript = document.createElement('script');
+										pongScript.src = '../static/scripts/pongonline.js';
+										pongScript.defer = true;
+										document.body.appendChild(pongScript);
+									});
+									canvasModal.addEventListener('hidden.bs.modal', function () {
+										if (pongScript) {
+											document.body.removeChild(pongScript);
+											pongScript = null;
+											// stopPongGame(); 
+										}
+									});
 								});
-								canvasModal.addEventListener('hidden.bs.modal', function () {
-									if (pongScript) {
-										document.body.removeChild(pongScript);
-										pongScript = null;
-										// stopPongGame(); 
-									}
-								});
-							});
-						</script>
+							</script>
+						</div>
 					</div>
 				</div>
 				<div class="modal-footer">
-					<button type="button" class="btn btn-secondary btn-sm shadow-sm closeRefresh" data-bs-dismiss="modal" data-translate="close">Close</button>
+					<button type="button" class="btn btn-secondary closeRefresh" data-bs-dismiss="modal">Close</button>
 				</div>
 			</div>
 		</div>

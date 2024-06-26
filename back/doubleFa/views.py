@@ -4,6 +4,11 @@ from back.send_email import send_email
 from .forms import CodeForm
 from django.contrib.auth import login
 from django.contrib import messages
+import jwt, datetime, json
+from django.http.request import QueryDict
+from django.http import HttpResponse, JsonResponse
+from pong.serializers import UserSerializer
+from rest_framework.response import Response
 
 def verify_view(request):
 	form = CodeForm(request.POST or None)
@@ -19,7 +24,19 @@ def verify_view(request):
 			code = form.cleaned_data.get('number')
 			if str(code_obj) == code:
 				code_obj.save()
-				login(request, user)
-				messages.success(request, 'You are now logged in!')
-				return redirect('home')
+				payload = {
+			'id': user.id,
+			'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=60),
+			'iat': datetime.datetime.utcnow(),
+			}
+			jwt_token = jwt.encode(payload, 'SECRET', algorithm='HS256')
+			response = Response()
+			response.set_cookie(key='jwt', value=jwt_token, httponly=True)
+			response.data = {
+				'name':'token',
+				'value': jwt_token,
+				'user': UserSerializer(user).data,
+			}
+			return JsonResponse({'status': 'success', 'token': response.data, 'template_name': 'page.html'})
 	return render(request, 'verify.html', {'form': form})
+

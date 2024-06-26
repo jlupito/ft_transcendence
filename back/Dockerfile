@@ -19,6 +19,8 @@ RUN pip install pyOpenSSL
 RUN pip install psycopg2-binary==2.8.6
 RUN pip install django-request-logging
 RUN pip install djangorestframework
+RUN pip install PyJWT
+RUN pip install django-cors-headers
 
 
 COPY . /code/

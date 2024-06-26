@@ -1,39 +1,31 @@
-<script src= "../static/scripts/usersList_update.js"></script>
-<script src= "../static/scripts/friends_requests_refresh.js"></script>
-<script src= "../static/scripts/status_online.js"></script>
-<script type="text/javascript">
-    var formHTML = `{% csrf_token %}<input type="hidden" name="receiver" value=""><button class="btn buttonfriends btn-sm btn-primary shadow-sm" type="submit" style="--bs-btn-font-size: .75rem;">add friend</button>`;
-</script>
 <div class="col mb-3 mx-auto">
     <div class="colSize p-3 bg-light border border-light border-opacity-25 bg-opacity-25 rounded shadow text-light">
-        <div class="d-flex text-align-center">
-            <h3 class="mb-4 ms-2" data-translate="users">Users</h3>
-            <h3 class="mb-4 ms-2"><i class="bi bi-people-fill"></i></h3>
-        </div>
-        <div class="mb-3 overflow-auto" style="height: 366px;">
-            <ul id= "friendsList" class="list-unstyled">
+        <h3 class="mb-4 ms-2">Users<i class="bi bi-people-fill ms-2"></i></h3>
+        <div class="mb-3 overflow-auto">
+            <ul class="list-unstyled">
                 {% for friend in friends.friends %}
                     <li class="mb-2">
                         <div class="d-flex justify-content-between align-items-center col-10 bg-white bg-opacity-25 mb-2 rounded shadow-sm mx-auto p-3">
                             <div class="d-flex align-items-center">
-                                <img id="status-indicator-{{ friend.id }}" class="rounded-circle me-2
-                                    {% if friend.status == 'is_online' %}border border-2 border-success
-                                    {% elif friend.status == 'is_playing' %}border border-2 border-danger
-                                    {% elif friend.status == 'is_offline' %}
-                                    {% endif %}" src="{{ friend.avatar.url }}" alt="Friend avatar" style="width: 35px; height: 35px;">
+                                <div class="position-relative">
+                                    <img class="rounded-circle me-2" src="{{ friend.avatar.url }}" alt="Friend avatar" style="width: 35px; height: 35px;">
+                                    <div class="position-absolute top-0 end-1" style="width: 10px; height: 10px; background-color: rgb(46, 206, 86); border-radius: 50%;"></div>
+                                </div>
                                 <div style="max-width: 7ch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                                    {{ friend.username }}  {{ friend.id }}
+                                    {{ friend.username }}
                                 </div>
                             </div>
-                            <button class="btn buttonfriends btn-sm btn-dark shadow-sm" data-translate="profile" style="--bs-btn-font-size: .75rem;"
+                            <button class="btn buttonfriends btn-sm btn-dark shadow-sm" style="--bs-btn-font-size: .75rem;" 
                                 id="profile-{{ friend.id }}"
-                                type="button" data-bs-toggle="popover"
-                                title="{{ friend.username }} profile"
+                                type="button" data-bs-toggle="popover" 
+                                title="{{ friend.username }} profile" 
+                                data-placement="top"
+                                data-trigger="focus"
                                 data-date-joined="{{ friend.date_joined.date }}"
                                 data-bs-custom-class="custom-popover"
                                 data-bs-content="
                                 <i class='bi bi-trophy-fill'></i> Won ({{ friend.tourn_won }}) tournament(s)
-                                <br><i class='bi bi-joystick'></i> Played ({{ friend.matches_won|add:friend.matches_lost }}) matches:
+                                <br><i class='bi bi-joystick'></i> Played ({{ friend.matches_won|add:friend.matches_lost }}) games:
                                 <br>&nbsp;&nbsp;&nbsp;&nbsp;<i class='bi bi-caret-right-fill'></i>won ({{ friend.matches_won }})
                                 <br>&nbsp;&nbsp;&nbsp;&nbsp;<i class='bi bi-caret-right-fill'></i>lost ({{ friend.matches_lost }})
                                 <br><i class='bi bi-calendar-check-fill'></i> Joined on {{ friend.date_joined.date }}
@@ -45,11 +37,11 @@
                 {% endfor %}
             </ul>
             <hr class="col-10 mt-0 mb-3 mx-auto">
-            <ul id="usersList" class="list-unstyled">
+            <ul class="list-unstyled">
                 {% for user in users %}
                     {% if user not in friends.friends %}
                     <li>
-                        <div id="userRemove-{{ user.id }}" class="d-flex justify-content-between align-items-center col-10 bg-white bg-opacity-25 p-3 mb-2 rounded shadow-sm mx-auto">
+                        <div class="d-flex justify-content-between align-items-center col-10 bg-white bg-opacity-25 p-3 mb-2 rounded shadow-sm mx-auto">
                             <div class="d-flex align-items-center">
                                 <img class="rounded-circle me-2" src="{{ user.avatar.url }}" alt="" style="width: 35px; height: 35px;">
                                 <div style="max-width: 7ch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
@@ -60,20 +52,20 @@
                             <form action="handle_invite" method="POST">
                                 {% csrf_token %}
                                 <input type="hidden" name="invite" value="{{ user.username }}">
-                                <button type="submit" name="friend_status" value="accepted" class="btn buttonvalid px-2 btn-sm btn-primary shadow-sm"
+                                <button type="submit" name="status" value="accepted" class="btn buttonvalid px-2 btn-sm btn-primary shadow-sm"
                                 style="--bs-btn-font-size: .75rem;"><i class="bi bi-check-square"></i></button>
-                                <button type="submit" name="friend_status" value="declined" class="px-2 buttonvalid btn btn-sm btn-danger shadow-sm"
+                                <button type="submit" name="status" value="declined" class="px-2 buttonvalid btn btn-sm btn-danger shadow-sm"
                                 style="--bs-btn-font-size: .75rem;"><i class="bi bi-x-square"></i></button>
                             </form>
                             {% elif user.username in friends.invitees %}
                             <button class="btn buttonfriends btn-sm btn-primary shadow-sm" disabled
-                            style="--bs-btn-font-size: .75rem;" data-translate="pending">pending</button>
+                            style="--bs-btn-font-size: .75rem;">pending</button>
                             {% else %}
                             <form action="send_invite" method="POST">
                                 {% csrf_token %}
                                 <input type="hidden" name="receiver" value="{{ user.username }}">
-                                <button id="addFriendButton-{{ user.id }}" class="btn buttonfriends btn-sm btn-primary shadow-sm" type="submit"
-                                style="--bs-btn-font-size: .75rem;" data-translate="add">add friend</button>
+                                <button class="btn buttonfriends btn-sm btn-primary shadow-sm" type="submit"
+                                style="--bs-btn-font-size: .75rem;">add friend</button>
                             </form>
                             {% endif %}
                         </div>

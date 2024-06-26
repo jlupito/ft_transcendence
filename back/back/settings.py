@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 
 from pathlib import Path
 import os
+from datetime import timedelta
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -26,7 +27,7 @@ SECRET_KEY = 'django-insecure-!7o$c4ubbxxogl^q8y5muoo8xbt=^l6^rj_n07d3*k)pcs=71@
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', '0.0.0.0', 'bess-f2r5s2' , '127.0.0.1', 'nginx']
+ALLOWED_HOSTS = ['localhost', '0.0.0.0' , '127.0.0.1', 'nginx']
 
 
 # Application definition
@@ -35,23 +36,20 @@ INSTALLED_APPS = [
     'daphne',
     'channels',
     'django_extensions',
-	'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+	'rest_framework',
+	'corsheaders',
     'pong',
+	'django.contrib.admin',
 	'doubleFa',
+	
 ]
 
 ASGI_APPLICATION = 'back.asgi.application'
-
-CHANNEL_LAYERS = {
-    'default': {
-        'BACKEND': 'channels.layers.InMemoryChannelLayer'
-    }
-}
 
 LOGGING = {
     'version': 1,
@@ -75,6 +73,7 @@ LOGGING = {
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+	"corsheaders.middleware.CorsMiddleware",
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -84,6 +83,24 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'request_logging.middleware.LoggingMiddleware',
 ]
+
+#for JWT
+#REST_FRAMEWORK = {
+#	'DEFAULT_PERMISSION_CLASSES': (
+#		'rest_framework.permissions.IsAuthenticated',
+#	),
+#	'DEFAULT_AUTHENTICATION_CLASSES': (
+#		'rest_framework.authentication.TokenAuthentication',
+#		'rest_framework.authentication.SessionAuthentication',
+#		'rest_framework_simplejwt.authentication.JWTAuthentication',
+#	),
+#}
+
+##JWT
+#SIMPLE_JWT = {
+#	'ACCESS_TOKEN_LIFETIME': timedelta(minutes=1),
+#	'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+#}
 
 ROOT_URLCONF = 'back.urls'
 
@@ -176,3 +193,6 @@ SECURE_HSTS_PRELOAD = True
 SECURE_CONTENT_TYPE_NOSNIFF = True
 SECURE_SSL_REDIRECT = True
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+CORS_ORIGIN_ALLOW_ALL = True # to allow all origins
+CORS_ALLOW_CREDENTIALS = True # to allow cookies to be sent with the requests

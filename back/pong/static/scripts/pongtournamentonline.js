@@ -198,10 +198,10 @@ function runsocket(){
             ctx.closePath();
             ctx.font = "25px Orbitron"
             ctx.textAlign = 'center'
-            ctx.fillText(p1_score, WIDTH / 4, HEIGHT / 6, 45)
-            ctx.fillText(p2_score, WIDTH * 3 / 4, HEIGHT / 6, 45)
-            ctx.fillText(player2, WIDTH * 3 / 4, HEIGHT / 10)
-            ctx.fillText(player1, WIDTH / 4, HEIGHT / 10)
+            ctx.fillText(p2_score, WIDTH / 4, HEIGHT / 6, 45)
+            ctx.fillText(p1_score, WIDTH * 3 / 4, HEIGHT / 6, 45)
+            ctx.fillText(player1, WIDTH * 3 / 4, HEIGHT / 10)
+            ctx.fillText(player2, WIDTH / 4, HEIGHT / 10)
         }
     }
     

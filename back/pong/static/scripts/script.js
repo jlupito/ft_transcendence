@@ -49,6 +49,18 @@ function launchBall() {
 
 setInterval(launchBall, 3);
 
+// script pour garder actif le choix de la langue
+
+const language = document.querySelectorAll('.chooseLanguage');
+language.forEach(item => {
+    item.addEventListener('click', () => {
+        language.forEach(item => {
+            item.classList.remove('active');
+        });
+
+        item.classList.add('active');
+    });
+});
 
 // script pour fermer les messages d alerte
 
@@ -90,6 +102,56 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
+// script pour la modale du jeu Tournament Online
+
+// document.addEventListener('DOMContentLoaded', function() {
+//     var pongScript;
+//     var canvasOnlineTour = document.getElementById('onlineTournament');
+    
+//     canvasOnlineTour.addEventListener('submit', function(event) {
+//         startCountdown();
+//         event.preventDefault();
+//         document.querySelector('#formViewOnlineTour').style.display = 'none';
+//         document.querySelector('#waitViewOnlineTour').style.display = 'block';
+//     });
+//     canvasOnlineTour.addEventListener('hidden.bs.modal', function () {
+//         if (pongScript) {
+//             document.body.removeChild(pongScript);
+//             pongScript = null;
+//         }
+//         document.querySelector('#onlineTourForm').style.display = 'block';
+//         document.querySelector('#gameViewLocal').style.display = 'none';
+//     });
+// });
+
+// script pour le chrono de chargement du Tournoi Online
+// function startCountdown() {
+// let startCount = 2;
+// const	stopCount = 0,	
+//         duration = 2000,
+//         countDownElement = document.getElementById('countdown'),
+//         intervalTime = duration/Math.abs(startCount - stopCount);
+    
+// let countDown = setInterval(function(){
+//     if(startCount === stopCount)
+//         startCount = "Go!",  
+//         setTimeout(() => {
+//             document.querySelector('#waitViewOnlineTour').style.display = 'none',
+//             document.querySelector('#drawViewOnlineTour').style.display = 'block'
+//             document.querySelector('#playViewOnlineTour').style.display = 'block'
+//             // AJOUTER LANCEMENT DU SCRIPT ONLINE TOURNAMENT ICI
+//         }, 1000),
+//         clearInterval(countDown)
+//     countDownElement.innerHTML = startCount;
+//     if(startCount > stopCount)
+//         startCount--
+//     else
+//         startCount++
+//     },
+// intervalTime
+// );
+// }
+
 // script pour updater les stats en temps réel dans le dashboard 
 //+ les popovers 
 //+ les modales match history
@@ -98,7 +160,7 @@ let url = `wss://${window.location.host}/ws/stats/`
 var socket = new WebSocket(url);
 
 socket.onopen = function(e) {
-console.log("stats socket is open");
+console.log("Connection established stats");
 };
 
 socket.onmessage = function(e) {
@@ -107,12 +169,11 @@ socket.onmessage = function(e) {
     // console.log("envoie des donnes stats");
 
     var statsElement = document.getElementById('stats-profile-' + stats.id);
-    // console.log("stats updated:", stats)
-    // console.log("user id recuperer par le js:", stats.id);
-    console.log(stats)
+    console.log("coucou", stats)
+    console.log("user id recuperer par le js:", stats.id);
     if (statsElement) {
-        statsElement.querySelector('#won').textContent = "(" + stats.won + ")";
-        statsElement.querySelector('#lost').textContent = "(" + stats.lost + ")";
+        statsElement.querySelector('#won').textContent = "Games won (" + stats.won + ")";
+        statsElement.querySelector('#lost').textContent = "Games lost (" + stats.lost + ")";
         var lost = statsElement.querySelector('.progressLost');
         lost.style.width = stats.lp + '%';
         lost.setAttribute('aria-valuenow', stats.lp);
@@ -121,8 +182,8 @@ socket.onmessage = function(e) {
         won.style.width = stats.wp + '%';
         won.setAttribute('aria-valuenow', stats.wp);
         won.textContent = stats.wp + '%';   
-        statsElement.querySelector('#tourn').textContent = "(" + stats.tourn + ")";
-        // console.log(stats)
+        statsElement.querySelector('#tourn').innerHTML = "<i class='bi bi-trophy-fill me-1'></i> Tournament(s) won (" + stats.tourn + ")";
+        console.log(stats)
     }
 
     var lastMatch = stats.matches[stats.matches.length - 1]; 
@@ -131,6 +192,7 @@ socket.onmessage = function(e) {
         if (lastMatch.result === 'Loss') {
             lossesList.innerHTML = '';
             for (let match of stats.matches) {
+                // let match = stats.matches[index];
                 if (match.result === 'Loss') {
                     var lossesElement = document.createElement('li');
                     lossesElement.innerHTML = `
@@ -150,6 +212,7 @@ socket.onmessage = function(e) {
     if (winsList) {
         if (lastMatch.result === 'Win') {
             for (let match of stats.matches) {
+                // let match = stats.matches[index];
                 if (match.result === 'Win') {
                     var winsElement = document.createElement('li');
                     winsElement.innerHTML = `
@@ -180,6 +243,10 @@ socket.onmessage = function(e) {
         <br><i class='bi bi-calendar-check-fill'></i> Joined on ${dateJoined}`,
         html:true
     });
+};
+
+socket.onclose = function(e) {
+console.log("Connection closed stats");
 };
 
 socket.onerror = function(e) {

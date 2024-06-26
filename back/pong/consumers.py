@@ -1,52 +1,12 @@
 import json
-from channels.generic.websocket import AsyncWebsocketConsumer
-from channels.db import database_sync_to_async
+from channels.generic.websocket import AsyncWebsocketConsumer, WebsocketConsumer
 import channels.layers
-from asgiref.sync import sync_to_async
+from asgiref.sync import async_to_sync
 from django.core.cache import cache
-from django.contrib.auth import get_user_model
-from django.db.models import Q
 import threading
 import time
-from .models import Match, Friend, UserProfile
-
-
-# ************************* WS POUR LA LANGUE ******************************
-class LanguageConsumer(AsyncWebsocketConsumer):
-    async def connect(self):
-        self.user = self.scope['user']
-        if self.user.is_authenticated:
-            self.user_profile = await sync_to_async(UserProfile.objects.get)(username=self.user.username)
-            await self.accept()
-
-
-    @database_sync_to_async
-    def update_language_in_db(self, language):
-        self.scope['user'].language = language
-        self.scope['user'].update_from = 'langage save'
-        self.scope['user'].save()
-        print("Language updated in db: ", language)
-
-    async def set_language(self, language):
-        if language in ['english', 'français', 'español']: 
-            await self.update_language_in_db(language)
-            # await self.send_language()
-
-    async def send_language(self):
-        language = self.user_profile.language
-        await self.send(text_data=json.dumps({'action': 'get_language', 'language': language}))
-
-    async def receive(self, text_data):
-        data = json.loads(text_data)
-        print("message received in consumer: ", data)
-        action = data['action']
-        if action == 'get_language':
-            await self.send_language()
-        if action == 'set_language':
-            language = data['language']
-            await self.set_language(language)
-
-# ************************* WS POUR LES STATS DES JOUEURS ****************************
+import websockets
+from .models import Match, UserProfile, AbstractUser
 
 class StatsConsumer(AsyncWebsocketConsumer):
     instances = {}
@@ -54,12 +14,16 @@ class StatsConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         self.user = self.scope["user"]
         self.instances[self.user.id] = self
+        print("connect")
         await self.accept()
 
     async def disconnect(self, close_code):
-        del self.instances[self.user.id]
+        print("disconnect")
+        if self.user.id is not None and self.user.id in self.instances:
+            del self.instances[self.user.id]
 
     async def receive(self, text_data):
+        print("receiving data")
         pass
 
     async def send_stats(self, stats):
@@ -71,13 +35,10 @@ class StatsConsumer(AsyncWebsocketConsumer):
         for consumer in cls.instances.values():
             await consumer.send_stats(stats)
 
-games_online = [] # Création de listes vides
+games_online = []
 games_local = []
 games_tournament_local = []
 games_tournament_online = []
-
-
-# ************************* CLASSE GAME DE BASE ****************************
 
 class Game():
     def __init__(self, maxscore, game_type):
@@ -142,7 +103,7 @@ class Game():
             'ball_y_velocity': self.ball_y_velocity,
             'ball_x_normalspeed': self.ball_x_normalspeed,
             'has_finished': self.has_finished,
-            'is_running': self.is_running
+            'is_running': getattr(self, 'is_running', False)
         }
 
     def apply_player_movement(self):
@@ -163,7 +124,7 @@ class Game():
             self.ball_y_velocity = -self.ball_y_velocity
 
         elif self.ball_x_pos + self.ball_x_velocity < 0:
-            self.p2_score += 1
+            self.p1_score += 1
             self.reset_ball_position()
         if (self.ball_x_pos + self.ball_x_velocity > self.p2_x_pos - self.paddle_width
             and (self.p2_y_pos < self.ball_y_pos + self.ball_y_velocity + self.ball_width < self.p2_y_pos + self.paddle_height + 10)):
@@ -171,7 +132,7 @@ class Game():
             self.ball_y_velocity = (self.p2_y_pos + self.paddle_height / 2 - self.ball_y_pos) / 16
             self.ball_y_velocity = -self.ball_y_velocity
         elif self.ball_x_pos + self.ball_x_velocity > self.WIDTH:
-            self.p1_score += 1
+            self.p2_score += 1
             self.reset_ball_position()
         if self.ball_y_pos + self.ball_y_velocity > self.HEIGHT or self.ball_y_pos + self.ball_y_velocity < 0:
             self.ball_y_velocity = -self.ball_y_velocity
@@ -211,8 +172,7 @@ class Game():
         self.has_finished = True
         # print("Final scores: Player 1 =", self.p1_score, ", Player 2 =", self.p2_score)
         if (self.game_type == "online"):
-            new_match = Match.create_match_from_game(self)
-            delattr(new_match, 'tourn_won')
+            new_match = Match.create_match_from_game(self) 
             new_match.save()
 
     async def key_up_pressed(self, username):
@@ -220,20 +180,20 @@ class Game():
             self.p1_up = True
         elif (username == self.player2):
             self.p2_up = True
-
+        
 
     async def key_up_released(self, username):
         if (username == self.player1):
             self.p1_up = False
         elif (username == self.player2):
             self.p2_up = False
-
+    
     async def key_down_pressed(self, username):
         if (username == self.player1):
             self.p1_down = True
         elif (username == self.player2):
             self.p2_down = True
-
+        
 
     async def key_down_released(self, username):
         if (username == self.player1):
@@ -241,8 +201,6 @@ class Game():
         elif (username == self.player2):
             self.p2_down = False
 
-
-# ************************* CLASSE PLAYER DE BASE ****************************
 
 class Player:
     def __init__(self, name):
@@ -256,9 +214,6 @@ class Player:
             'player_status': self.player_status,
             'game': await self.game.to_dict() if self.game else None
         }
-
-
-# ************************* LOGIQUE DU TOURNOI ONLINE ****************************
 
 class TournamentOnline():
     def __init__(self):
@@ -352,15 +307,12 @@ class TournamentOnline():
                     player.game = None
                     if (player.player_status == "Qualified"):
                         self.winner = player.name
-                        from django.db import transaction
-                        with transaction.atomic():
-                            winnerProfiles = UserProfile.objects.select_for_update().filter(username=self.winner)
-                            if winnerProfiles.exists():
-                                winnerProfile = winnerProfiles.first()
-                                winnerProfile.tourn_won += 1
-                                winnerProfile.update_from = "tourn update"
-                                winnerProfile.save()
-                                print("stats saved")
+                        winnerProfiles = UserProfile.objects.filter(username=self.winner)
+                        winnerProfile = None
+                        if winnerProfiles.exists():
+                            winnerProfile = winnerProfiles.first()
+                            winnerProfile.tourn_won += 1
+                            winnerProfile.save()
             else:                       #relance une session de parties
                 self.games = []
                 for player in self.players:
@@ -435,6 +387,7 @@ class TournamentOnline():
 
     async def start(self):
         if (self.is_started is not True):
+            print("coucou")
             self.is_started = True
             thread = threading.Thread(target=self.run)
             thread.start()
@@ -477,40 +430,20 @@ class TournamentOnline():
             player.game.p2_down = False
 
 
-# ************************* LOGIQUE DU PONG DE BASE ****************************
-
 class BasePongConsumer(AsyncWebsocketConsumer):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.game:Game = None
 
     async def connect(self):
-        print("scope: ", self.scope)
         await self.accept()
         await self.setup_game()
-        if self.game :
+        if self.game and self.game.player1 and self.game.player2:
             self.game.start()
-            print("appelle send status")
-            await self.send_status_update('is_playing')
         await self.send_connection_message()
 
     async def setup_game(self):
         pass
-
-    async def disconnect(self, close_code):
-        await self.send_status_update('is_online')
-        print("passe par le disconnect")
-
-    async def send_status_update(self, status):
-        await self.channel_layer.group_send(
-            "online_users",
-            {
-                'type': 'status_update',
-                'user_id': self.scope['user'].id,
-                'status': status
-            }
-        )
-        print("send isplaying ou offline update from:", self.scope['user'].username)
 
     async def send_connection_message(self):
         user = self.scope['user']
@@ -560,7 +493,6 @@ class BasePongConsumer(AsyncWebsocketConsumer):
             'data': self.game.__dict__
         }))
 
-# ************************* SURCHARGE POUR PONG ONLINE ****************************
 
 class PongOnline(BasePongConsumer):
     async def setup_game(self):
@@ -582,8 +514,6 @@ class PongOnline(BasePongConsumer):
             games_online.append(self.game)
 
 
-# ************************* SURCHARGE POUR PONG LOCAL ****************************
-
 class PongLocal(BasePongConsumer):
     async def setup_game(self):
         user = self.scope['user']
@@ -603,19 +533,7 @@ class PongLocal(BasePongConsumer):
             self.game.is_running = True
 
     async def disconnect(self, close_code):
-        print("local disconnect")
-        await self.send_status_update('is_online')
-        user = self.scope['user']
-        user1 = user.username
-        user2 = user.username + "_2"
-
-        for game in games_local:
-            if not game.has_finished and game.player1 == user1 and game.player2 == user2:
-                self.game = game
-                break
-        if (self.game):
-            self.game.is_running = False
-            self.game.has_finished = True
+        self.tournament = None
 
     async def receive(self, text_data):
         text_data_json = json.loads(text_data)
@@ -625,13 +543,11 @@ class PongLocal(BasePongConsumer):
         else:
             await super().receive(text_data)
 
-# ********************* SURCHARGE CLASSE POUR TOURNOI ONLINE ************************
-
 class PongOnlineTournament(BasePongConsumer):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.tournament = None
-
+    
     async def setup_game(self):
         user = self.scope['user'].username
         found_tournament = False
@@ -683,9 +599,7 @@ class PongOnlineTournament(BasePongConsumer):
             }))
         elif 'pressed' in message or 'released' in message:
             await self.tournament.handle_key_event(message, username)
-
-# ************************* CLASSE TOURNOI LOCAL ****************************
-
+    
 class TournamentLocal():
     def __init__(self, owner):
         self.game:Game = None
@@ -727,7 +641,7 @@ class TournamentLocal():
                     self.game = None
                     player.game = None
                     self.status = "End_round"
-
+    
     def handle_match(self):
         if (not self.game.has_finished):
             return
@@ -792,7 +706,7 @@ class TournamentLocal():
             self.is_started = True
             thread = threading.Thread(target=self.run)
             thread.start()
-
+    
     async def is_owner(self, user):
         if (user == self.owner):
             return (True)
@@ -839,9 +753,7 @@ class TournamentLocal():
             self.game.p2_down = True
         elif message == 'p2key_down_released' and self.game.game_type == "Local":
             self.game.p2_down = False
-
-
-# ********************** SURCHARGE CLASSE POUR TOURNOI LOCAL *************************
+    
 
 class PongLocalTournament(BasePongConsumer):
     def __init__(self, *args, **kwargs):
@@ -893,7 +805,7 @@ class PongLocalTournament(BasePongConsumer):
             self.tournament.status = "New_match"
         if message == 'addPlayer':
             if message.startswith('addPlayer'):
-                await self.tournament.addPlayers(text_data_json['playername'])
+                self.tournament.addPlayers(text_data_json['playername'])
         if message == 'update':
             if (game_data is not None):
                 game_data = await game_data.to_dict()
@@ -912,203 +824,38 @@ class PongLocalTournament(BasePongConsumer):
         elif 'pressed' in message or 'released' in message:
             await self.tournament.handle_key_event(message, username)
 
+# ************************* CONSUMER ASYNCHRONE ****************************
 
-# ************************* CONSUMER ASYNC ONLINE/OFFLINE/IN_GAME ****************************
+from channels.generic.websocket import AsyncWebsocketConsumer
 
-# A MODIFIER POUR AJOUTER LA 3e OPTION (faire ca ici ?)
 class FriendStatusConsumer(AsyncWebsocketConsumer):
 
     async def connect(self):
-        self.user = self.scope['user']
+        print('connected in FriendStatusConsumer')
+        self.user = self.scope["user"]
         if self.user.is_authenticated:
-            self.user_profile = await sync_to_async(UserProfile.objects.get)(username=self.user.username)
-            self.user_profile.status = 'is_online'
-            await sync_to_async(self.user_profile.save)()
             await self.channel_layer.group_add(
-                "online_users",
-                self.channel_name
-            )
-            await self.channel_layer.group_send(
-                "online_users",
-                {
-                    'type': 'status_update',
-                    'user_id': self.user.id,
-                    'status': 'is_online'
-                }
+                f"user_{self.user.id}",
+                # print('UserId on connect is', self.user.id),
+                    self.channel_name
             )
             await self.accept()
         else:
             await self.close()
-        print("user is:", self.user_profile)
-        print("status is:", self.user_profile.status)
 
     async def disconnect(self, close_code):
-        self.user_profile = await sync_to_async(UserProfile.objects.get)(username=self.user.username)
-        self.user_profile.status = 'is_offline'
-        print("user is:", self.user_profile)
-        print("status is:", self.user_profile.status)
-        await sync_to_async(self.user_profile.save)()
         await self.channel_layer.group_discard(
-            "online_users",
-            self.channel_name
-        )
-        await self.channel_layer.group_send(
-            "online_users",
-            {
-                'type': 'status_update',
-                'user_id': self.user.id,
-                'status': 'offline'
-            }
+            f"user_{self.user.id}",
+            # print('UserId on disconnect is', self.user.id),
+                self.channel_name
         )
 
-    async def receive(self, text_data):
-        print("receive dans le status consumer")
-        text_data_json = json.loads(text_data)
-        message = text_data_json['message']
-        await self.send(text_data=json.dumps({
-            'message': message
-        }))
+    # async def receive(self, text_data):  <=== recois les données venant du front sous le format json. Tu peux regarder comment je l'interprête dans mes consumers
 
     async def status_update(self, event):
+        print('status_update in FriendStatusConsumer is running')
         await self.send(text_data=json.dumps({
             'type': 'status_update',
             'user_id': event['user_id'],
             'status': event['status']
         }))
-        print("status update event is:", event)
-
-
-# ************************* CONSUMER ASYNC FRIENDS REQUESTS ****************************
-
-User = get_user_model()
-
-class FriendsRequestsConsumer(AsyncWebsocketConsumer):
-
-    async def connect(self):
-        self.user = self.scope['user']
-        if self.user.is_authenticated:
-            self.user_profile = await sync_to_async(UserProfile.objects.get)(username=self.user.username)
-            await self.channel_layer.group_add(
-                "friends_requests",
-                self.channel_name
-            )
-            await self.accept()
-
-            friends_requests = await self.get_friends_requests()
-            await self.send(text_data=json.dumps({
-                'friends_requests': friends_requests
-            }))
-        else:
-            await self.close()
-
-    async def disconnect(self, close_code):
-        await self.channel_layer.group_discard(
-            "friends_requests",
-            self.channel_name
-        )
-
-    async def receive(self, text_data):
-        text_data_json = json.loads(text_data)
-        message = text_data_json['message']
-        await self.send(text_data=json.dumps({
-            'message': message
-        }))
-
-    async def friends_requests_update(self, event):
-        data = {
-            'type': 'friends_requests_update',
-            'friend_id': event['friend_id'],
-            'friend_avatar': event['friend_avatar'],
-            'friend_status': event['friend_status'],
-            'friend_username': event['friend_username'],
-            'friend_stats': event['friend_stats'],
-            'friend_joined': event['friend_joined'],
-        }
-        print('Friebnd Raquest update data is : ', data)
-        await self.send(text_data=json.dumps(data))
-
-    async def get_friends_requests(self):
-        friend_requests = await sync_to_async(Friend.objects.filter)(receiver=self.user_profile, status='pending')
-        return await sync_to_async(self._get_friends_requests)(friend_requests)
-
-    def _get_friends_requests(self, friend_requests):
-        return [fr.sender.username for fr in friend_requests]
-
-    async def new_friend_request(self, event):
-        data = {
-            'type': 'new_friend_request',
-            'friend_id': event['friend_id'],
-            'friend_avatar': event['friend_avatar'],
-            'friend_status': event['friend_status'],
-            'friend_username': event['friend_username'],
-        }
-        print('New friend request data is : ', data)
-        await self.send(text_data=json.dumps(data))
-
-
-
-# ************************* CONSUMER ASYNC USERLIST UPDATE ****************************
-
-class UsersListUpdateConsumer(AsyncWebsocketConsumer):
-
-    async def connect(self):
-        self.user = self.scope['user']
-        if self.user.is_authenticated:
-            self.user_profile = await sync_to_async(UserProfile.objects.get)(username=self.user.username)
-            await self.channel_layer.group_add(
-                "userslist_update",
-                self.channel_name
-            )
-            await self.accept()
-            new_user = await self.get_new_user()
-            await self.channel_layer.group_send(
-                "userslist_update",
-                {
-                    'type': 'userslist_update',
-                    'new_user': new_user
-                }
-            )
-
-    async def disconnect(self, close_code):
-        await self.channel_layer.group_discard(
-            "userslist_update",
-            self.channel_name
-        )
-
-    async def receive(self, text_data):
-        text_data_json = json.loads(text_data)
-        message = text_data_json['message']
-        await self.send(text_data=json.dumps({
-            'message': message
-        }))
-
-    async def userslist_update(self, event):
-        new_user = event['new_user']
-        if self.user.id == new_user['new_user_id']:
-            return
-        is_friend = await self.is_friend(new_user['new_user_id'])
-        if is_friend:
-            return
-        data = {
-            'type': 'userslist_update',
-            'new_user': new_user
-        }
-        await self.send(text_data=json.dumps(data))
-
-    async def get_new_user(self):
-        new_user_profile = await sync_to_async(UserProfile.objects.get)(username=self.user.username)
-        return await sync_to_async(self._get_new_user)(new_user_profile)
-
-    def _get_new_user(self, new_user_profile):
-        return {
-            'username': new_user_profile.username,
-            'avatar': new_user_profile.avatar.url,
-            'new_user_id': new_user_profile.id
-        }
-
-    async def is_friend(self, new_user_id):
-        friend_exists = await sync_to_async(Friend.objects.filter, thread_sensitive=True)(
-            Q(sender=self.user, receiver__id=new_user_id, status='accepted') |
-            Q(receiver=self.user, sender__id=new_user_id, status='accepted')
-        )
-        return await sync_to_async(friend_exists.exists, thread_sensitive=True)()
