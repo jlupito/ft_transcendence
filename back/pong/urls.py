@@ -3,6 +3,11 @@ from django.conf.urls.static import static
 from django.urls import path, re_path
 from . import views
 from . import consumers
+from .game.TournamentLocal import PongLocalTournament
+from .game.TournamentOnline import PongOnlineTournament
+from .game.PongLocal import PongLocal
+from .game.PongOnline import PongOnline
+
 
 urlpatterns = [
 	path('', views.home, name='home'),
@@ -13,10 +18,10 @@ urlpatterns = [
 	path('register', views.register, name='register'),
 	path('sign_in', views.sign_in, name='sign_in'),
     path('api/', views.api, name='api'),
-	re_path(r'ws/socket-pong-local/', consumers.PongLocal.as_asgi()),
-	re_path(r'ws/socket-pong-online/', consumers.PongOnline.as_asgi()),
-	re_path(r'ws/socket-pong-tournament-online/', consumers.PongOnlineTournament.as_asgi()),
-	re_path(r'ws/socket-pong-tournament-local/', consumers.PongLocalTournament.as_asgi()),
+	re_path(r'ws/socket-pong-local/', PongLocal.as_asgi()),
+	re_path(r'ws/socket-pong-online/', PongOnline.as_asgi()),
+	re_path(r'ws/socket-pong-tournament-online/', PongOnlineTournament.as_asgi()),
+	re_path(r'ws/socket-pong-tournament-local/', PongLocalTournament.as_asgi()),
 	re_path(r'ws/status/', consumers.FriendStatusConsumer.as_asgi()),
 	re_path(r'ws/friends_requests/', consumers.FriendsRequestsConsumer.as_asgi()),
 	re_path(r'ws/userslist_update/', consumers.UsersListUpdateConsumer.as_asgi()),
