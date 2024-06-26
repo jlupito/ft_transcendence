@@ -47,9 +47,13 @@ class PongOnlineTournament(BasePongConsumer):
         if message == 'update':
             if (game_data is not None):
                 game_data = await game_data.to_dict()
+            player:Player = await self.tournament.get_player(username)
+            if (player != None):
+                player = player.player_status
             tournament_data = {
                 'tournament': await self.tournament.to_dict(),
-                'game_data': game_data
+                'game_data': game_data,
+                'player_status':player
             }
             await self.send(text_data=json.dumps({
                 'type': 'update received',
@@ -244,6 +248,12 @@ class TournamentOnline():
             if player.name == username:
                 return True
         return False
+    
+    async def get_player(self, username):
+        for player in self.players:
+            if player.name == username:
+                return player
+        return None
 
     def getupdate(self, username):
         player:Player

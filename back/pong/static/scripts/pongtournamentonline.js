@@ -6,48 +6,6 @@ function runsocket(){
     const chatSocket = new WebSocket(url);
     
     let running = true;
-
-
-    let data = null
-    let latestData = null;
-    let interval = setInterval(() => {
-        console.log(latestData);
-        console.log(data);
-        latestData = null;
-    }, 1000);
-
-    chatSocket.onmessage = function(e){
-        data = JSON.parse(e.data)
-        if (data.type == 'connection_established')
-            console.log(data);
-        else if (data.type == 'update received')
-        {
-            if (data.data.game_data)
-            {
-                latestData = data.data.game_data
-                paddle_speed = data.data.game_data.paddle_speed
-                paddle_width = parseInt(data.data.game_data.paddle_width)
-                paddle_height = parseInt(data.data.game_data.paddle_height)
-                p1_x_pos = parseFloat(data.data.game_data.p1_x_pos)
-                p1_y_pos = parseFloat(data.data.game_data.p1_y_pos)
-                p2_x_pos = parseFloat(data.data.game_data.p2_x_pos)
-                p2_y_pos = parseFloat(data.data.game_data.p2_y_pos)
-                p1_score = parseInt(data.data.game_data.p1_score)
-                p2_score = parseInt(data.data.game_data.p2_score)  
-                ball_x_pos = parseFloat(data.data.game_data.ball_x_pos)
-                ball_y_pos = parseFloat(data.data.game_data.ball_y_pos)
-                ball_width = parseFloat(data.data.game_data.ball_width)
-                ball_x_velocity = parseFloat(data.data.game_data.ball_x_velocity)
-                ball_y_velocity = parseFloat(data.data.game_data.ball_y_velocity)
-                ball_x_normalspeed = parseFloat(data.data.game_data.ball_x_normalspeed)
-                player1 = data.data.game_data.player1
-                player2 = data.data.game_data.player2
-            }
-            if (data.data.tournament && data.data.tournament.is_finished == true)
-                running = false
-        }   
-    }
-    
     WHITE = (255, 255, 255)
     BLACK = (0, 0, 0)
     
@@ -84,6 +42,49 @@ function runsocket(){
     let ball_x_normalspeed = 1
     let player1 = ""
     let player2 = ""
+    let timer = 10
+
+    let data = null
+    let latestData = null;
+    let interval = setInterval(() => {
+        console.log(latestData);
+        console.log(data);
+        latestData = null;
+    }, 1000);
+
+    chatSocket.onmessage = function(e){
+        data = JSON.parse(e.data)
+        if (data.type == 'connection_established')
+            console.log(data);
+        else if (data.type == 'update received')
+        {
+            if (data.data.game_data)
+            {
+                latestData = data.data.game_data
+                paddle_speed = data.data.game_data.paddle_speed
+                paddle_width = parseInt(data.data.game_data.paddle_width)
+                paddle_height = parseInt(data.data.game_data.paddle_height)
+                p1_x_pos = parseFloat(data.data.game_data.p1_x_pos)
+                p1_y_pos = parseFloat(data.data.game_data.p1_y_pos)
+                p2_x_pos = parseFloat(data.data.game_data.p2_x_pos)
+                p2_y_pos = parseFloat(data.data.game_data.p2_y_pos)
+                p1_score = parseInt(data.data.game_data.p1_score)
+                p2_score = parseInt(data.data.game_data.p2_score)  
+                ball_x_pos = parseFloat(data.data.game_data.ball_x_pos)
+                ball_y_pos = parseFloat(data.data.game_data.ball_y_pos)
+                ball_width = parseFloat(data.data.game_data.ball_width)
+                ball_x_velocity = parseFloat(data.data.game_data.ball_x_velocity)
+                ball_y_velocity = parseFloat(data.data.game_data.ball_y_velocity)
+                ball_x_normalspeed = parseFloat(data.data.game_data.ball_x_normalspeed)
+                player1 = data.data.game_data.player1
+                player2 = data.data.game_data.player2
+            }
+            if (data.data.tournament)
+                timer = data.data.tournament.timer
+            if (data.data.tournament && data.data.tournament.is_finished == true)
+                running = false
+        }   
+    }
     
     const canvas = document.getElementById('CanvasTourOnline');
     
@@ -168,7 +169,7 @@ function runsocket(){
             ctx.font = "25px Orbitron"
             message = "Tournament starts in: "
             ctx.fillText(message, WIDTH/2, HEIGHT/2 - 40)
-            message = data.data.tournament.timer
+            message = timer
             ctx.font = "60px Orbitron"
             ctx.fillText(message, WIDTH/2, HEIGHT/2 + 40)
         }
@@ -184,6 +185,26 @@ function runsocket(){
             message = data.data.tournament.timer
             ctx.font = "60px Orbitron"
             ctx.fillText(message, WIDTH/2, HEIGHT/2 + 40)
+        }
+        else if (data && data.data && data.data.player_status == 'Qualified') //entre chaque match
+        {
+            ctx.fillStyle = 'black'
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = 'white';
+            ctx.textAlign = "center"
+            ctx.font = "25px Orbitron"
+            message = "Qualified, waiting for next match"
+            ctx.fillText(message, WIDTH/2, HEIGHT/2 - 40)
+        }
+        else if (data && data.data && data.data.player_status == 'Disqualified') //entre chaque match
+        {
+            ctx.fillStyle = 'black'
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = 'white';
+            ctx.textAlign = "center"
+            ctx.font = "25px Orbitron"
+            message = "You are disqualified"
+            ctx.fillText(message, WIDTH/2, HEIGHT/2 - 40)
         }
         else    //pendant le match
         {
