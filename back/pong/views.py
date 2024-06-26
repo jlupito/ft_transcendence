@@ -123,18 +123,25 @@ def RegisterView(request):
 		registerform = RegisterForm(request.POST)
 		if registerform.is_valid():
 			username=registerform.cleaned_data['username']
+			email=registerform.cleaned_data['email']
 			if UserProfile.objects.filter(username=username).exists():
 				messages.error(request, 'This username is already used!')
-				return render(request, 'page.html')
+				#return render(request, 'page.html')
+				return redirect('home')
+			if UserProfile.objects.filter(email=email).exists():
+				messages.error(request, 'This email is already used!')
+				#return render(request, 'page.html')
 				return redirect('home')
 			mdp=registerform.cleaned_data['password']
-			email=registerform.cleaned_data['email']
-		serializer = UserSerializer(data=request.POST)
-		if serializer.is_valid():
-			#new_user = UserProfile.objects.create_user(username=username, password=mdp, email=email)
-			#login(request, new_user)
-			serializer.save()
-			#print('serializer is valid')
+		
+			serializer = UserSerializer(data=request.POST)
+			new_user = UserProfile.objects.create_user(username=username, password=mdp, email=email)
+			login(request, new_user)
+			if serializer.is_valid():
+				serializer.save()
+			
+			
+				#print('serializer is valid')
 			messages.success(request, 'Account created successfully!')
 			#return JsonResponse({'status': 'success', 'template_name': 'page.html'})
 			#return Response(serializer, status=200, template_name='page.html')

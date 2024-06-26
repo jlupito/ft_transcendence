@@ -37,6 +37,7 @@ def verify_view(request):
 			#	'value': jwt_token,
 			#	'user': UserSerializer(user).data,
 			#}
+			login(request, user)
 			return redirect('home')
 			#return JsonResponse({'status': 'success', 'token': response.data, 'template_name': 'page.html'})
 	return render(request, 'verify.html', {'form': form})
