@@ -11,13 +11,11 @@ function runsocketFriends() {
 			element = element.parentElement;
 		}
 		if (element) {
-			console.log("clique sur le bouton bien detecté");
 			var data= {
 				sender_id: element.getAttribute('data-sender'),
 				receiver_id: element.getAttribute('data-receiver'),
 				type: element.getAttribute('data-type')
 			}
-			console.log("data envoyé apres click sur le add button:", data);
 			socketFriends.send(JSON.stringify({
 				'data': data,
 			}));
@@ -31,7 +29,7 @@ function runsocketFriends() {
 	socketFriends.onmessage = function(e) {
 	var data = JSON.parse(e.data);
 
-	console.log("data reçue apr le JS:", data);
+	// console.log("data reçue apr le JS:", data);
 
 	if (data.type === 'accepted') {
 		var divRecUser = document.getElementById('userDiv-' + data.receiver_id);
@@ -131,7 +129,7 @@ function runsocketFriends() {
 			var newDivButton = document.createElement('div');
 			newDivButton.innerHTML = `
 			<div id="f_request_validation-${ data.sender_id }" class="d-flex flex-row align-items-center">
-				<div class="button_friends" data-type="accepted" data-sender="${ data.receiver_id }" data-receiver="${ data.sender_id }" >
+				<div class="button_friends me-1" data-type="accepted" data-sender="${ data.receiver_id }" data-receiver="${ data.sender_id }" >
 					<button class="btn buttonvalid px-2 btn-sm btn-primary shadow-sm"
 					style="--bs-btn-font-size: .75rem;"><i class="bi bi-check-square"></i></button>
 				</div>
@@ -158,9 +156,12 @@ function runsocketFriends() {
 			divParent.appendChild(newDivButton);
 		}
 	}
+
+		var activeLanguage = document.querySelector('.chooseLanguage.active');
+		applyTranslation(activeLanguage.textContent.trim().toLowerCase());
+
 	};
 
-	// applyTranslation(language);
 	socketFriends.onclose = function(e) {
 		console.log("Friend_Request socket is close", e.code, e.reason);
 	};

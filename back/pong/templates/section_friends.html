@@ -53,12 +53,12 @@
                             <div class="d-flex align-items-center">
                                 <img class="rounded-circle me-2" src="{{ other_user.avatar.url }}" alt="" style="width: 35px; height: 35px;">
                                 <div style="max-width: 7ch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                                    {{ other_user.username }} {{ other_user.id }}
+                                    {{ other_user.username }}
                                 </div>
                             </div>
                             {% if other_user.username in friends.invites %}
                             <div id="f_request_validation-{{ other_user.id }}" class="d-flex flex-row align-items-center">
-                                <div class="button_friends" data-type="accepted" data-sender="{{ user.id }}" data-receiver="{{ other_user.id }}" >
+                                <div class="button_friends me-1" data-type="accepted" data-sender="{{ user.id }}" data-receiver="{{ other_user.id }}" >
                                     <button class="btn buttonvalid px-2 btn-sm btn-primary shadow-sm"
                                     style="--bs-btn-font-size: .75rem;"><i class="bi bi-check-square"></i></button>
                                 </div>
@@ -67,7 +67,7 @@
                                     style="--bs-btn-font-size: .75rem;"><i class="bi bi-x-square"></i></button>
                                 </div>
                             </div>
-                            {% elif user.username in friends.invitees %}
+                            {% elif other_user.username in friends.invitees %}
                             <div id="f_request_pending-{{ other_user.id }}">
                                 <button class="btn buttonfriends btn-sm btn-primary shadow-sm" disabled
                                 style="--bs-btn-font-size: .75rem;" data-translate="pending">pending</button>

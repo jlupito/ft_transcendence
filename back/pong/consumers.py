@@ -25,7 +25,7 @@ class LanguageConsumer(AsyncWebsocketConsumer):
     def update_language_in_db(self, language):
         self.scope['user'].language = language
         self.scope['user'].save()
-        print("Language updated in db: ", language)
+        # print("Language updated in db: ", language)
 
     async def set_language(self, language):
         if language in ['english', 'français', 'español']: 
@@ -38,7 +38,7 @@ class LanguageConsumer(AsyncWebsocketConsumer):
 
     async def receive(self, text_data):
         data = json.loads(text_data)
-        print("message received in consumer: ", data)
+        # print("message received in consumer: ", data)
         action = data['action']
         if action == 'get_language':
             await self.send_language()
@@ -63,7 +63,7 @@ class StatsConsumer(AsyncWebsocketConsumer):
         pass
 
     async def send_stats(self, stats):
-        print("Sending stats")
+        # print("Sending stats")
         await self.send(text_data=json.dumps(stats))
 
     @classmethod
@@ -960,8 +960,8 @@ class FriendsRequestsConsumer(AsyncWebsocketConsumer):
         self.user = self.scope["user"]
         if self.user.is_authenticated:
             self.instances[self.user.id] = self
-            print(f"Added {self.user.username} to instances")
-            print(f"WebSocket for {self.user.username} is now open.")
+            # print(f"Added {self.user.username} to instances")
+            # print(f"WebSocket for {self.user.username} is now open.")
             await self.accept()
         else:
             print(f"User {self.user.username} is not authenticated")
@@ -969,13 +969,13 @@ class FriendsRequestsConsumer(AsyncWebsocketConsumer):
     async def disconnect(self, close_code):
         if self.user and self.user.id in self.instances:
             del self.instances[self.user.id]
-            print(f"Removed {self.user.username} from instances")
-            print(f"WebSocket for {self.user.username} is now closed.")
+            # print(f"Removed {self.user.username} from instances")
+            # print(f"WebSocket for {self.user.username} is now closed.")
         await super().disconnect(close_code)
 
     async def receive(self, text_data):
         data = json.loads(text_data)
-        print("message received in consumer: ", data)
+        # print("message received in consumer: ", data)
         inner_data= data['data']
         type = inner_data['type']
         if type == 'send_f_request':
@@ -993,20 +993,20 @@ class FriendsRequestsConsumer(AsyncWebsocketConsumer):
         for friend in friends_l['friends']:
             if friend.username == receiver:
                 return
-        invite_exists = await sync_to_async(lambda: Friend.objects.filter(sender=sender, receiver=receiver, status='pending').exists())()
+        invite_exists = await sync_to_async(Friend.objects.filter(sender=sender, receiver=receiver, status='pending').first)()
         if invite_exists:
             print("Invite already exists")
-            # return
-        invite_exists = await sync_to_async(lambda: Friend.objects.filter(sender=receiver, receiver=sender, status='pending').exists())()
+            return
+        invite_exists = await sync_to_async(Friend.objects.filter(sender=receiver, receiver=sender, status='pending').first)()
         if invite_exists:
             print("Invite already exists")
-            # return
+            return
         await sync_to_async(Friend.objects.create)(sender=sender, receiver=receiver, status='pending')
         
         for user in [receiver, sender]:
             consumer = FriendsRequestsConsumer.instances.get(user.id)
             if consumer:
-                print(f"Sending update to {user.username}")
+                # print(f"Sending update to {user.username}")
                 await consumer.send(text_data=json.dumps(data))
 
 
@@ -1018,11 +1018,11 @@ class FriendsRequestsConsumer(AsyncWebsocketConsumer):
         sender = await sync_to_async(UserProfile.objects.get)(id=sender_id)
         inv = await sync_to_async(Friend.objects.filter(sender=receiver, receiver=sender, status='pending').first)()       
          # print(f"friend found: {inv}")
-        print(f"Updating status in consumer to {status}")
+        # print(f"Updating status in consumer to {status}")
         if inv:
-            print("nouvel ami créé")
+            # print("nouvel ami créé")
             inv.status = status
-            print(f"Updating status in consumer to {status}")
+            # print(f"Updating status in consumer to {status}")
             await sync_to_async(inv.save)()
         if status == 'accepted':
             data['rec_avatar'] = receiver.avatar.url
@@ -1034,82 +1034,8 @@ class FriendsRequestsConsumer(AsyncWebsocketConsumer):
         for user in [receiver, sender]:
             consumer = FriendsRequestsConsumer.instances.get(user.id)
             if consumer:
-                print(f"Sending update to {user.username}")
+                # print(f"Sending update to {user.username}")
                 await consumer.send(text_data=json.dumps(data))
-
-
-    # @classmethod
-    # async def send_f_updates_to_all(cls, f_updates):
-    #     for consumer in cls.instances.values():
-    #         await consumer.send_f_updates(f_updates)
-
-
-# User = get_user_model()
-
-# class FriendsRequestsConsumer(AsyncWebsocketConsumer):
-
-#     async def connect(self):
-#         self.user = self.scope['user']
-#         if self.user.is_authenticated:
-#             self.user_profile = await sync_to_async(UserProfile.objects.get)(username=self.user.username)
-#             await self.channel_layer.group_add(
-#                 "friends_requests",
-#                 self.channel_name
-#             )
-#             await self.accept()
-
-#             friends_requests = await self.get_friends_requests()
-#             await self.send(text_data=json.dumps({
-#                 'friends_requests': friends_requests
-#             }))
-#         else:
-#             await self.close()
-
-#     async def disconnect(self, close_code):
-#         await self.channel_layer.group_discard(
-#             "friends_requests",
-#             self.channel_name
-#         )
-
-#     async def receive(self, text_data):
-#         text_data_json = json.loads(text_data)
-#         message = text_data_json['message']
-#         await self.send(text_data=json.dumps({
-#             'message': message
-#         }))
-
-#     async def accept_f_request(self, event):
-#         data = {
-#             'type': 'accept_f_request',
-#             'friend_validated': event['friend_validated'],
-#             'friend_validating': event['friend_validating'],
-#             # 'friend_id': event['friend_id'],
-#             # 'friend_avatar': event['friend_avatar'],
-#             # 'friend_is_online': event['friend_is_online'],
-#             # 'friend_username': event['friend_username'],
-#         }
-#         print('Friebnd Raquest update data is : ', data)
-#         await self.send(text_data=json.dumps(data))
-
-#     async def get_friends_requests(self):
-#         friend_requests = await sync_to_async(Friend.objects.filter)(receiver=self.user_profile, status='pending')
-#         return await sync_to_async(self._get_friends_requests)(friend_requests)
-
-#     def _get_friends_requests(self, friend_requests):
-#         return [fr.sender.username for fr in friend_requests]
-
-#     async def send_f_request(self, event):
-#         data = {
-#             'type': 'send_f_request',
-#             'friend_sender': event['friend_sender'],
-#             'friend_receiver': event['friend_receiver'],
-#             # 'friend_id': event['friend_id'],
-#             # 'friend_avatar': event['friend_avatar'],
-#             # 'friend_is_online': event['friend_is_online'],
-#             # 'friend_username': event['friend_username'],
-#         }
-#         print('New friend request data is : ', data)
-#         await self.send(text_data=json.dumps(data))
 
 
 
