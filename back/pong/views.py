@@ -26,15 +26,16 @@ from django.http import HttpResponse, JsonResponse
 # *********************************** HOME ***********************************
 def HomeView(request):
 	context = {}
-	#print('apres context')
+	print('apres context')
 	#def get(self, request):
 	if request.method == 'GET':
 		user = request.user
-		#print('username:', user.username)
-		#print('id:', user.id)
+		print('username:', user.username)
+		print('id:', user.id)
 		token = request.COOKIES.get('jwt')
+		#token = request.COOKIES.get('CSRF_COOKIE')
 		if not token:
-			#print('no token')
+			print('no token')
 			#return Response({'message': 'Unauthorized'}, status=401)
 			#messages.error(request, 'Unauthorized')
 			return render(request, 'page.html', context)
@@ -53,23 +54,23 @@ def HomeView(request):
 		user = UserProfile.objects.filter(id=payload['id']).first()
 		serializer = UserSerializer(user)
 
-		#if (request.user.is_authenticated):
-		print('user is authenticated')
-		print('username:', user.username)
-		print('id:', user.id)
-		context['id'] = user.id
-		context['user'] = user
-		context['username'] = user.username
-		context['avatar'] = user.avatar.url
-		context['users'] = UserProfile.objects.all().exclude(username=user.username)
-		context['matches'] = match_history(user)
-		context['friends'] = friends_list(user)
-		context['stats'] = match_stats(user)
-		# context['invites'] = invites_list(user)
-		# context['invitees'] = invitees_list(user)	
+		if (request.user.is_authenticated):
+			print('user is authenticated')
+			print('username:', user.username)
+			print('id:', user.id)
+			context['id'] = user.id
+			context['user'] = user
+			context['username'] = user.username
+			context['avatar'] = user.avatar.url
+			context['users'] = UserProfile.objects.all().exclude(username=user.username)
+			context['matches'] = match_history(user)
+			context['friends'] = friends_list(user)
+			context['stats'] = match_stats(user)
+			# context['invites'] = invites_list(user)
+			# context['invitees'] = invitees_list(user)	
 
-		print('avant return')
-		return Response(serializer.data, status=200, template_name='page.html', content_type=context)
+		#print('avant return')
+		#return Response(serializer.data, status=200, template_name='page.html', content_type=context)
 	return render(request, 'page.html', context) 
 
 # *********************************** LOGIN ***********************************
@@ -81,13 +82,16 @@ def LoginView(request):
 	#	return render(request, 'page.html')
 	#	#return JsonResponse({'status': 'error', 'message': 'GET method not allowed'})
 	if request.method == 'POST':
+		#print('POST method')
 		loginform = LoginForm(request.POST)
 		if loginform.is_valid():
 			user=authenticate(
 				username=loginform.cleaned_data['username'],
 				password=loginform.cleaned_data['password']
 			)
+			response = Response()
 		if user is not None:
+			#print('user exist')
 			request.session['id'] = user.id
 			payload = {
 			'id': user.id,
@@ -95,23 +99,21 @@ def LoginView(request):
 			'iat': datetime.datetime.utcnow(),
 			}
 			jwt_token = jwt.encode(payload, 'SECRET', algorithm='HS256')
-			response = Response()
+			
 			response.set_cookie(key='jwt', value=jwt_token, httponly=True)
 			response.data = {
 				'name':'token',
 				'value': jwt_token,
 				'user': UserSerializer(user).data,
 			}
-			#return Response(response.data, status=200, template_name='verify.html')
 			#print('user exist -> 2FA')
-			#return Response(render(response.data, status=200, template_name='verify.html'))
-			return JsonResponse({'status': 'success', 'message': 'go to 2FA', 'token': response.data, 'template_name': 'verify.html'})
-			#return redirect('verify-view')
+			#return JsonResponse({'status': 'success', 'message': 'go to 2FA', 'token': response.data, 'template_name': 'verify.html'})
+			return redirect('verify-view')
 		else:
+			#print('user does not exist')
 			messages.error(request, 'Invalid username or password')
-			return render(request, 'page.html')
-			#return JsonResponse({'status': 'error', 'message': 'Invalid username or password'})
-	#return redirect('home')
+	#return JsonResponse({'status': 'error', 'token': response.data})
+	return redirect('home')
 	return render(request, 'page.html')
 
 	
@@ -134,9 +136,9 @@ def RegisterView(request):
 			serializer.save()
 			#print('serializer is valid')
 			messages.success(request, 'Account created successfully!')
-			return JsonResponse({'status': 'success', 'message': 'register is good', 'template_name': 'page.html'})
-			return Response(serializer, status=200, template_name='page.html')
-	return render(request, 'page.html')
+			#return JsonResponse({'status': 'success', 'template_name': 'page.html'})
+			#return Response(serializer, status=200, template_name='page.html')
+	#return render(request, 'page.html')
 	return redirect('home')
 
 def update_profile(request):
