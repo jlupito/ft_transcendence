@@ -44,8 +44,10 @@ def sign_in(request):
 				password=loginform.cleaned_data['password']
 			)
 			if user is not None:
-				login(request, user)
-				messages.success(request, 'You are now logged in!')
+				# login(request, user)
+				request.session['id'] = user.id
+				return redirect('verify-view')
+				# messages.success(request, 'You are now logged in!')
 			else:
 				messages.error(request, 'Invalid username or password')
 	else:
@@ -66,6 +68,7 @@ def register(request):
 				messages.error(request, 'This email is already in use...')
 				return redirect('home')
 			new_user = UserProfile.objects.create_user(username=username, password=mdp, email=email)
+			# return redirect('verify-view')
 			login(request, new_user)
 			messages.success(request, 'Account created successfully!')
 			return redirect('home')
@@ -129,7 +132,7 @@ def auth(request):
 		'client_id': uid,
 		'client_secret': secret,
 		'code': code,
-		'redirect_uri': 'https://localhost:8001/oauth',
+		'redirect_uri': 'https://made-f0Br3s11:8001/oauth',
 	}
 	response = requests.post(token_url, data=data)
 	if (response.status_code != 200):
