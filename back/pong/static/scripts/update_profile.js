@@ -38,7 +38,6 @@ document.getElementById('updateProfileForm').addEventListener('submit', function
                 if (formData.get('username')) {
                     document.getElementById('usernameDisplay').textContent = formData.get('username') + '!';
                 }
-                // else avec un message d'erreur en pop up ?? cf Jlo et html
             }
             if (data.avatar_url) {
                 document.getElementById('avatarDisplay').src = `${data.avatar_url}?t=${Date.now()}`;
