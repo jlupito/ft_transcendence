@@ -15,6 +15,6 @@ class PongOnline(BasePongConsumer):
                     self.game.player2 = user.username
                 break
         if not self.game:
-            self.game = Game(2, "online")
+            self.game = Game(5, "online")
             self.game.player1 = user.username
             games_online.append(self.game)
