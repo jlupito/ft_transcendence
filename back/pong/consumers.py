@@ -269,7 +269,7 @@ class BasePongConsumer(AsyncWebsocketConsumer):
         print("scope: ", self.scope)
         await self.accept()
         await self.setup_game()
-        if self.game :
+        if self.game and self.game.player1 != "" and self.game.player2 != "":
             self.game.start()
             print("appelle send status")
             await self.send_status_update('is_playing')
