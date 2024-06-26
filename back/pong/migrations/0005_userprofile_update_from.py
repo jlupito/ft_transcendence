@@ -13,6 +13,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='userprofile',
             name='update_from',
-            field=models.CharField(default='created', max_length=100),
+            field=models.CharField(blank=True, default='created', max_length=100, null=True),
         ),
     ]

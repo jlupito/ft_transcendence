@@ -206,6 +206,7 @@ def match_stats(user):
 		'tourn': tourn,
 		'id': userProfile.id,
 		'matches': matches_hist,
+		'joined': userProfile.date_joined.strftime('%B %d, %Y'),
     }
 	return stats
 
@@ -241,70 +242,70 @@ def friends_list(user):
 
 	return friends_all_status
 
-# @login_required
-def handle_invite(request):
-	if request.method == 'GET':
-		return redirect('home')
-	sender = request.POST.get('invite')
-	receiver = request.user
-	status = request.POST.get('friend_status')
-	print('Status from frnt is :', status)
-	inv = Friend.objects.filter(sender=UserProfile.objects.get(username=sender), receiver=receiver).first()
-	print("inv:", inv)
-	if inv:
-		inv.status = status
-		messages.success(request, f'Your are now friends with {sender}!')
-		inv.save()
-	userpro_receiver = UserProfile.objects.get(username=receiver.username)
-	channel_layer = get_channel_layer()
-	data = {
-			'type': 'friends_requests_update',
-			'friend_id': userpro_receiver.id,
-			'friend_avatar': userpro_receiver.avatar.url,
-			'friend_status': userpro_receiver.status,
-			'friend_username': userpro_receiver.username,
-			'friend_stats': {
-				'won': userpro_receiver.matches_won,
-				'lost': userpro_receiver.matches_lost,
-				'tourn': userpro_receiver.tourn_won,
-				'total': userpro_receiver.matches_won + userpro_receiver.matches_lost,
-			},
-			'friend_joined': userpro_receiver.date_joined.strftime('%B %d, %Y')
-		}
-	async_to_sync(channel_layer.group_send)("friends_requests", data)
-	return redirect('home')
+# # @login_required
+# def handle_invite(request):
+# 	if request.method == 'GET':
+# 		return redirect('home')
+# 	sender = request.POST.get('invite')
+# 	receiver = request.user
+# 	status = request.POST.get('friend_status')
+# 	print('Status from frnt is :', status)
+# 	inv = Friend.objects.filter(sender=UserProfile.objects.get(username=sender), receiver=receiver).first()
+# 	print("inv:", inv)
+# 	if inv:
+# 		inv.status = status
+# 		messages.success(request, f'Your are now friends with {sender}!')
+# 		inv.save()
+# 	userpro_receiver = UserProfile.objects.get(username=receiver.username)
+# 	channel_layer = get_channel_layer()
+# 	data = {
+# 			'type': 'friends_requests_update',
+# 			'friend_id': userpro_receiver.id,
+# 			'friend_avatar': userpro_receiver.avatar.url,
+# 			'friend_status': userpro_receiver.status,
+# 			'friend_username': userpro_receiver.username,
+# 			'friend_stats': {
+# 				'won': userpro_receiver.matches_won,
+# 				'lost': userpro_receiver.matches_lost,
+# 				'tourn': userpro_receiver.tourn_won,
+# 				'total': userpro_receiver.matches_won + userpro_receiver.matches_lost,
+# 			},
+# 			'friend_joined': userpro_receiver.date_joined.strftime('%B %d, %Y')
+# 		}
+# 	async_to_sync(channel_layer.group_send)("friends_requests", data)
+# 	return redirect('home')
 
-# @login_required
-def send_invite(request):
-	if request.method == 'GET':
-		return redirect('home')
-	receiver = request.POST.get('receiver')
-	sender = request.user
-	friends_l = friends_list(sender)
-	for friend in friends_l['friends']:
-		if friend.username == receiver:
-			messages.error(request, 'User is already your friend')
-			return redirect('home')
-	invite = Friend.objects.filter(sender=sender, receiver=UserProfile.objects.get(username=receiver), status='pending')
-	if invite.exists():
-		messages.error(request, 'Invite already sent')
-		return redirect('home')
-	invite = Friend.objects.filter(sender=UserProfile.objects.get(username=receiver), receiver=sender, status='pending')
-	if invite.exists():
-		messages.error(request, 'You already have an invite from this user')
-		return redirect('home')
-	Friend.objects.create(sender=sender, receiver=UserProfile.objects.get(username=receiver), status='pending')
-	friend_request_sender_profile=UserProfile.objects.get(username=sender)
-	channel_layer = get_channel_layer()
-	data =	{
-			'type': 'new_friend_request',
-			'friend_id': friend_request_sender_profile.id,
-			'friend_avatar': friend_request_sender_profile.avatar.url,
-			'friend_status': friend_request_sender_profile.status,
-			'friend_username': friend_request_sender_profile.username
-		}
-	async_to_sync(channel_layer.group_send)("friends_requests", data)
-	return redirect('home')
+# # @login_required
+# def send_invite(request):
+# 	if request.method == 'GET':
+# 		return redirect('home')
+# 	receiver = request.POST.get('receiver')
+# 	sender = request.user
+# 	friends_l = friends_list(sender)
+# 	for friend in friends_l['friends']:
+# 		if friend.username == receiver:
+# 			messages.error(request, 'User is already your friend')
+# 			return redirect('home')
+# 	invite = Friend.objects.filter(sender=sender, receiver=UserProfile.objects.get(username=receiver), status='pending')
+# 	if invite.exists():
+# 		messages.error(request, 'Invite already sent')
+# 		return redirect('home')
+# 	invite = Friend.objects.filter(sender=UserProfile.objects.get(username=receiver), receiver=sender, status='pending')
+# 	if invite.exists():
+# 		messages.error(request, 'You already have an invite from this user')
+# 		return redirect('home')
+# 	Friend.objects.create(sender=sender, receiver=UserProfile.objects.get(username=receiver), status='pending')
+# 	friend_request_sender_profile=UserProfile.objects.get(username=sender)
+# 	channel_layer = get_channel_layer()
+# 	data =	{
+# 			'type': 'new_friend_request',
+# 			'friend_id': friend_request_sender_profile.id,
+# 			'friend_avatar': friend_request_sender_profile.avatar.url,
+# 			'friend_status': friend_request_sender_profile.status,
+# 			'friend_username': friend_request_sender_profile.username
+# 		}
+# 	async_to_sync(channel_layer.group_send)("friends_requests", data)
+# 	return redirect('home')
 
 logger = logging.getLogger(__name__)
 
