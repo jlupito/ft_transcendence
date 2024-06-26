@@ -38,14 +38,16 @@ function runsocketFriends() {
 			if (friendsList) {
 				console.log('rentre dasn friendsli receiver');
 				var newFriendElement = document.createElement('li');
+				let statusIndicatorClasses = "rounded-circle me-2";
+				if (data.rec_status === 'is_online') {
+    				statusIndicatorClasses += " border border-2 border-success";
+				} else if (data.rec_status === 'is_playing') {
+    				statusIndicatorClasses += " border border-2 border-danger";
+				}
 				newFriendElement.innerHTML = `
 				<div class="d-flex justify-content-between align-items-center col-10 bg-white bg-opacity-25 mb-2 rounded shadow-sm mx-auto p-3">
 					<div class="d-flex align-items-center">
-						<img id="status-indicator-${ data.receiver_id }" class="rounded-circle me-2
-						{% if ${ data.rec_status } == 'is_online' %}border border-2 border-success
-						{% elif ${ data.rec_status } == 'is_playing' %}border border-2 border-primary
-						{% else %}
-						{% endif %}" src="${ data.rec_avatar }" alt="Friend avatar" style="width: 35px; height: 35px;">
+						<img id="status-indicator-${ data.receiver_id }" class="${ statusIndicatorClasses }" src="${ data.rec_avatar }" alt="Friend avatar" style="width: 35px; height: 35px;">
 						<div style="max-width: 7ch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
 							${ data.rec_username }
 						</div>
@@ -77,14 +79,16 @@ function runsocketFriends() {
 			if (friendsList) {
 				console.log('rentre dasn friendslis sender');
 				var newFriendElement = document.createElement('li');
+				let statusIndicatorClasses = "rounded-circle me-2";
+				if (data.rec_status === 'is_online') {
+    				statusIndicatorClasses += " border border-2 border-success";
+				} else if (data.rec_status === 'is_playing') {
+    				statusIndicatorClasses += " border border-2 border-danger";
+				}
 				newFriendElement.innerHTML = `
 				<div class="d-flex justify-content-between align-items-center col-10 bg-white bg-opacity-25 mb-2 rounded shadow-sm mx-auto p-3">
 					<div class="d-flex align-items-center">
-						<img id="status-indicator-${ data.sender_id }" class="rounded-circle me-2
-						{% if ${ data.send_status } %}border border-2 border-success
-						{% elif ${ data.send_status } %}border border-2 border-primary
-						{% else %}
-						{% endif %}" src="${ data.send_avatar }" alt="Friend avatar" style="width: 35px; height: 35px;">
+						<img id="status-indicator-${ data.sender_id }" class="${ statusIndicatorClasses }" src="${ data.send_avatar }" alt="Friend avatar" style="width: 35px; height: 35px;">
 						<div style="max-width: 7ch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
 							${ data.send_username }
 						</div>

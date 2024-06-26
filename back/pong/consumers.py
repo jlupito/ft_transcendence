@@ -958,7 +958,7 @@ class FriendStatusConsumer(AsyncWebsocketConsumer):
             {
                 'type': 'status_update',
                 'user_id': self.user.id,
-                'status': 'offline'
+                'status': 'is_offline'
             }
         )
 
@@ -1052,6 +1052,8 @@ class FriendsRequestsConsumer(AsyncWebsocketConsumer):
             from .views import match_stats
             data['send_stats'] = await sync_to_async(match_stats)(sender)
             data['rec_stats'] = await sync_to_async(match_stats)(receiver)
+            print("data sender is:", data)
+            print("data receiver is:", data)
         for user in [receiver, sender]:
             consumer = FriendsRequestsConsumer.instances.get(user.id)
             if consumer:
