@@ -24,6 +24,7 @@ class PongLocal(BasePongConsumer):
         user = self.scope['user']
         user1 = user.username
         user2 = user.username + "_2"
+        await self.send_status_update('is_online')
 
         for game in games_local:
             if not game.has_finished and game.player1 == user1 and game.player2 == user2:

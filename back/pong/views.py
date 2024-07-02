@@ -132,7 +132,7 @@ def auth(request):
 		'client_id': uid,
 		'client_secret': secret,
 		'code': code,
-		'redirect_uri': 'https://made-f0Br3s11:8001/oauth',
+		'redirect_uri': 'https://localhost:8001/oauth',
 	}
 	response = requests.post(token_url, data=data)
 	if (response.status_code != 200):

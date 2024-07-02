@@ -40,7 +40,7 @@ function runsocketFriends() {
 				var newFriendElement = document.createElement('li');
 				let statusIndicatorClasses = "rounded-circle me-2";
 				if (data.rec_status === 'is_online') {
-    				statusIndicatorClasses += " border border-2 border-success";
+    				statusIndicatorClasses += " border border-2 border-primary";
 				} else if (data.rec_status === 'is_playing') {
     				statusIndicatorClasses += " border border-2 border-danger";
 				}
@@ -81,7 +81,7 @@ function runsocketFriends() {
 				var newFriendElement = document.createElement('li');
 				let statusIndicatorClasses = "rounded-circle me-2";
 				if (data.rec_status === 'is_online') {
-    				statusIndicatorClasses += " border border-2 border-success";
+    				statusIndicatorClasses += " border border-2 border-primary";
 				} else if (data.rec_status === 'is_playing') {
     				statusIndicatorClasses += " border border-2 border-danger";
 				}

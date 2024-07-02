@@ -19,14 +19,14 @@ function runsocketStatus() {
 
                 if (data.status === 'is_online') {
                     statusIndicator.classList.remove('border', 'border-2', 'border-danger'); 
-                    statusIndicator.classList.add('border', 'border-2', 'border-success'); // bordure verte
+                    statusIndicator.classList.add('border', 'border-2', 'border-primary'); // bordure verte
                 }
                 else if (data.status === 'is_playing') {
-                    statusIndicator.classList.remove('border', 'border-2', 'border-success'); 
+                    statusIndicator.classList.remove('border', 'border-2', 'border-primary'); 
                     statusIndicator.classList.add('border', 'border-2', 'border-danger'); // bordure bleue
                 }
                 else if (data.status === 'is_offline') {
-                    statusIndicator.classList.remove('border', 'border-2', 'border-success', 'border-danger'); // sans bordure
+                    statusIndicator.classList.remove('border', 'border-2', 'border-primary', 'border-danger'); // sans bordure
                 }
 
             }
