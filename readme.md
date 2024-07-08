@@ -1,4 +1,4 @@
-# ft_transcendance
+# ft_transcendence
 
 <img src="https://github.com/jlupito/ft_transcendence/assets/113239012/eff3b531-a25e-4369-97f7-3919b694d266" width="317">
 <img src="https://github.com/jlupito/ft_transcendence/assets/113239012/c5487a30-cd25-40ff-aede-a48f8047418b" width="290">
