@@ -1,8 +1,9 @@
 # ft_transcendance
 
-<img src="https://github.com/jlupito/ft_transcendence/assets/113239012/eff3b531-a25e-4369-97f7-3919b694d266" width="300">
-<img src="https://github.com/jlupito/ft_transcendence/assets/113239012/c5487a30-cd25-40ff-aede-a48f8047418b" width="300">
-<img src="https://github.com/jlupito/ft_transcendence/assets/113239012/8031ed91-68b7-44f8-acf8-305f81435969" width="300">
+<img src="https://github.com/jlupito/ft_transcendence/assets/113239012/eff3b531-a25e-4369-97f7-3919b694d266" width="317">
+<img src="https://github.com/jlupito/ft_transcendence/assets/113239012/c5487a30-cd25-40ff-aede-a48f8047418b" width="290">
+<img src="https://github.com/jlupito/ft_transcendence/assets/113239012/8031ed91-68b7-44f8-acf8-305f81435969" width="290">
+
 
 This huge project is both the **last from 42's common core** but also the **first web project**.
 It essentially consists in creating a single-page application showcasting a Pong game.
