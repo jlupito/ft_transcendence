@@ -75,8 +75,6 @@ def register(request):
 		registerform = RegisterForm()
 	return redirect('home')
 
-# modifier pour supprimer le return redirect
-from django.http.request import QueryDict
 def update_profile(request):
     if request.method == 'GET':
         return JsonResponse({'status': 'error', 'message': 'GET method not allowed'})
